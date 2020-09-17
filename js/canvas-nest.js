@@ -89,6 +89,7 @@ function loadnestbg() {
     tracking = storetracking;
     mousetrack();
     window.onmousedown = function (e) {
+        console.log(e)
         if (e.button === 0 && e.target.className === 'main') {
             mousetrack()
         }
