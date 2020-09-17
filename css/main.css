@@ -1603,6 +1603,9 @@ pre .javascript .function {
   margin: -20px auto 15px;
   text-align: center;
 }
+.image-caption {
+  line-height: 2;
+}
 .post-sticky-flag {
   display: inline-block;
   transform: rotate(30deg);
