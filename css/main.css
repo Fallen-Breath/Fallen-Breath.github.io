@@ -303,6 +303,7 @@ th,
 td {
   border: 1px solid #ddd;
   border-bottom: 3px solid #ddd;
+  min-width: 5em;
 }
 th {
   font-weight: 700;
