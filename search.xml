@@ -69,7 +69,7 @@
   <entry>
     <title>深度剖析Minecraft 3-1 计划刻</title>
     <url>/2020/09/16/deeply-dissecting-minecraft_3-1/</url>
-    <content><![CDATA[<h1 id="计划刻"><a href="#计划刻" class="headerlink" title="计划刻"></a>计划刻</h1><h2 id="什么是计划刻"><a href="#什么是计划刻" class="headerlink" title="什么是计划刻"></a>什么是计划刻</h2><p>计划刻，英文为 Tile Tick。国内社区曾用 Next Tick Entry (NTE) 进行描述</p>
+    <content><![CDATA[<h1 id="什么是计划刻"><a href="#什么是计划刻" class="headerlink" title="什么是计划刻"></a>什么是计划刻</h1><p>计划刻，英文为 Tile Tick。国内社区曾用 Next Tick Entry (NTE) 进行描述</p>
 <p>在 Minecraft 中，许多方块对变化的响应并不是瞬时，而是延迟一定时间后方才开始执行的，如下面几个常见的例子：</p>
 <ul>
 <li>中继器响应信号输入</li>
@@ -84,7 +84,7 @@
 <p>net\minecraft\world\WorldServer.java (1.13.2 mcp)<br>net.minecraft.server.world.ServerTickScheduler (1.15.2 yarn)</p>
 </blockquote>
 <p>1.13 前，方块和流体共用一个计划刻队列进行储存，1.13 及以后，方块和流体为独立的两个计划刻队列</p>
-<h2 id="计划刻的实现原理"><a href="#计划刻的实现原理" class="headerlink" title="计划刻的实现原理"></a>计划刻的实现原理</h2><h3 id="计划刻事件"><a href="#计划刻事件" class="headerlink" title="计划刻事件"></a>计划刻事件</h3><p>对于一个计划刻事件来说，它具有以下属性</p>
+<h1 id="计划刻的实现原理"><a href="#计划刻的实现原理" class="headerlink" title="计划刻的实现原理"></a>计划刻的实现原理</h1><h2 id="计划刻事件"><a href="#计划刻事件" class="headerlink" title="计划刻事件"></a>计划刻事件</h2><p>对于一个计划刻事件来说，它具有以下属性</p>
 <ul>
 <li>事件 id，一个递增的不重复整数</li>
 <li>目标方块/流体类型</li>
@@ -100,7 +100,7 @@
 <li>计划刻事件仅储存了方块的种类，未储存方块状态</li>
 <li>计划刻事件未储存该事件将要执行什么动作，也即在该事件真正执行前游戏是不知道这个事件具体会引发什么动作的</li>
 </ul>
-<h3 id="计划刻阶段"><a href="#计划刻阶段" class="headerlink" title="计划刻阶段"></a>计划刻阶段</h3><p>每游戏刻中，计划刻阶段的执行入口是 <code>net.minecraft.world.WorldServer#tickPending</code>。其中，先处理方块的计划刻阶段，再处理流体相关的计划刻阶段</p>
+<h2 id="计划刻阶段"><a href="#计划刻阶段" class="headerlink" title="计划刻阶段"></a>计划刻阶段</h2><p>每游戏刻中，计划刻阶段的执行入口是 <code>net.minecraft.world.WorldServer#tickPending</code>。其中，先处理方块的计划刻阶段，再处理流体相关的计划刻阶段</p>
 <p>在计划刻阶段里，游戏将按照事件优先级从高到底的顺序执行将在此游戏刻中执行的计划刻事件。若优先级相同，则比较事件的id，id较小的先执行</p>
 <p>具体实现是比较朴素的。Minecraft 使用了一个 TreeSet（使用红黑树实现的二叉平衡树）作为该纬度所有计划刻事件的容器，事件间比较大小的关键字依次为：</p>
 <ol>
@@ -149,7 +149,7 @@
 <p>为了让表述更流畅，上述描述并非与源代码 100% 对应的分析，但是其效果是等价的。具体代码可见：</p>
 <p> <code>net.minecraft.world.ServerTickList#tick (1.13.2 mcp)</code></p>
 <p><code>net.minecraft.server.world.ServerTickScheduler#tick (1.15.2 yarn)</code> </p>
-<h3 id="计划刻事件的添加"><a href="#计划刻事件的添加" class="headerlink" title="计划刻事件的添加"></a>计划刻事件的添加</h3><p>若要添加一个计划刻事件，需要传入以下的参数：</p>
+<h2 id="计划刻事件的添加"><a href="#计划刻事件的添加" class="headerlink" title="计划刻事件的添加"></a>计划刻事件的添加</h2><p>若要添加一个计划刻事件，需要传入以下的参数：</p>
 <ul>
 <li>方块/流体的坐标</li>
 <li>方块/流体的类型</li>
@@ -163,9 +163,9 @@
 <li>计划刻队列中不存在相同的事件</li>
 </ol>
 <p>最后，一个新的计划刻事件将会创建并加入至计划刻队列中 <sup id="fnref:2"><a href="#fn:2" rel="footnote">2</a></sup>，其方块/流体的类型与坐标即为所给值，而执行时刻则从给出的执行延迟计算得到，为 <code>执行延迟 + 该纬度当前的游戏时间</code></p>
-<h3 id="计划刻事件的删除"><a href="#计划刻事件的删除" class="headerlink" title="计划刻事件的删除"></a>计划刻事件的删除</h3><p>计划刻事件在添加入计划刻队列后，是不会直接被游戏删除的，即便原方块/流体已经被改变。游戏中唯一类似删除计划刻事件的地方，是由于事件所处的区块被卸载，从而导致执行该事件的时候被游戏移除队列且不再加入队列不过放心，在区块卸载保存的时候，计划刻队列是会保存至磁盘的，因此不需要担心计划刻元件的动作被丢失了</p>
+<h2 id="计划刻事件的删除"><a href="#计划刻事件的删除" class="headerlink" title="计划刻事件的删除"></a>计划刻事件的删除</h2><p>计划刻事件在添加入计划刻队列后，是不会直接被游戏删除的，即便原方块/流体已经被改变。游戏中唯一类似删除计划刻事件的地方，是由于事件所处的区块被卸载，从而导致执行该事件的时候被游戏移除队列且不再加入队列不过放心，在区块卸载保存的时候，计划刻队列是会保存至磁盘的，因此不需要担心计划刻元件的动作被丢失了</p>
 <p>计划刻事件的不易被删除特性，在某些情况下是可以利用的</p>
-<h2 id="计划刻事件执行顺序"><a href="#计划刻事件执行顺序" class="headerlink" title="计划刻事件执行顺序"></a>计划刻事件执行顺序</h2><h3 id="单个元件"><a href="#单个元件" class="headerlink" title="单个元件"></a>单个元件</h3><blockquote>
+<h1 id="计划刻事件执行顺序"><a href="#计划刻事件执行顺序" class="headerlink" title="计划刻事件执行顺序"></a>计划刻事件执行顺序</h1><h2 id="单个元件"><a href="#单个元件" class="headerlink" title="单个元件"></a>单个元件</h2><blockquote>
 <p>事件间比较大小的关键字依次为：</p>
 <ol>
 <li>执行时刻，较小者优先</li>
@@ -206,7 +206,7 @@
 </li>
 </ul>
 <p>这一步一步的套娃，正是一个典型的多关键字排序</p>
-<h3 id="通用的比较方法——多关键字排序"><a href="#通用的比较方法——多关键字排序" class="headerlink" title="通用的比较方法——多关键字排序"></a>通用的比较方法——多关键字排序</h3><p>前提条件：每一个序列由若干个计划刻元件组成，不同序列的输入时间（精度：游戏刻）以及输出时间均相同</p>
+<h2 id="通用的比较方法——多关键字排序"><a href="#通用的比较方法——多关键字排序" class="headerlink" title="通用的比较方法——多关键字排序"></a>通用的比较方法——多关键字排序</h2><p>前提条件：每一个序列由若干个计划刻元件组成，不同序列的输入时间（精度：游戏刻）以及输出时间均相同</p>
 <p>定义二元组 <code>(time, priority)</code> 表示一个元件的属性。其中 <code>time</code> 表示该元件的点亮的游戏刻，<code>priority</code> 表示该元件点亮事件的优先级。如一个位于 gt10 点亮的前方无方块的红石中继器可用 <code>(10, -1)</code> 这个二元组表示。</p>
 <p>对于二元组间的大小关系，首先比较二元组第一个元素的大小，相等的话再比较第二个元素的大小，因此二元组较小意味着执行顺序较先</p>
 <p>下面为该算法的实现流程：</p>
@@ -243,7 +243,7 @@
 </ul>
 <p>大小关系为：A &lt; B &lt; C &lt; D &lt; E</p>
 <h1 id="计划刻元件"><a href="#计划刻元件" class="headerlink" title="计划刻元件"></a>计划刻元件</h1><p>见《<a href="/2020/09/17/deeply-dissecting-minecraft_3-2/" title="深度剖析Minecraft 3-2 计划刻">深度剖析Minecraft 3-2 计划刻</a>》</p>
-<h1 id="应用"><a href="#应用" class="headerlink" title="应用"></a>应用</h1><h2 id="计划刻滞后-EMP"><a href="#计划刻滞后-EMP" class="headerlink" title="计划刻滞后/EMP"></a>计划刻滞后/EMP</h2><blockquote>
+<h1 id="计划刻性质的应用"><a href="#计划刻性质的应用" class="headerlink" title="计划刻性质的应用"></a>计划刻性质的应用</h1><h2 id="计划刻滞后-EMP"><a href="#计划刻滞后-EMP" class="headerlink" title="计划刻滞后/EMP"></a>计划刻滞后/EMP</h2><blockquote>
 <p>More like a redstone EMP</p>
 <p>—— Casper2002 @ <a href="https://youtu.be/1GWaZ5vEd3A">https://youtu.be/1GWaZ5vEd3A</a></p>
 </blockquote>
@@ -310,17 +310,17 @@
 </thead>
 <tbody><tr>
 <td>0</td>
-<td>BE，depth=0</td>
+<td>BE（方块事件），depth=0</td>
 <td>指向仙人掌的活塞开始伸出，活塞前方发出方块更新，更新到仙人掌方块。仙人掌检查自身状态，发现水平毗邻的方块存在一个活塞头，会阻挡生长，于是添加一个延迟为 1 的计划刻事件用于破坏自身</td>
 </tr>
 <tr>
 <td>0</td>
-<td>BE，depth=2</td>
+<td>BE（方块事件），depth=2</td>
 <td>指向仙人掌的活塞开始收回，活塞前方方块变为空气。<strong>此时仙人掌所处位置状态变为合法</strong></td>
 </tr>
 <tr>
 <td>1</td>
-<td>TT</td>
+<td>TT（计划刻）</td>
 <td>仙人掌执行其 <code>tick</code> 方法，判断所处位置是否合法，结果是合法，则执行随机刻相关的逻辑，生长阶段 +1</td>
 </tr>
 </tbody></table>
