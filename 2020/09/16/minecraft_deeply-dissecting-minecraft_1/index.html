@@ -20,18 +20,18 @@
     var CONFIG = {"hostname":"fallen-breath.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="游戏流程代码层面上的 GameTime 内游戏运算顺序 来吧顺着代码DFS  让我们从Minecraft服务端最底层的代码 —— MinecraftServer.tick() 开始。这个 tick 函数包含了两个与游戏阶段相关的函数： 1234&#x2F;&#x2F; 主运算部分this.updateTimeLightAndEntities(hasTimeLeft) &#x2F;&#x2F; 900gt一次的自动保存this.saveA">
+  <meta name="description" content="游戏流程代码层面上的 GameTime 内游戏运算顺序 来吧顺着代码DFS  让我们从Minecraft服务端最底层的代码 —— MinecraftServer.tick() 开始。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="深度剖析Minecraft 1 游戏流程">
 <meta property="og:url" content="https://fallen-breath.github.io/2020/09/16/minecraft_deeply-dissecting-minecraft_1/index.html">
 <meta property="og:site_name" content="Fallen_Breath&#39;s Blog">
-<meta property="og:description" content="游戏流程代码层面上的 GameTime 内游戏运算顺序 来吧顺着代码DFS  让我们从Minecraft服务端最底层的代码 —— MinecraftServer.tick() 开始。这个 tick 函数包含了两个与游戏阶段相关的函数： 1234&#x2F;&#x2F; 主运算部分this.updateTimeLightAndEntities(hasTimeLeft) &#x2F;&#x2F; 900gt一次的自动保存this.saveA">
+<meta property="og:description" content="游戏流程代码层面上的 GameTime 内游戏运算顺序 来吧顺着代码DFS  让我们从Minecraft服务端最底层的代码 —— MinecraftServer.tick() 开始。">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://fallen-breath.github.io/minecraft_deeply-dissecting-minecraft_1/BELoader1.png">
 <meta property="og:image" content="https://fallen-breath.github.io/minecraft_deeply-dissecting-minecraft_1/BELoader2.png">
 <meta property="og:image" content="https://fallen-breath.github.io/minecraft_deeply-dissecting-minecraft_1/BELoader3.png">
 <meta property="article:published_time" content="2020-09-16T14:50:09.000Z">
-<meta property="article:modified_time" content="2020-09-17T02:25:30.804Z">
+<meta property="article:modified_time" content="2020-09-17T02:26:21.955Z">
 <meta property="article:author" content="Fallen_Breath">
 <meta property="article:tag" content="Minecraft">
 <meta property="article:tag" content="深度剖析MC">
@@ -188,7 +188,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-09-17 10:25:30" itemprop="dateModified" datetime="2020-09-17T10:25:30+08:00">2020-09-17</time>
+                <time title="修改时间：2020-09-17 10:26:21" itemprop="dateModified" datetime="2020-09-17T10:26:21+08:00">2020-09-17</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -221,7 +221,7 @@
         <h1 id="游戏流程"><a href="#游戏流程" class="headerlink" title="游戏流程"></a>游戏流程</h1><h2 id="代码层面上的-GameTime-内游戏运算顺序"><a href="#代码层面上的-GameTime-内游戏运算顺序" class="headerlink" title="代码层面上的 GameTime 内游戏运算顺序"></a>代码层面上的 GameTime 内游戏运算顺序</h2><blockquote>
 <p>来吧顺着代码DFS</p>
 </blockquote>
-<p>让我们从Minecraft服务端最底层的代码 —— <code>MinecraftServer.tick()</code> 开始。这个 tick 函数包含了两个与游戏阶段相关的函数：</p>
+<p>让我们从Minecraft服务端最底层的代码 —— <code>MinecraftServer.tick()</code> 开始。<a id="more"></a>这个 tick 函数包含了两个与游戏阶段相关的函数：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 主运算部分</span></span><br><span class="line"><span class="keyword">this</span>.updateTimeLightAndEntities(hasTimeLeft) </span><br><span class="line"><span class="comment">// 900gt一次的自动保存</span></span><br><span class="line"><span class="keyword">this</span>.saveAllWorlds(<span class="keyword">true</span>);</span><br></pre></td></tr></table></figure>
 
 <p>随后我们进入到 <code>updateTimeLightAndEntities()</code> 中，在这里的精简代码（删去无关代码以及过长参数）如下</p>
