@@ -1800,6 +1800,9 @@ pre .javascript .function {
 .post-body video {
   margin-bottom: 20px;
 }
+.post-body img {
+  max-width: 70%;
+}
 .post-body .video-container {
   height: 0;
   margin-bottom: 20px;
