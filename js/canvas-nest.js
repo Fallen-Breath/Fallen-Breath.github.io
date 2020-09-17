@@ -88,6 +88,11 @@ function loadnestbg() {
 
     tracking = storetracking;
     mousetrack();
+    window.onmousedown = function (e) {
+        if (e.button === 0 && e.target.className === 'main') {
+            mousetrack()
+        }
+    }
 
     bgnow = document.getElementById("BackgroundSwitch");
     bgnow_title = document.getElementById("BackgroundSwitchTitle");
@@ -110,9 +115,9 @@ function mousetrack() {
         window.onmousemove = function (i) {
             i = i || window.event, f.x = i.clientX, f.y = i.clientY
         },
-            window.onmouseout = function () {
-                f.x = null, f.y = null
-            };
+          window.onmouseout = function () {
+              f.x = null, f.y = null
+          };
 
         tracking = 1;
     } else {
