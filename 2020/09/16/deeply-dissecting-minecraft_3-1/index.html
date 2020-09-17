@@ -36,9 +36,7 @@
 <meta property="og:image" content="https://fallen-breath.github.io/2020/09/16/deeply-dissecting-minecraft_3-1/multi2.png">
 <meta property="og:image" content="https://fallen-breath.github.io/2020/09/16/deeply-dissecting-minecraft_3-1/emp-tower.png">
 <meta property="og:image" content="https://fallen-breath.github.io/2020/09/16/deeply-dissecting-minecraft_3-1/emp-detector.png">
-<meta property="og:image" content="https://fallen-breath.github.io/2020/09/16/deeply-dissecting-minecraft_3-1/randomtick-code.png">
 <meta property="og:image" content="https://fallen-breath.github.io/2020/09/16/deeply-dissecting-minecraft_3-1/cactus-broken.png">
-<meta property="og:image" content="https://fallen-breath.github.io/2020/09/16/deeply-dissecting-minecraft_3-1/cactus.png">
 <meta property="og:image" content="https://fallen-breath.github.io/2020/09/16/deeply-dissecting-minecraft_3-1/force-growth.png">
 <meta property="article:published_time" content="2020-09-16T15:40:29.000Z">
 <meta property="article:modified_time" content="2020-09-16T15:40:29.000Z">
@@ -457,12 +455,14 @@
 </tr>
 </tbody></table>
 <h2 id="随机刻伪造"><a href="#随机刻伪造" class="headerlink" title="随机刻伪造"></a>随机刻伪造</h2><p>也不知道是历史遗留问题还是代码的复用问题，在游戏中，每个方块被随机刻选中时所调用的默认方法是其执行计划刻事件时所调用的方法 <code>net.minecraft.block.Block#tick</code></p>
-<p><img src="/2020/09/16/deeply-dissecting-minecraft_3-1/randomtick-code.png" alt="randomtick-code"></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Deprecated</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">randomTick</span><span class="params">(IBlockState state, World worldIn, BlockPos pos, Random random)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">this</span>.tick(state, worldIn, pos, random);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Deprecated</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">tick</span><span class="params">(IBlockState state, World worldIn, BlockPos pos, Random random)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
 <p>那些既可以响应随机刻，又可以响应计划刻的方块，在执行 <code>tick</code> 方法的时候，是怎么确认它该执行哪一部分的逻辑呢？Mojang 给出的答案是，在 <code>tick</code> 方法内即时判断</p>
 <p>以仙人掌为例。作为一种作物，仙人掌会在被随机刻选中时执行一次生长；作为一种对环境有依赖的植物，在发现其状态不适合生长时（沙子消失/水平毗邻 4 格方块存在可阻挡仙人掌生长的方块），会添加一个延迟为 1 的计划刻事件，用于变为空气并掉落物品，也用于使高耸入云的仙人掌柱能自底向上逐个破坏而减轻服务器的瞬时压力</p>
 <p><img src="/2020/09/16/deeply-dissecting-minecraft_3-1/cactus-broken.png" alt="cactus-broken"></p>
 <p>仙人掌 <code>tick</code> 方法内的逻辑如下所示（<code>net.minecraft.block.BlockCactus#tick</code>）</p>
-<p><img src="/2020/09/16/deeply-dissecting-minecraft_3-1/cactus.png" alt="cactus"></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">tick</span><span class="params">(IBlockState state, World worldIn, BlockPos pos, Random random)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (!state.isValidPosition(worldIn, pos))  <span class="comment">// 判断仙人掌所处位置是否合法</span></span><br><span class="line">    &#123;</span><br><span class="line">        worldIn.destroyBlock(pos, <span class="keyword">true</span>);  <span class="comment">// 破坏该仙人掌方块</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">/* 执行仙人掌生长逻辑 */</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
 <p>粗略一看，这个实现好像并没有问题，因为状态不合法而添加的计划刻事件在执行 <code>tick</code> 方法时就会在第一行的 if 判断中进入到破坏仙人掌方块分支</p>
 <p>不过仔细一想，并非如此。仙人掌在添加计划刻事件时所处位置不合法，<strong>并不意味</strong>着仙人掌在执行计划刻事件的时候所处位置仍不合法！如果我们通过某种手段，在仙人掌添加了用于破坏自身的计划刻事件后，在计划刻事件执行前，恢复仙人掌的生长环境，让仙人掌所处位置恢复到合法的适宜仙人掌生长的状态，则这个计划刻执行的时候将会执行随机刻的逻辑。这，就是随机刻伪造，也就算作物的强制催熟</p>
 <p>下面是一个仙人掌强制催熟装置的示意图。指向仙人掌的活塞每 0t 伸出一次，即可让仙人掌使用计划刻事件伪造一次随机刻事件，使其生长阶段 +1</p>
@@ -471,7 +471,7 @@
 <table>
 <thead>
 <tr>
-<th>游戏刻 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;</th>
+<th>游戏刻</th>
 <th>游戏阶段</th>
 <th>事件</th>
 </tr>
