@@ -2,8 +2,8 @@
 
 
 isStop = 0;
-tracking = 1;
-storetracking = 1;
+tracking = 0;
+storetracking = 0;
 
 function o(w, v, i) {
     return w.getAttribute(v) || i
@@ -15,7 +15,7 @@ function j(i) {
 
 function l() {
     var i = j("script"), w = i.length, v = i[w - 1];
-    return {l: w, z: o(v, "zIndex", -1), o: o(v, "opacity", 0.25), c: o(v, "color", "150,0,255"), n: o(v, "count", 100)}
+    return {l: w, z: o(v, "zIndex", -1), o: o(v, "opacity", 0.5), c: o(v, "color", "150,0,255"), n: o(v, "count", 100)}
 }
 
 var k = function () {
