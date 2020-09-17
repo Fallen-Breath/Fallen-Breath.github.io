@@ -23,26 +23,26 @@
   <meta name="description" content="计划刻什么是计划刻计划刻，英文为 Tile Tick。国内社区曾用 Next Tick Entry (NTE) 进行描述 在 Minecraft 中，许多方块对变化的响应并不是瞬时，而是延迟一定时间后方才开始执行的，如下面几个常见的例子：  中继器响应信号输入 沙子检测下方方块以准备下落 流体进行流动 悬空脚手架的逐个掉落">
 <meta property="og:type" content="article">
 <meta property="og:title" content="深度剖析Minecraft 3-1 计划刻">
-<meta property="og:url" content="https://fallen-breath.github.io/2020/09/16/minecraft_deeply-dissecting-minecraft_3-1/index.html">
+<meta property="og:url" content="https://fallen-breath.github.io/2020/09/16/deeply-dissecting-minecraft_3-1/index.html">
 <meta property="og:site_name" content="Fallen_Breath&#39;s">
 <meta property="og:description" content="计划刻什么是计划刻计划刻，英文为 Tile Tick。国内社区曾用 Next Tick Entry (NTE) 进行描述 在 Minecraft 中，许多方块对变化的响应并不是瞬时，而是延迟一定时间后方才开始执行的，如下面几个常见的例子：  中继器响应信号输入 沙子检测下方方块以准备下落 流体进行流动 悬空脚手架的逐个掉落">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://fallen-breath.github.io/2020/09/16/minecraft_deeply-dissecting-minecraft_3-1/single0.png">
-<meta property="og:image" content="https://fallen-breath.github.io/2020/09/16/minecraft_deeply-dissecting-minecraft_3-1/single1.png">
-<meta property="og:image" content="https://fallen-breath.github.io/2020/09/16/minecraft_deeply-dissecting-minecraft_3-1/single2.png">
-<meta property="og:image" content="https://fallen-breath.github.io/2020/09/16/minecraft_deeply-dissecting-minecraft_3-1/multi0.png">
-<meta property="og:image" content="https://fallen-breath.github.io/2020/09/16/minecraft_deeply-dissecting-minecraft_3-1/multi0.png">
-<meta property="og:image" content="https://fallen-breath.github.io/2020/09/16/minecraft_deeply-dissecting-minecraft_3-1/multi1.png">
-<meta property="og:image" content="https://fallen-breath.github.io/2020/09/16/minecraft_deeply-dissecting-minecraft_3-1/multi2.png">
+<meta property="og:image" content="https://fallen-breath.github.io/2020/09/16/deeply-dissecting-minecraft_3-1/single0.png">
+<meta property="og:image" content="https://fallen-breath.github.io/2020/09/16/deeply-dissecting-minecraft_3-1/single1.png">
+<meta property="og:image" content="https://fallen-breath.github.io/2020/09/16/deeply-dissecting-minecraft_3-1/single2.png">
+<meta property="og:image" content="https://fallen-breath.github.io/2020/09/16/deeply-dissecting-minecraft_3-1/multi0.png">
+<meta property="og:image" content="https://fallen-breath.github.io/2020/09/16/deeply-dissecting-minecraft_3-1/multi0.png">
+<meta property="og:image" content="https://fallen-breath.github.io/2020/09/16/deeply-dissecting-minecraft_3-1/multi1.png">
+<meta property="og:image" content="https://fallen-breath.github.io/2020/09/16/deeply-dissecting-minecraft_3-1/multi2.png">
 <meta property="article:published_time" content="2020-09-16T15:40:29.000Z">
 <meta property="article:modified_time" content="2020-09-16T15:40:29.000Z">
 <meta property="article:author" content="Fallen_Breath">
 <meta property="article:tag" content="Minecraft">
 <meta property="article:tag" content="深度剖析MC">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://fallen-breath.github.io/2020/09/16/minecraft_deeply-dissecting-minecraft_3-1/single0.png">
+<meta name="twitter:image" content="https://fallen-breath.github.io/2020/09/16/deeply-dissecting-minecraft_3-1/single0.png">
 
-<link rel="canonical" href="https://fallen-breath.github.io/2020/09/16/minecraft_deeply-dissecting-minecraft_3-1/">
+<link rel="canonical" href="https://fallen-breath.github.io/2020/09/16/deeply-dissecting-minecraft_3-1/">
 
 
 <script id="page-configurations">
@@ -180,7 +180,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://fallen-breath.github.io/2020/09/16/minecraft_deeply-dissecting-minecraft_3-1/">
+    <link itemprop="mainEntityOfPage" href="https://fallen-breath.github.io/2020/09/16/deeply-dissecting-minecraft_3-1/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.jpg">
@@ -329,21 +329,21 @@
 <p>观察 <code>事件 id</code> 的定义，这是一个递增的不重复的整数，因此，先创建的计划刻事件一定会有较小的 <code>事件 id</code> ，也就是在执行时刻与事件优先级相同的情况下，先创建的事件会优先于后创建的事件执行</p>
 <p>也就是<strong>先进先出</strong>！</p>
 <p>下面是一些例子：</p>
-<p><img src="/2020/09/16/minecraft_deeply-dissecting-minecraft_3-1/single0.png" alt="single0"></p>
+<p><img src="/2020/09/16/deeply-dissecting-minecraft_3-1/single0.png" alt="single0"></p>
 <p>执行时刻，A 先于 B，因此 A 先执行</p>
 <hr>
-<p><img src="/2020/09/16/minecraft_deeply-dissecting-minecraft_3-1/single1.png" alt="single1"></p>
+<p><img src="/2020/09/16/deeply-dissecting-minecraft_3-1/single1.png" alt="single1"></p>
 <p>执行时刻：A 与 B 相同</p>
 <p>优先级：A 大于B</p>
 <p>因此 A 先执行</p>
 <hr>
-<p><img src="/2020/09/16/minecraft_deeply-dissecting-minecraft_3-1/single2.png" alt="single2"></p>
+<p><img src="/2020/09/16/deeply-dissecting-minecraft_3-1/single2.png" alt="single2"></p>
 <p>执行时刻：相同</p>
 <p>优先级：相同</p>
 <p>创建顺序（事件 id）：A 先于 B</p>
 <p>因此 A 先执行</p>
 <h2 id="多元件组合"><a href="#多元件组合" class="headerlink" title="多元件组合"></a>多元件组合</h2><p>在<strong>总延迟相同</strong>的前提下，用不同档位凑出来的中继器/比较器序列谁先执行，是一个老生常谈的问题，比如下图</p>
-<p><img src="/2020/09/16/minecraft_deeply-dissecting-minecraft_3-1/multi0.png" alt="multi0"></p>
+<p><img src="/2020/09/16/deeply-dissecting-minecraft_3-1/multi0.png" alt="multi0"></p>
 <p>由于总延迟是相同的，并且最末端的元件具有相同的优先级，我们不能简单地观察最末端的元件来判断执行顺序，我们需要结合其余元件进行考虑，得出最末端元件创建事件的顺序间的先后关系，从而得到执行顺序</p>
 <p>令拉杆拉下的时刻为 gt0。由于序列 A 的末端中继器的点亮事件是在 gt2 创建，而序列 B 末端中继器的点亮事件是在 gt8 创建，晚于序列 A 的末端中继器，因此序列 A 末端中继器先于序列 B 的激活</p>
 <p>如果还有更多的元件呢，那我们继续比较下去！</p>
@@ -357,7 +357,7 @@
 <li><p>……</p>
 </li>
 </ul>
-<p>这一步一步的套娃，正是一个典型的多关键字比较排序</p>
+<p>这一步一步的套娃，正是一个典型的多关键字排序</p>
 <h3 id="通用的比较方法——多关键字排序"><a href="#通用的比较方法——多关键字排序" class="headerlink" title="通用的比较方法——多关键字排序"></a>通用的比较方法——多关键字排序</h3><p>前提条件：每一个序列由若干个计划刻元件组成，不同序列的输入时间（精度：游戏刻）以及输出时间均相同</p>
 <p>定义二元组 <code>(time, priority)</code> 表示一个元件的属性。其中 <code>time</code> 表示该元件的点亮的游戏刻，<code>priority</code> 表示该元件点亮事件的优先级。如一个位于 gt10 点亮的前方无方块的红石中继器可用 <code>(10, -1)</code> 这个二元组表示。</p>
 <p>对于二元组间的大小关系，首先比较二元组第一个元素的大小，相等的话再比较第二个元素的大小，因此二元组较小意味着执行顺序较先</p>
@@ -368,24 +368,24 @@
 <li>如果两序列长度相对并且判断到终止符仍未出结果，则需要分析两个序列的输入信号的输入顺序了，这可能涉及到其他类型的元件/阶段相关的特性，在此处不展开分析。这可以看作是关键字的继续增加，本质上仍为多关键字排序</li>
 </ol>
 <p>下面是一些实例分析：</p>
-<p><img src="/2020/09/16/minecraft_deeply-dissecting-minecraft_3-1/multi0.png" alt="multi0"></p>
+<p><img src="/2020/09/16/deeply-dissecting-minecraft_3-1/multi0.png" alt="multi0"></p>
 <ul>
-<li>A：<code>(10, -1)</code>, <code>(2, -3)</code>, <code>$</code><sup id="fnref:3"><a href="#fn:3" rel="footnote">3</a></sup></li>
+<li>A：<code>(10, -1)</code>, <code>(2, -3)</code>, <code>$</code><sup id="fnref:2"><a href="#fn:2" rel="footnote">2</a></sup></li>
 <li>B: <code>(10, -1)</code>, <code>(8, -3)</code>, <code>$</code></li>
 </ul>
 <p>比较：第一个二元组相等，均为 <code>(10, -1)</code>。对于第二个二元组，A 的更小，因此序列 A 先输出</p>
 <hr>
-<p><img src="/2020/09/16/minecraft_deeply-dissecting-minecraft_3-1/multi1.png" alt="multi1"></p>
+<p><img src="/2020/09/16/deeply-dissecting-minecraft_3-1/multi1.png" alt="multi1"></p>
 <ul>
 <li>A: <code>(10, -1)</code>, <code>(2, -3)</code>, <code>$</code></li>
-<li>B: <code>(10, -1)</code>, <code>(2, -1)</code>, <code>$</code><sup id="fnref:4"><a href="#fn:4" rel="footnote">4</a></sup></li>
+<li>B: <code>(10, -1)</code>, <code>(2, -1)</code>, <code>$</code><sup id="fnref:3"><a href="#fn:3" rel="footnote">3</a></sup></li>
 <li>C: <code>(10, -1)</code>, <code>(4, -3)</code>, <code>$</code></li>
 <li>D: <code>(10, -1)</code>, <code>(6, -3)</code>, <code>$</code></li>
 <li>E: <code>(10, -1)</code>, <code>(8, -3)</code>, <code>$</code></li>
 </ul>
 <p>大小关系为：A &lt; B &lt; C &lt; D &lt; E</p>
 <hr>
-<p><img src="/2020/09/16/minecraft_deeply-dissecting-minecraft_3-1/multi2.png" alt="multi2"></p>
+<p><img src="/2020/09/16/deeply-dissecting-minecraft_3-1/multi2.png" alt="multi2"></p>
 <ul>
 <li>A: <code>(4, -1)</code>, <code>$</code></li>
 <li>B: <code>(4, -1)</code>, <code>(2, -3)</code>, <code>$</code></li>
@@ -395,8 +395,10 @@
 </ul>
 <p>大小关系为：A &lt; B &lt; C &lt; D &lt; E</p>
 <h1 id="计划刻元件"><a href="#计划刻元件" class="headerlink" title="计划刻元件"></a>计划刻元件</h1><p>见《深度剖析Minecraft 3-2 计划刻》</p>
+<a href="/2020/09/17/deeply-dissecting-minecraft_3-2/" title="深度剖析Minecraft 3-2 计划刻">深度剖析Minecraft 3-2 计划刻</a>
+
 <h1 id="应用"><a href="#应用" class="headerlink" title="应用"></a>应用</h1><h2 id="计划刻冻结"><a href="#计划刻冻结" class="headerlink" title="计划刻冻结"></a>计划刻冻结</h2><p>看到</p>
-<h2 id="随机刻伪造"><a href="#随机刻伪造" class="headerlink" title="随机刻伪造"></a>随机刻伪造</h2><h2 id="无延迟比较器"><a href="#无延迟比较器" class="headerlink" title="无延迟比较器"></a>无延迟比较器</h2><h2 id="单侦测器方块2gt时钟"><a href="#单侦测器方块2gt时钟" class="headerlink" title="单侦测器方块2gt时钟"></a>单侦测器方块2gt时钟</h2><p>还有啥 rue<div id="footnotes"><hr><div id="footnotelist"><ol style="list-style:none; padding-left: 0;"><li id="fn:1"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">1.</span><span style="display: inline-block; vertical-align: top;">在具体代码实现中，计划刻事件在检查的第三步已经创建，以便于判断计划刻队列中是否存在相同的事件</span><a href="#fnref:1" rev="footnote"> ↩</a></li><li id="fn:3"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">3.</span><span style="display: inline-block; vertical-align: top;">当中继器前方是非反向的中继器/比较器时，其点亮事件的优先级为 -3</span><a href="#fnref:3" rev="footnote"> ↩</a></li><li id="fn:4"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">4.</span><span style="display: inline-block; vertical-align: top;">当/比较器前方是非反向的中继器/比较器时，其点亮事件的优先级为 -1</span><a href="#fnref:4" rev="footnote"> ↩</a></li></ol></div></div></p>
+<h2 id="随机刻伪造"><a href="#随机刻伪造" class="headerlink" title="随机刻伪造"></a>随机刻伪造</h2><h2 id="无延迟比较器"><a href="#无延迟比较器" class="headerlink" title="无延迟比较器"></a>无延迟比较器</h2><h2 id="单侦测器方块2gt时钟"><a href="#单侦测器方块2gt时钟" class="headerlink" title="单侦测器方块2gt时钟"></a>单侦测器方块2gt时钟</h2><p>还有啥 rue<div id="footnotes"><hr><div id="footnotelist"><ol style="list-style:none; padding-left: 0;"><li id="fn:1"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">1.</span><span style="display: inline-block; vertical-align: top;">在具体代码实现中，计划刻事件在检查的第三步已经创建，以便于判断计划刻队列中是否存在相同的事件</span><a href="#fnref:1" rev="footnote"> ↩</a></li><li id="fn:2"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">2.</span><span style="display: inline-block; vertical-align: top;">当中继器前方是非反向的中继器/比较器时，其点亮事件的优先级为 -3</span><a href="#fnref:2" rev="footnote"> ↩</a></li><li id="fn:3"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">3.</span><span style="display: inline-block; vertical-align: top;">当/比较器前方是非反向的中继器/比较器时，其点亮事件的优先级为 -1</span><a href="#fnref:3" rev="footnote"> ↩</a></li></ol></div></div></p>
 
     </div>
 
@@ -412,7 +414,7 @@
   </li>
   <li class="post-copyright-link">
     <strong>本文链接：</strong>
-    <a href="https://fallen-breath.github.io/2020/09/16/minecraft_deeply-dissecting-minecraft_3-1/" title="深度剖析Minecraft 3-1 计划刻">https://fallen-breath.github.io/2020/09/16/minecraft_deeply-dissecting-minecraft_3-1/</a>
+    <a href="https://fallen-breath.github.io/2020/09/16/deeply-dissecting-minecraft_3-1/" title="深度剖析Minecraft 3-1 计划刻">https://fallen-breath.github.io/2020/09/16/deeply-dissecting-minecraft_3-1/</a>
   </li>
   <li class="post-copyright-license">
     <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
@@ -433,11 +435,11 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2020/09/16/minecraft_deeply-dissecting-minecraft_2/" rel="prev" title="深度剖析Minecraft 2 方块更新">
+    <a href="/2020/09/16/deeply-dissecting-minecraft_2/" rel="prev" title="深度剖析Minecraft 2 方块更新">
       <i class="fa fa-chevron-left"></i> 深度剖析Minecraft 2 方块更新
     </a></div>
       <div class="post-nav-item">
-    <a href="/2020/09/17/minecraft_deeply-dissecting-minecraft_3-2/" rel="next" title="深度剖析Minecraft 3-2 计划刻">
+    <a href="/2020/09/17/deeply-dissecting-minecraft_3-2/" rel="next" title="深度剖析Minecraft 3-2 计划刻">
       深度剖析Minecraft 3-2 计划刻 <i class="fa fa-chevron-right"></i>
     </a></div>
     </div>
@@ -514,7 +516,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">6</span>
+          <span class="site-state-item-count">7</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
