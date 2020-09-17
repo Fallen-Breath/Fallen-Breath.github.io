@@ -1,0 +1,918 @@
+<?xml version="1.0" encoding="utf-8"?>
+<search>
+  <entry>
+    <title>Hello World</title>
+    <url>/2020/02/03/hello-world/</url>
+    <content><![CDATA[<p>Welcome to <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/" target="_blank" rel="noopener">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html" target="_blank" rel="noopener">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues" target="_blank" rel="noopener">GitHub</a>.</p>
+<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo new <span class="string">"My New Post"</span></span><br></pre></td></tr></table></figure>
+
+<p>More info: <a href="https://hexo.io/docs/writing.html" target="_blank" rel="noopener">Writing</a></p>
+<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
+
+<p>More info: <a href="https://hexo.io/docs/server.html" target="_blank" rel="noopener">Server</a></p>
+<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
+
+<p>More info: <a href="https://hexo.io/docs/generating.html" target="_blank" rel="noopener">Generating</a></p>
+<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
+
+<p>More info: <a href="https://hexo.io/docs/one-command-deployment.html" target="_blank" rel="noopener">Deployment</a></p>
+]]></content>
+  </entry>
+  <entry>
+    <title>深度剖析Minecraft 0 绪论</title>
+    <url>/2020/09/16/deeply-dissecting-minecraft_0/</url>
+    <content><![CDATA[<h1 id="绪论"><a href="#绪论" class="headerlink" title="绪论"></a>绪论</h1><h2 id="owo"><a href="#owo" class="headerlink" title="owo"></a>owo</h2><p>嘛，填这个巨坑的目的，是想对啃了一段时间的源码做一些总结，并给出一些对现象的解释，如果可能的话还会给出一些易于分析的模型</p>
+<p>前人的理论虽已挺完善，已经有了不少的分析文章，但他们或多或少的都存在一些无法解释的现象，或者说以为版本迭代而过时</p>
+<p>强推 gp（Gamepiaynmo）的文章<a href="http://tieba.baidu.com/p/4078230299">《[理论分析]红石更新延迟理论》</a>，虽然这个是 1.8 的，但绝大部分内容在 1.13.2 仍适用</p>
+<p>我的目标是，<del>造出不需要打补丁的大统一理论</del>在不打补丁的情况下解释出所有平常只会用一句“特性” / “毒性”带过的表现，以及所有“黑科技”的原理。因此可ken能ding会很咕</p>
+<a id="more"></a>
+
+<p><strong>请善用文档导航XD</strong> </p>
+<h2 id="前置技能"><a href="#前置技能" class="headerlink" title="前置技能"></a>前置技能</h2><ul>
+<li>对于代码分析部分，你需要一定的 java 代码的阅读能力</li>
+<li>对于理论模型部分，你可能需要掌握一些简单的算法与数据结构的知识</li>
+<li>对于实用模型部分，只要你足够了解红石，都没问题</li>
+</ul>
+<h2 id="代码来源"><a href="#代码来源" class="headerlink" title="代码来源"></a>代码来源</h2><p>本文若无特殊说明，<strong>Minecraft 游戏版本为 Minecraft Java Edition 1.13.2</strong>，代码来源为 gnenbom 的 1.13.2 的 <a href="https://github.com/gnembon/carpetmod">carpet mod</a> 内的 <code>projects/clean/src/</code> 部分。如有能力可自行按照 readme 构建源码</p>
+<h2 id="一些名词的定义"><a href="#一些名词的定义" class="headerlink" title="一些名词的定义"></a>一些名词的定义</h2><blockquote>
+<p>[元件] 的 [事件] 在 [阶段] 发生</p>
+</blockquote>
+<h3 id="Tile-Tick"><a href="#Tile-Tick" class="headerlink" title="Tile Tick"></a>Tile Tick</h3><p>TileTick 指的是各类具有延迟的红石元件，如中继器、红石火把运算的阶段，在代码层面指的是 <code>ServerTickList.tick()</code>  <a href="net/minecraft/world/ServerTickList.java:46">^ServerTickList</a>中执行的内容</p>
+<p>在 gp 的文章<a href="http://tieba.baidu.com/p/4078230299">《[理论分析]红石更新延迟理论》</a>里，gp 将此阶段命名为 NextTickEntry ，缩写为 NTE 。</p>
+<p>为了与国外社区的游戏阶段名词接轨，在本文中此阶段一律用 TileTick 表示</p>
+<h3 id="Tile-Entity"><a href="#Tile-Entity" class="headerlink" title="Tile Entity"></a>Tile Entity</h3><p>TileEntity，简称 TE ，指的是游戏内有特殊功能的方块上，附加的实体，这一类的方块有熔炉、漏斗、移动中的方块、末地折跃门等方块，而在正常游戏中这些方块均会带有一个 Tile Entity 来运算实现它们的特殊功能</p>
+<p>在官方的反混淆中，TileEntity 被称为 BlockEntity ，这也恰好对应着它的中文翻译：方块实体。不过，为了与前人所述衔接，在本文中仍用 TileEntity 一称</p>
+<h3 id="Block-36"><a href="#Block-36" class="headerlink" title="Block 36"></a>Block 36</h3><p>Block 36，简称 b36，指移动中的方块，也即 <code>BlockPistonMoving</code> 这一个类所描述的方块，亦或是游戏内称作 <code>moving_piston</code> 的方块。其中 36 指的是方块 id 扁平化前的该方块的 id，也算是沿用惯用用法。</p>
+<p>在本文的分析中，b36 有时也可指 b36 TileEntity ，需根据文意进行具体分析</p>
+<h3 id="阶段、元件、容器"><a href="#阶段、元件、容器" class="headerlink" title="阶段、元件、容器"></a>阶段、元件、容器</h3><p>以方块实体（Tile Entity）为例。与方块实体相关，可指代的对象有：</p>
+<ul>
+<li>一个方块实体本身</li>
+<li>方块实体运算阶段</li>
+<li>存放方块实体容器</li>
+</ul>
+<p>如果在用简称 TE 来描述它们时，仅用 TE 一词明显会有歧义出现。因此，在使用简称描述时，如有需要，以上几个对象分别对应：</p>
+<ul>
+<li>TE 元件（TE 方块、TE 实体）</li>
+<li>TE 阶段</li>
+<li>TE 容器（TE 队列、TE 表）</li>
+</ul>
+<p><img src="/2020/09/16/deeply-dissecting-minecraft_0/banner.png" alt="banner"></p>
+]]></content>
+      <categories>
+        <category>Minecraft</category>
+      </categories>
+      <tags>
+        <tag>Minecraft</tag>
+        <tag>深度剖析MC</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>深度剖析Minecraft 3-1 计划刻</title>
+    <url>/2020/09/16/deeply-dissecting-minecraft_3-1/</url>
+    <content><![CDATA[<h1 id="计划刻"><a href="#计划刻" class="headerlink" title="计划刻"></a>计划刻</h1><h2 id="什么是计划刻"><a href="#什么是计划刻" class="headerlink" title="什么是计划刻"></a>什么是计划刻</h2><p>计划刻，英文为 Tile Tick。国内社区曾用 Next Tick Entry (NTE) 进行描述</p>
+<p>在 Minecraft 中，许多方块对变化的响应并不是瞬时，而是延迟一定时间后方才开始执行的，如下面几个常见的例子：</p>
+<ul>
+<li>中继器响应信号输入</li>
+<li>沙子检测下方方块以准备下落</li>
+<li>流体进行流动</li>
+<li>悬空脚手架的逐个掉落</li>
+</ul>
+<a id="more"></a>
+
+<p>对于这一类具有共性的延迟执行的事件，Minecraft 使用计划刻这一概念进行统一的管理，每一个纬度都有一个<strong>独立</strong>的计划刻管理系统</p>
+<blockquote>
+<p>net\minecraft\world\WorldServer.java (1.13.2 mcp)<br>net.minecraft.server.world.ServerTickScheduler (1.15.2 yarn)</p>
+</blockquote>
+<p>1.13 前，方块和流体共用一个计划刻队列进行储存，1.13 及以后，方块和流体为独立的两个计划刻队列</p>
+<h2 id="计划刻的实现原理"><a href="#计划刻的实现原理" class="headerlink" title="计划刻的实现原理"></a>计划刻的实现原理</h2><h3 id="计划刻事件"><a href="#计划刻事件" class="headerlink" title="计划刻事件"></a>计划刻事件</h3><p>对于一个计划刻事件来说，它具有以下属性</p>
+<ul>
+<li>事件 id，一个递增的不重复整数</li>
+<li>目标方块/流体类型</li>
+<li>方块/流体的方块坐标</li>
+<li>事件计划执行的游戏刻</li>
+<li>事件优先级</li>
+</ul>
+<p>事件优先级一共有 7 种可能的取值，从 -3 至 +3，如下所示</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">EXTREMELY_HIGH(-<span class="number">3</span>),</span><br><span class="line">VERY_HIGH(-<span class="number">2</span>),</span><br><span class="line">HIGH(-<span class="number">1</span>),</span><br><span class="line">NORMAL(<span class="number">0</span>),</span><br><span class="line">LOW(<span class="number">1</span>),</span><br><span class="line">VERY_LOW(<span class="number">2</span>),</span><br><span class="line">EXTREMELY_LOW(<span class="number">3</span>);</span><br></pre></td></tr></table></figure>
+
+<p>由其中可看出，每个计划刻事件所储存的属性其实并不是十分详细，不少事件的具体细节是没有储存起来的，如：</p>
+<ul>
+<li>计划刻事件仅储存了方块的种类，未储存方块状态</li>
+<li>计划刻事件未储存该事件将要执行什么动作，也即在该事件真正执行前游戏是不知道这个事件具体会引发什么动作的</li>
+</ul>
+<h3 id="计划刻阶段"><a href="#计划刻阶段" class="headerlink" title="计划刻阶段"></a>计划刻阶段</h3><p>每游戏刻中，计划刻阶段的执行入口是 <code>net.minecraft.world.WorldServer#tickPending</code>。其中，先处理方块的计划刻阶段，再处理流体相关的计划刻阶段</p>
+<p>在计划刻阶段里，游戏将按照事件优先级从高到底的顺序执行将在此游戏刻中执行的计划刻事件。若优先级相同，则比较事件的id，id较小的先执行</p>
+<p>具体实现是比较朴素的。Minecraft 使用了一个 TreeSet（使用红黑树实现的二叉平衡树）作为该纬度所有计划刻事件的容器，事件间比较大小的关键字依次为：</p>
+<ol>
+<li>执行时刻，较小者优先</li>
+<li>事件优先级</li>
+<li>事件 id，较小者优先</li>
+</ol>
+<p>因为在代码中，不存在直接删改该容器某个具体元素的用法，仅存在插入元素及取出最小元素这两个操作，因此即便这个容器不是明面上的一个队列， 它仍可被视为一个队列，或者更准确的，优先队列。这也是计划刻队列这一词的来由</p>
+<p><del>TreeSet 的时间复杂度是 O(nlogn)，这意味着实际上计划刻元件的卡顿并非线性增加的，不过在实际情况下由于 logn 变化极小，仍可以大致认为卡顿是线性增加的</del></p>
+<p>下面以方块的计划刻阶段为例，核心流程如下：</p>
+<ol>
+<li><p>检索应在该游戏刻执行的事件</p>
+<ol>
+<li>取出计划刻队列中位于最前的事件（比较方法见上方所列的优先级）</li>
+<li>若当前的游戏时间小于该事件的执行时刻，或者本计划刻阶段已取出了 65536 个计划刻事件 <sup id="fnref:1"><a href="#fn:1" rel="footnote">1</a></sup>，则退出循环，跳出循环。超过上限的事件将会延迟到下一游戏刻尝试执行</li>
+<li>将该事件移出计划刻队列，暂存入一个即将执行的事件队列</li>
+</ol>
+</li>
+<li><p>处理即将执行的事件队列</p>
+<ul>
+<li><p>对于队列中每个计划刻事件，若事件的方块的坐标所在区块处于加载状态，则：</p>
+<ol>
+<li>判断世界中此坐标的方块是否仍与该事件的方块类型相同，如果相同，则调用该方块的 <code>tick</code>方法</li>
+</ol>
+</li>
+<li><p>若坐标所在的区块未加载，则：</p>
+<ol>
+<li><p>添加一个计划刻事件，属性为：</p>
+<ul>
+<li><p>坐标：该事件的坐标</p>
+</li>
+<li><p>方块：该事件的方块</p>
+</li>
+<li><p>延迟：0</p>
+</li>
+<li><p>优先级：0</p>
+<p>不过此计划刻事件不会添加成功，因为事件的坐标所在区块未被加载</p>
+</li>
+</ul>
+</li>
+</ol>
+</li>
+</ul>
+</li>
+</ol>
+<p>为了让表述更流畅，上述描述并非与源代码 100% 对应的分析，但是其效果是等价的。具体代码可见：</p>
+<p> <code>net.minecraft.world.ServerTickList#tick (1.13.2 mcp)</code></p>
+<p><code>net.minecraft.server.world.ServerTickScheduler#tick (1.15.2 yarn)</code> </p>
+<h3 id="计划刻事件的添加"><a href="#计划刻事件的添加" class="headerlink" title="计划刻事件的添加"></a>计划刻事件的添加</h3><p>若要添加一个计划刻事件，需要传入以下的参数：</p>
+<ul>
+<li>方块/流体的坐标</li>
+<li>方块/流体的类型</li>
+<li>执行延迟</li>
+<li>事件优先级。若未指定则为默认值 0</li>
+</ul>
+<p>随后，游戏会依次执行下述步骤判断此次添加是否合法：</p>
+<ol>
+<li>若添加的是方块计划刻事件，则该事件方块不可为空气；若添加的是流体计划刻事件，则流体不可为空</li>
+<li>事件所在坐标的区块处于已加载状态</li>
+<li>计划刻队列中不存在相同的事件</li>
+</ol>
+<p>最后，一个新的计划刻事件将会创建并加入至计划刻队列中 <sup id="fnref:2"><a href="#fn:2" rel="footnote">2</a></sup>，其方块/流体的类型与坐标即为所给值，而执行时刻则从给出的执行延迟计算得到，为 <code>执行延迟 + 该纬度当前的游戏时间</code></p>
+<h3 id="计划刻事件的删除"><a href="#计划刻事件的删除" class="headerlink" title="计划刻事件的删除"></a>计划刻事件的删除</h3><p>计划刻事件在添加入计划刻队列后，是不会直接被游戏删除的，即便原方块/流体已经被改变。游戏中唯一类似删除计划刻事件的地方，是由于事件所处的区块被卸载，从而导致执行该事件的时候被游戏移除队列且不再加入队列不过放心，在区块卸载保存的时候，计划刻队列是会保存至磁盘的，因此不需要担心计划刻元件的动作被丢失了</p>
+<p>计划刻事件的不易被删除特性，在某些情况下是可以利用的</p>
+<h2 id="计划刻事件执行顺序"><a href="#计划刻事件执行顺序" class="headerlink" title="计划刻事件执行顺序"></a>计划刻事件执行顺序</h2><h3 id="单个元件"><a href="#单个元件" class="headerlink" title="单个元件"></a>单个元件</h3><blockquote>
+<p>事件间比较大小的关键字依次为：</p>
+<ol>
+<li>执行时刻，较小者优先</li>
+<li>事件优先级</li>
+<li>事件 id，较小者优先</li>
+</ol>
+</blockquote>
+<p>按照这三个关键字，我们可以很轻易地判断两个计划刻事件间的执行先后。前两个关键字很容易获得，但是第三个关键字并为直接给出，因此不能在前两个关键字相同的情况下，并不能直观地判断孰先孰后</p>
+<p>观察 <code>事件 id</code> 的定义，这是一个递增的不重复的整数，因此，先创建的计划刻事件一定会有较小的 <code>事件 id</code> ，也就是在执行时刻与事件优先级相同的情况下，先创建的事件会优先于后创建的事件执行</p>
+<p>也就是<strong>先进先出</strong>！</p>
+<p>下面是一些例子：</p>
+<p><img src="/2020/09/16/deeply-dissecting-minecraft_3-1/single0.png" alt="single0"></p>
+<p>执行时刻，A 先于 B，因此 A 先执行</p>
+<hr>
+<p><img src="/2020/09/16/deeply-dissecting-minecraft_3-1/single1.png" alt="single1"></p>
+<p>执行时刻：A 与 B 相同</p>
+<p>优先级：A 大于B</p>
+<p>因此 A 先执行</p>
+<hr>
+<p><img src="/2020/09/16/deeply-dissecting-minecraft_3-1/single2.png" alt="single2"></p>
+<p>执行时刻：相同</p>
+<p>优先级：相同</p>
+<p>创建顺序（事件 id）：A 先于 B</p>
+<p>因此 A 先执行</p>
+<h2 id="多元件组合"><a href="#多元件组合" class="headerlink" title="多元件组合"></a>多元件组合</h2><p>在<strong>总延迟相同</strong>的前提下，用不同档位凑出来的中继器/比较器序列谁先执行，是一个老生常谈的问题，比如下图</p>
+<p><img src="/2020/09/16/deeply-dissecting-minecraft_3-1/multi0.png" alt="multi0"></p>
+<p>由于总延迟是相同的，并且最末端的元件具有相同的优先级，我们不能简单地观察最末端的元件来判断执行顺序，我们需要结合其余元件进行考虑，得出最末端元件创建事件的顺序间的先后关系，从而得到执行顺序</p>
+<p>令拉杆拉下的时刻为 gt0。由于序列 A 的末端中继器的点亮事件是在 gt2 创建，而序列 B 末端中继器的点亮事件是在 gt8 创建，晚于序列 A 的末端中继器，因此序列 A 末端中继器先于序列 B 的激活</p>
+<p>如果还有更多的元件呢，那我们继续比较下去！</p>
+<ul>
+<li><p>如果最末端的元件点亮时刻与优先级均相同，则判断次末端元件的点亮先后</p>
+</li>
+<li><p>若次末端的元件点亮时刻与优先级均相同，则判断倒数第三个元件的点亮先后顺序</p>
+</li>
+<li><p>若倒数第三个元件的元件点亮时刻与优先级均相同，则判断倒数第四个元件的点亮先后顺序</p>
+</li>
+<li><p>……</p>
+</li>
+</ul>
+<p>这一步一步的套娃，正是一个典型的多关键字排序</p>
+<h3 id="通用的比较方法——多关键字排序"><a href="#通用的比较方法——多关键字排序" class="headerlink" title="通用的比较方法——多关键字排序"></a>通用的比较方法——多关键字排序</h3><p>前提条件：每一个序列由若干个计划刻元件组成，不同序列的输入时间（精度：游戏刻）以及输出时间均相同</p>
+<p>定义二元组 <code>(time, priority)</code> 表示一个元件的属性。其中 <code>time</code> 表示该元件的点亮的游戏刻，<code>priority</code> 表示该元件点亮事件的优先级。如一个位于 gt10 点亮的前方无方块的红石中继器可用 <code>(10, -1)</code> 这个二元组表示。</p>
+<p>对于二元组间的大小关系，首先比较二元组第一个元素的大小，相等的话再比较第二个元素的大小，因此二元组较小意味着执行顺序较先</p>
+<p>下面为该算法的实现流程：</p>
+<ol>
+<li>对于每个带比较的元件序列，<strong>从末端往前</strong>逆序地依次列出所有元件所代表的二元组，并在最后人为地附加一个终止符 <code>$</code>。规定，终止符比任意一个二元组都小</li>
+<li>随后，从前往后比较每个二元组的大小，这一步类似字符串间的大小判断。若大小不等，则比较结果已出，否则，比较下一位，重复直至得出结果</li>
+<li>如果两序列长度相对并且判断到终止符仍未出结果，则需要分析两个序列的输入信号的输入顺序了，这可能涉及到其他类型的元件/阶段相关的特性，在此处不展开分析。这可以看作是关键字的继续增加，本质上仍为多关键字排序</li>
+</ol>
+<p>下面是一些实例分析：</p>
+<p><img src="/2020/09/16/deeply-dissecting-minecraft_3-1/multi0.png" alt="multi0"></p>
+<ul>
+<li>A：<code>(10, -1)</code>, <code>(2, -3)</code>, <code>$</code><sup id="fnref:3"><a href="#fn:3" rel="footnote">3</a></sup></li>
+<li>B: <code>(10, -1)</code>, <code>(8, -3)</code>, <code>$</code></li>
+</ul>
+<p>比较：第一个二元组相等，均为 <code>(10, -1)</code>。对于第二个二元组，A 的更小，因此序列 A 先输出</p>
+<hr>
+<p><img src="/2020/09/16/deeply-dissecting-minecraft_3-1/multi1.png" alt="multi1"></p>
+<ul>
+<li>A: <code>(10, -1)</code>, <code>(2, -3)</code>, <code>$</code></li>
+<li>B: <code>(10, -1)</code>, <code>(2, -1)</code>, <code>$</code><sup id="fnref:4"><a href="#fn:4" rel="footnote">4</a></sup></li>
+<li>C: <code>(10, -1)</code>, <code>(4, -3)</code>, <code>$</code></li>
+<li>D: <code>(10, -1)</code>, <code>(6, -3)</code>, <code>$</code></li>
+<li>E: <code>(10, -1)</code>, <code>(8, -3)</code>, <code>$</code></li>
+</ul>
+<p>大小关系为：A &lt; B &lt; C &lt; D &lt; E</p>
+<hr>
+<p><img src="/2020/09/16/deeply-dissecting-minecraft_3-1/multi2.png" alt="multi2"></p>
+<ul>
+<li>A: <code>(4, -1)</code>, <code>$</code></li>
+<li>B: <code>(4, -1)</code>, <code>(2, -3)</code>, <code>$</code></li>
+<li>C: <code>(4, -1)</code>, <code>(2, -1)</code>, <code>$</code></li>
+<li>D: <code>(4, 0)</code>, <code>(2, -3)</code>, <code>$</code></li>
+<li>E: <code>(4, 0)</code>, <code>(2, 0)</code>, <code>$</code></li>
+</ul>
+<p>大小关系为：A &lt; B &lt; C &lt; D &lt; E</p>
+<h1 id="计划刻元件"><a href="#计划刻元件" class="headerlink" title="计划刻元件"></a>计划刻元件</h1><p>见《<a href="/2020/09/17/deeply-dissecting-minecraft_3-2/" title="深度剖析Minecraft 3-2 计划刻">深度剖析Minecraft 3-2 计划刻</a>》</p>
+<h1 id="应用"><a href="#应用" class="headerlink" title="应用"></a>应用</h1><h2 id="计划刻滞后-EMP"><a href="#计划刻滞后-EMP" class="headerlink" title="计划刻滞后/EMP"></a>计划刻滞后/EMP</h2><blockquote>
+<p>More like a redstone EMP</p>
+<p>—— Casper2002 @ <a href="https://youtu.be/1GWaZ5vEd3A">https://youtu.be/1GWaZ5vEd3A</a></p>
+</blockquote>
+<p>在分析计划刻阶段的流程时，细心的读者可能已经注意到了，每游戏刻可执行的计划刻事件数量有个 65536 的上限，超过上限的事件将会延迟到下一游戏刻尝试执行，这一点似乎是可以加以利用的</p>
+<p>如果我们认为的在某一游戏刻中添加了巨量的延迟相同的计划刻事件，使其数量超过了 65536，则可在游戏中制造一些正常情况下不可能发生的事情：某些计划刻事件被延后执行了。这可以用于无线红石信号传输、无限遥控飞行器，也可以用恶意破坏红石电路。该机制的作用范围是整个维度</p>
+<p>下面以该机制发现者 Xcom600 的《<a href="https://www.bilibili.com/video/BV16t411s7qi">原版生存无线红石</a>》为例，分析下其时序</p>
+<p><img src="/2020/09/16/deeply-dissecting-minecraft_3-1/emp-tower.png" alt="emp-tower"></p>
+<p><img src="/2020/09/16/deeply-dissecting-minecraft_3-1/emp-detector.png" alt="emp-detector"></p>
+<table>
+<thead>
+<tr>
+<th align="left">游戏刻</th>
+<th>游戏阶段</th>
+<th>事件</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">0</td>
+<td>TT (计划刻)，优先级=-2</td>
+<td>中继器熄灭，大量充能铁轨熄灭，更新 n, n &gt; 65536 个沙子方块。巨量的沙子方块添加了位于 gt 2 的计划刻事件</td>
+</tr>
+<tr>
+<td align="left">0</td>
+<td>TT (计划刻)，优先级=0</td>
+<td>某一侧两个侦测器分别检测到对脸的侦测器的变化，添加位于 gt 2 的计划刻事件。这个事件可能是用于熄灭侦测器，也有可能是用于点亮侦测器，不过这并不影响</td>
+</tr>
+<tr>
+<td align="left">2</td>
+<td>TT (计划刻)，优先级=0</td>
+<td>计划刻队列由 n 个沙子的事件以及 2 个侦测器的事件组成，其长度 &gt; 65536。游戏仅执行了前 65536 个计划刻事件吗，其余的 n - 65536 个计划刻事件，及侦测器的计划刻事件被推迟到下一个游戏刻执行</td>
+</tr>
+<tr>
+<td align="left">3</td>
+<td>TT (计划刻)，优先级</td>
+<td>其余的 n - 65536 个计划刻事件及侦测器的计划刻事件依次执行。<strong>我们获得了延迟了 3gt 才执行的侦测器</strong>。装置两侧的 4gt 对脸侦测器时钟从异步 1gt 变为同步或是异步 2gt</td>
+</tr>
+<tr>
+<td align="left"></td>
+<td></td>
+<td>无线红石检测装置检测到执行到了时序，输出信号</td>
+</tr>
+</tbody></table>
+<h2 id="随机刻伪造"><a href="#随机刻伪造" class="headerlink" title="随机刻伪造"></a>随机刻伪造</h2><p>也不知道是历史遗留问题还是代码的复用问题，在游戏中，每个方块被随机刻选中时所调用的默认方法是其执行计划刻事件时所调用的方法 <code>net.minecraft.block.Block#tick</code></p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Deprecated</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">randomTick</span><span class="params">(IBlockState state, World worldIn, BlockPos pos, Random random)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">this</span>.tick(state, worldIn, pos, random);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Deprecated</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">tick</span><span class="params">(IBlockState state, World worldIn, BlockPos pos, Random random)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>那些既可以响应随机刻，又可以响应计划刻的方块，在执行 <code>tick</code> 方法的时候，是怎么确认它该执行哪一部分的逻辑呢？Mojang 给出的答案是，在 <code>tick</code> 方法内即时判断</p>
+<p>以仙人掌为例。作为一种作物，仙人掌会在被随机刻选中时执行一次生长；作为一种对环境有依赖的植物，在发现其状态不适合生长时（沙子消失/水平毗邻 4 格方块存在可阻挡仙人掌生长的方块），会添加一个延迟为 1 的计划刻事件，用于变为空气并掉落物品，也用于使高耸入云的仙人掌柱能自底向上逐个破坏而减轻服务器的瞬时压力</p>
+<p><img src="/2020/09/16/deeply-dissecting-minecraft_3-1/cactus-broken.png" alt="cactus-broken"></p>
+<p>仙人掌 <code>tick</code> 方法内的逻辑如下所示（<code>net.minecraft.block.BlockCactus#tick</code>）</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">tick</span><span class="params">(IBlockState state, World worldIn, BlockPos pos, Random random)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (!state.isValidPosition(worldIn, pos))  <span class="comment">// 判断仙人掌所处位置是否合法</span></span><br><span class="line">    &#123;</span><br><span class="line">        worldIn.destroyBlock(pos, <span class="keyword">true</span>);  <span class="comment">// 破坏该仙人掌方块</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">/* 执行仙人掌生长逻辑 */</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>粗略一看，这个实现好像并没有问题，因为状态不合法而添加的计划刻事件在执行 <code>tick</code> 方法时就会在第一行的 if 判断中进入到破坏仙人掌方块分支</p>
+<p>不过仔细一想，并非如此。仙人掌在添加计划刻事件时所处位置不合法，<strong>并不意味</strong>着仙人掌在执行计划刻事件的时候所处位置仍不合法！如果我们通过某种手段，在仙人掌添加了用于破坏自身的计划刻事件后，在计划刻事件执行前，恢复仙人掌的生长环境，让仙人掌所处位置恢复到合法的适宜仙人掌生长的状态，则这个计划刻执行的时候将会执行随机刻的逻辑。这，就是随机刻伪造，也就算作物的强制催熟</p>
+<p>下面是一个仙人掌强制催熟装置的示意图。指向仙人掌的活塞每 0t 伸出一次，即可让仙人掌使用计划刻事件伪造一次随机刻事件，使其生长阶段 +1</p>
+<p><img src="/2020/09/16/deeply-dissecting-minecraft_3-1/force-growth.png" alt="force-growth"></p>
+<p>时序分析如下：</p>
+<table>
+<thead>
+<tr>
+<th>游戏刻</th>
+<th>游戏阶段</th>
+<th>事件</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>0</td>
+<td>BE，depth=0</td>
+<td>指向仙人掌的活塞开始伸出，活塞前方发出方块更新，更新到仙人掌方块。仙人掌检查自身状态，发现水平毗邻的方块存在一个活塞头，会阻挡生长，于是添加一个延迟为 1 的计划刻事件用于破坏自身</td>
+</tr>
+<tr>
+<td>0</td>
+<td>BE，depth=2</td>
+<td>指向仙人掌的活塞开始收回，活塞前方方块变为空气。<strong>此时仙人掌所处位置状态变为合法</strong></td>
+</tr>
+<tr>
+<td>1</td>
+<td>TT</td>
+<td>仙人掌执行其 <code>tick</code> 方法，判断所处位置是否合法，结果是合法，则执行随机刻相关的逻辑，生长阶段 +1</td>
+</tr>
+</tbody></table>
+<p>这就是强制催熟仙人掌的时序分析。由于仙人掌的计划刻延迟为 1gt，我们最快每秒可进行 $20 / 1 = 20$ 次强制催熟，也就是在忽略随机刻作用的前提下，需要 16 次生长才可增高的仙人掌一小时即可长高 $3600 * 20 / 16 = 4500$ 次，效率远超传统的自然生长仙人掌农田</p>
+<p>随机刻伪造在1.16中被修复，各种对随机刻有响应的方块执行随机刻相关逻辑的代码被移至了 <code>randomTick</code> 方法中</p>
+<h2 id="计划刻事件叠加"><a href="#计划刻事件叠加" class="headerlink" title="计划刻事件叠加"></a>计划刻事件叠加</h2><p>还有啥 rue<div id="footnotes"><hr><div id="footnotelist"><ol style="list-style:none; padding-left: 0;"><li id="fn:1"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">1.</span><span style="display: inline-block; vertical-align: top;">在实际的代码实现中，65536 这个限制是在循环开始前就应用了</span><a href="#fnref:1" rev="footnote"> ↩</a></li><li id="fn:2"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">2.</span><span style="display: inline-block; vertical-align: top;">在具体代码实现中，计划刻事件在检查的第三步已经创建，以便于判断计划刻队列中是否存在相同的事件</span><a href="#fnref:2" rev="footnote"> ↩</a></li><li id="fn:3"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">3.</span><span style="display: inline-block; vertical-align: top;">当中继器前方是非反向的中继器/比较器时，其点亮事件的优先级为 -3</span><a href="#fnref:3" rev="footnote"> ↩</a></li><li id="fn:4"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">4.</span><span style="display: inline-block; vertical-align: top;">当/比较器前方是非反向的中继器/比较器时，其点亮事件的优先级为 -1</span><a href="#fnref:4" rev="footnote"> ↩</a></li></ol></div></div></p>
+]]></content>
+      <categories>
+        <category>Minecraft</category>
+      </categories>
+      <tags>
+        <tag>Minecraft</tag>
+        <tag>深度剖析MC</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>深度剖析Minecraft 3-2 计划刻</title>
+    <url>/2020/09/17/deeply-dissecting-minecraft_3-2/</url>
+    <content><![CDATA[<h1 id="计划刻元件"><a href="#计划刻元件" class="headerlink" title="计划刻元件"></a>计划刻元件</h1><h2 id="红石二极管"><a href="#红石二极管" class="headerlink" title="红石二极管"></a>红石二极管</h2><blockquote>
+<p>net.minecraft.block.BlockRedstoneDiode (1.13.2 mcp)<br>net.minecraft.block.AbstractRedstoneGateBlock (1.15.2 yarn)</p>
+</blockquote>
+<p>这是一个抽象类，是红石中继器以及红石比较器的基类，也就是说中继器跟比较器的本质是一个二极管，有许多的机制是完全相同的</p>
+<p>合法环境需求：其下方依附着的方块上表面完整（<code>worldIn.getBlockState(pos.down()).isTopSolid()</code>），于受到方块更新时</p>
+<h3 id="红石中继器"><a href="#红石中继器" class="headerlink" title="红石中继器"></a>红石中继器</h3><h2 id="红石比较器"><a href="#红石比较器" class="headerlink" title="红石比较器"></a>红石比较器</h2><h2 id="红石火把"><a href="#红石火把" class="headerlink" title="红石火把"></a>红石火把</h2><h2 id="侦测器"><a href="#侦测器" class="headerlink" title="侦测器"></a>侦测器</h2><h2 id="投掷器-发射器"><a href="#投掷器-发射器" class="headerlink" title="投掷器/发射器"></a>投掷器/发射器</h2><h2 id="红石灯"><a href="#红石灯" class="headerlink" title="红石灯"></a>红石灯</h2><h2 id="探测类元件"><a href="#探测类元件" class="headerlink" title="探测类元件"></a>探测类元件</h2><h2 id="其他红石元件"><a href="#其他红石元件" class="headerlink" title="其他红石元件"></a>其他红石元件</h2><h2 id="非红石元件"><a href="#非红石元件" class="headerlink" title="非红石元件"></a>非红石元件</h2><h2 id="流体"><a href="#流体" class="headerlink" title="流体"></a>流体</h2>]]></content>
+      <categories>
+        <category>Minecraft</category>
+      </categories>
+      <tags>
+        <tag>Minecraft</tag>
+        <tag>深度剖析MC</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>深度剖析Minecraft 1 游戏流程</title>
+    <url>/2020/09/16/deeply-dissecting-minecraft_1/</url>
+    <content><![CDATA[<h1 id="游戏流程"><a href="#游戏流程" class="headerlink" title="游戏流程"></a>游戏流程</h1><h2 id="代码层面上的-GameTime-内游戏运算顺序"><a href="#代码层面上的-GameTime-内游戏运算顺序" class="headerlink" title="代码层面上的 GameTime 内游戏运算顺序"></a>代码层面上的 GameTime 内游戏运算顺序</h2><blockquote>
+<p>来吧顺着代码DFS</p>
+</blockquote>
+<p>让我们从Minecraft服务端最底层的代码 —— <code>MinecraftServer.tick()</code> 开始。<a id="more"></a>这个 tick 函数包含了两个与游戏阶段相关的函数：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 主运算部分</span></span><br><span class="line"><span class="keyword">this</span>.updateTimeLightAndEntities(hasTimeLeft) </span><br><span class="line"><span class="comment">// 900gt一次的自动保存</span></span><br><span class="line"><span class="keyword">this</span>.saveAllWorlds(<span class="keyword">true</span>);</span><br></pre></td></tr></table></figure>
+
+<p>随后我们进入到 <code>updateTimeLightAndEntities()</code> 中，在这里的精简代码（删去无关代码以及过长参数）如下</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">// MinecraftServer.tick()</span></span><br><span class="line"><span class="comment">// 成就命令相关</span></span><br><span class="line"><span class="keyword">this</span>.getFunctionManager().tick(); </span><br><span class="line"><span class="comment">// 循环每一个世界：</span></span><br><span class="line"><span class="keyword">for</span> (WorldServer worldserver : <span class="keyword">this</span>.getWorlds())</span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 同步玩家的客户端时间</span></span><br><span class="line">    <span class="keyword">this</span>.playerList.sendPacketToAllPlayersInDimension(<span class="keyword">new</span> SPacketTimeUpdate); </span><br><span class="line">    <span class="comment">// 运算游戏内容</span></span><br><span class="line">    worldserver.tick(hasTimeLeft); </span><br><span class="line">    <span class="comment">// 运算实体</span></span><br><span class="line">    worldserver.tickEntities(); </span><br><span class="line">    <span class="comment">// 传输至客户端的实体信息相关</span></span><br><span class="line">    worldserver.getEntityTracker().tick(); </span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 网络玩家信息运算</span></span><br><span class="line"><span class="keyword">this</span>.getNetworkSystem().tick(); </span><br></pre></td></tr></table></figure>
+
+<p>让我们进入 <code>worldserver.tick(hasTimeLeft)</code>，终于开始要有具体的游戏阶段了。精简代码如下</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">// worldserver.tick(hasTimeLeft)</span></span><br><span class="line"><span class="comment">// 极限模式下难度锁困难判断</span></span><br><span class="line"><span class="keyword">if</span> (<span class="keyword">this</span>.getWorldInfo().isHardcore() &amp;&amp; <span class="keyword">this</span>.getDifficulty() != EnumDifficulty.HARD)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">this</span>.getWorldInfo().setDifficulty(EnumDifficulty.HARD);</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 群系生成相关</span></span><br><span class="line"><span class="keyword">this</span>.chunkProvider.getChunkGenerator().getBiomeProvider().tick();</span><br><span class="line"><span class="keyword">if</span> (<span class="keyword">this</span>.areAllPlayersAsleep())</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">this</span>.getGameRules().getBoolean(<span class="string">&quot;doDaylightCycle&quot;</span>))</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">long</span> i = <span class="keyword">this</span>.worldInfo.getDayTime() + <span class="number">24000L</span>;</span><br><span class="line">        <span class="keyword">this</span>.worldInfo.setDayTime(i - i % <span class="number">24000L</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">this</span>.wakeAllPlayers();</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 刷怪</span></span><br><span class="line"><span class="keyword">this</span>.entitySpawner.findChunksForSpawning();</span><br><span class="line"><span class="keyword">this</span>.getChunkProvider().spawnMobs();</span><br><span class="line"><span class="comment">// 区块卸载</span></span><br><span class="line"><span class="keyword">this</span>.chunkProvider.tick(hasTimeLeft);</span><br><span class="line"><span class="comment">// 天空光衰减计算</span></span><br><span class="line"><span class="keyword">int</span> j = <span class="keyword">this</span>.calculateSkylightSubtracted(<span class="number">1.0F</span>);</span><br><span class="line"><span class="keyword">if</span> (j != <span class="keyword">this</span>.getSkylightSubtracted())</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">this</span>.setSkylightSubtracted(j);</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 设置GameTime与Daytime</span></span><br><span class="line"><span class="keyword">this</span>.worldInfo.setGameTime(<span class="keyword">this</span>.worldInfo.getGameTime() + <span class="number">1L</span>);</span><br><span class="line"><span class="keyword">if</span> (<span class="keyword">this</span>.getGameRules().getBoolean(<span class="string">&quot;doDaylightCycle&quot;</span>))</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">this</span>.worldInfo.setDayTime(<span class="keyword">this</span>.worldInfo.getDayTime() </span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 计划刻 Tile Tick (Next Tick Entry)</span></span><br><span class="line"><span class="keyword">this</span>.tickPending();</span><br><span class="line"><span class="comment">// 各类方块特性的运算，将进入继续分析</span></span><br><span class="line"><span class="keyword">this</span>.tickBlocks();</span><br><span class="line"><span class="comment">// 玩家加载的区块列表更新，并发送更新客户端世界信息的包</span></span><br><span class="line"><span class="keyword">this</span>.playerChunkMap.tick();</span><br><span class="line"><span class="comment">// 村庄运算</span></span><br><span class="line"><span class="keyword">this</span>.villageCollection.tick();</span><br><span class="line"><span class="comment">// 僵尸围城</span></span><br><span class="line"><span class="keyword">this</span>.villageSiege.tick();</span><br><span class="line"><span class="comment">// 地狱门缓存清空</span></span><br><span class="line"><span class="keyword">this</span>.worldTeleporter.tick(<span class="keyword">this</span>.getGameTime());</span><br><span class="line"><span class="comment">// 方块事件 Block Event</span></span><br><span class="line"><span class="keyword">this</span>.sendQueuedBlockEvents();</span><br></pre></td></tr></table></figure>
+
+<p>好的，我们再来看看 <code>this.tickBlocks();</code> 这个各类方块相关的事件运算。由于有部分事件已经涉及到了底层实现而没有用函数封装，对于这部分事件我用前缀”·”表示</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">// this.tickBlocks()</span></span><br><span class="line"><span class="comment">// 随机检查并更新玩家附近的亮度</span></span><br><span class="line"><span class="keyword">this</span>.playerCheckLight();</span><br><span class="line"><span class="comment">// 循环每个玩家周围的区块进行：</span></span><br><span class="line"><span class="keyword">for</span> (Iterator&lt;Chunk&gt; iterator = <span class="keyword">this</span>.playerChunkMap.getChunkIterator(); iterator.hasNext(); <span class="keyword">this</span>.profiler.endSection())</span><br><span class="line">&#123;</span><br><span class="line">    Chunk chunk = iterator.next();</span><br><span class="line">    <span class="comment">// 客户端的亮度检查</span></span><br><span class="line">    chunk.enqueueRelightChecks();</span><br><span class="line">    <span class="comment">// 天空光的计算与将新增的 Tile Entity 储存至区块内</span></span><br><span class="line">    chunk.tick(<span class="keyword">false</span>);</span><br><span class="line">    <span class="comment">// 生成雷电，以及骷髅马陷阱</span></span><br><span class="line">    ·thunder</span><br><span class="line">    <span class="comment">// 下雪与结冰</span></span><br><span class="line">    ·iceandsnow</span><br><span class="line">    <span class="comment">// 随机刻</span></span><br><span class="line">    ·randomTick</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>终于跟踪分析完<code>worldserver.tick(hasTimeLeft);</code>这个运算游戏内容，然后就是<code>worldserver.tickEntities();</code></p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">// worldserver.tickEntities()</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">tickEntities</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">// 维度卸载判定相关</span></span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">this</span>.playerEntities.isEmpty())</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span> (<span class="keyword">this</span>.updateEntityTick++ &gt;= <span class="number">300</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">this</span>.resetUpdateEntityTick();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 维度相关的运算，目前仅有末地的龙战相关逻辑</span></span><br><span class="line">    <span class="keyword">this</span>.dimension.tick();</span><br><span class="line">    <span class="comment">// 调用父类World的tickEntities()</span></span><br><span class="line">    <span class="keyword">super</span>.tickEntities();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">// World.tickEntities()</span></span><br><span class="line"><span class="comment">// 天气相关实体运算</span></span><br><span class="line">·weatherEffects</span><br><span class="line"><span class="comment">// 玩家实体运算</span></span><br><span class="line"><span class="keyword">this</span>.tickPlayers();</span><br><span class="line"><span class="comment">// 普通实体运算</span></span><br><span class="line">·loadedEntities</span><br><span class="line"><span class="comment">// 方块实体运算</span></span><br><span class="line">·TileEntities</span><br></pre></td></tr></table></figure>
+
+<p>现在让我们来按顺序总结一下所有的游戏阶段运行顺序：</p>
+<ol>
+<li>成就命令相关 <a href="net/minecraft/server/MinecraftServer.java:850">^codeOrder1</a></li>
+<li>同步玩家的客户端时间 <a href="net/minecraft/server/MinecraftServer.java:867">^codeOrder2</a></li>
+<li>极限模式下难度锁困难判断 <a href="net/minecraft/world/WorldServer.java:176">^codeOrder3</a></li>
+<li>群系生成相关 <a href="net/minecraft/world/WorldServer.java:181">^codeOrder4</a></li>
+<li>玩家睡觉逻辑 <a href="net/minecraft/world/WorldServer.java:183">^codeOrder5</a></li>
+<li>生物、怪物刷新 <a href="net/minecraft/world/WorldServer.java:196">^codeOrder6</a></li>
+<li>区块卸载  <a href="net/minecraft/world/WorldServer.java:203">^codeOrder7</a></li>
+<li>天空光衰减计算 <a href="net/minecraft/world/WorldServer.java:204">^codeOrder8</a></li>
+<li>设置 GameTime 与 Daytime <a href="net/minecraft/world/WorldServer.java:211">^codeOrder9</a></li>
+<li>计划刻 Tile Tick (Next Tick Entry) <a href="net/minecraft/world/WorldServer.java:219">^codeOrder10</a></li>
+<li>随机检查并更新玩家附近的亮度 <a href="net/minecraft/world/WorldServer.java:382">^codeOrder11</a></li>
+<li>天空光的计算与将新增的 Tile Entity 储存至区块内；雷电；下雪与结冰；随机刻 <a href="net/minecraft/world/WorldServer.java:400">^codeOrder12</a></li>
+<li>玩家加载的区块列表更新，并发送客户端方块更新数据包 <a href="net/minecraft/world/WorldServer.java:223">^codeOrder13</a></li>
+<li>村庄运算 <a href="net/minecraft/world/WorldServer.java:225">^codeOrder14</a></li>
+<li>僵尸围城 <a href="net/minecraft/world/WorldServer.java:226">^codeOrder15</a></li>
+<li>地狱门缓存清空 <a href="net/minecraft/world/WorldServer.java:228">^codeOrder16</a></li>
+<li>方块事件 Block Event <a href="net/minecraft/world/WorldServer.java:230">^codeOrder17</a></li>
+<li>维度卸载判定相关 <a href="net/minecraft/world/WorldServer.java:528">^codeOrder18</a></li>
+<li>维度相关的运算，目前仅有末地的龙战相关逻辑 <a href="net/minecraft/world/WorldServer.java:540">^codeOrder19</a></li>
+<li>天气相关实体运算 <a href="net/minecraft/world/World.java:1203">^codeOrder20</a></li>
+<li>玩家实体运算 <a href="net/minecraft/world/World.java:1256">^codeOrder21</a></li>
+<li>普通实体运算 <a href="net/minecraft/world/World.java:1257">^codeOrder22</a></li>
+<li>方块实体运算 <a href="net/minecraft/world/World.java:13113">^codeOrder23</a></li>
+<li>发送客户端实体更新数据包 <a href="net.minecraft.world.WorldServer.java:897">^codeOrder24</a></li>
+<li>网络玩家信息运算 <a href="net/minecraft/server/MinecraftServer.java:909">^codeOrder25</a></li>
+<li>自动保存 <a href="net/minecraft/server/MinecraftServer.java:811">^codeOrder26</a></li>
+</ol>
+<h2 id="GameTick"><a href="#GameTick" class="headerlink" title="GameTick"></a>GameTick</h2><p>GameTick（gt），也就是游戏刻，或者说游戏里的时间量，是用来衡量电路延迟、生物生存周期等的重要指标。要想明确 GameTick 是什么，就先得给出 GameTick 的定义</p>
+<p>作为一个离散的时间量，在游戏的运算过程中一定存在某个时刻，GameTick 这个时间量发生改变，这就是 GameTick 的分界线。在 1.1 节，我们从代码执行顺序的角度列出了游戏的运算顺序。在这个长达 24 条的列表里，我将 GameTick 的分界线的划分在：<strong>8. 设置GameTime与Daytime</strong>，并给出GameTick的定义：</p>
+<blockquote>
+<p>GameTick 为 x 的定义是：所有执行 <code>World.worldInfo.getGameTime()</code> 得到的返回值为 x 的时刻的集合</p>
+</blockquote>
+<p>于是，我们可以得到事件P发生于GameTick x的定义：</p>
+<blockquote>
+<p>一个事件P发生于 GameTick x 的定义为：<br>发生事件P时若执行<code>World.worldInfo.getGameTime()</code>，得到的返回值为 x</p>
+</blockquote>
+<p>这样做定义 GameTick 的好处有：</p>
+<ul>
+<li>与 TileTick 元件的执行时间相对应。在 GameTick N 触发的 x gt 延迟 TileTick 元件会在 GameTick N + x 执行动作</li>
+<li>可以直观地在代码中调用 <code>World.worldInfo.getGameTime()</code> 来确定当前的 GameTick</li>
+</ul>
+<p>定义完 GameTick 并确定好分界线后，我们就可以重新排列 1.1 节末尾的列表，并获得一个 GameTick 内各阶段发生的顺序了：</p>
+<ol>
+<li>设置 GameTime 与 Daytime</li>
+<li>计划刻 Tile Tick (Next Tick Entry)</li>
+<li>随机检查并更新玩家附近的亮度</li>
+<li>天空光的计算与将新增的 Tile Entity 储存至区块内；雷电；下雪与结冰；随机刻</li>
+<li>玩家加载的区块列表更新，并发送客户端方块更新数据包</li>
+<li>村庄运算</li>
+<li>僵尸围城</li>
+<li>地狱门缓存清空</li>
+<li>方块事件 Block Event</li>
+<li>维度卸载判定相关</li>
+<li>维度相关的运算，目前仅有末地的龙战相关逻辑</li>
+<li>天气相关实体运算</li>
+<li>玩家实体运算</li>
+<li>普通实体运算</li>
+<li>方块实体运算</li>
+<li>发送客户端实体更新数据包</li>
+<li>网络玩家信息运算</li>
+<li>自动保存</li>
+<li>成就命令相关</li>
+<li>同步玩家的客户端时间</li>
+<li>极限模式下难度锁困难判断</li>
+<li>群系生成相关</li>
+<li>刷怪</li>
+<li>玩家睡觉逻辑</li>
+<li>区块卸载</li>
+<li>天空光衰减计算</li>
+</ol>
+<p>对于与修改服务端世界相关的操作所在的阶段，此表可化简为以下<strong>常用阶段顺序表</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>序号</th>
+<th>阶段</th>
+<th>名称</th>
+<th>缩写</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>设置世界时间</td>
+<td>World Time Update</td>
+<td>WTU</td>
+</tr>
+<tr>
+<td>2</td>
+<td>计划刻</td>
+<td>Tile Tick (Next Tick Entry)</td>
+<td>TT (NTE)</td>
+</tr>
+<tr>
+<td>3</td>
+<td>随机刻与气候</td>
+<td>RandomTick&amp;Climate</td>
+<td>RTC</td>
+</tr>
+<tr>
+<td>4</td>
+<td>村庄相关</td>
+<td>Village</td>
+<td>V</td>
+</tr>
+<tr>
+<td>5</td>
+<td>方块事件</td>
+<td>Block Event</td>
+<td>BE</td>
+</tr>
+<tr>
+<td>6</td>
+<td>实体</td>
+<td>Entity Update</td>
+<td>EU</td>
+</tr>
+<tr>
+<td>7</td>
+<td>方块实体</td>
+<td>Tile Entity</td>
+<td>TE</td>
+</tr>
+<tr>
+<td>8</td>
+<td>玩家操作</td>
+<td>Network Update</td>
+<td>NU</td>
+</tr>
+<tr>
+<td>9</td>
+<td>刷怪</td>
+<td>Spawning</td>
+<td>S</td>
+</tr>
+<tr>
+<td>10</td>
+<td>区块卸载</td>
+<td>Chunk Unload</td>
+<td>CU</td>
+</tr>
+</tbody></table>
+<p>这个常用阶段顺序表是之后分析最为常用的列表，划重点记笔记！（其实只要记住缩写即可，因为下文会大量使用缩写）</p>
+<p>对于之后对精确到一个游戏刻内阶段的分析，我称之为：微观时序分析</p>
+<h2 id="游戏事件执行时刻"><a href="#游戏事件执行时刻" class="headerlink" title="游戏事件执行时刻"></a>游戏事件执行时刻</h2><blockquote>
+<p>这一章节的目的是概述各大部分游戏事件运作的时刻，其中性质的详细描述见后文</p>
+</blockquote>
+<p>在 1.2 里，存在以下几个游戏阶段为抽象的阶段，并未明确声明在其中会发生什么事件。它们是： </p>
+<ul>
+<li>计划刻 TT </li>
+<li>方块事件 BE</li>
+<li>方块实体 TE </li>
+<li>玩家操作 NU</li>
+</ul>
+<p>下面列一下大部分与之相关的游戏事件</p>
+<ul>
+<li>中继器、比较器、红石火把、侦测器的激活与熄灭：TT</li>
+<li>按钮、压力板、红石灯、绊线、绊线钩的激活：瞬时；熄灭：TT</li>
+<li>拉杆、红石线、铁轨、各类活版栅栏木铁门、漏斗、音符盒、投掷器发射器的激活与熄灭：瞬时</li>
+<li>投掷器发射器的工作：TT</li>
+<li>命令方块的运作：TT</li>
+<li>树叶、流体、脚手架的更新：TT</li>
+<li>重力方块判定并创建重力方块实体：TT</li>
+<li>活塞推拉的开始：BE</li>
+<li>移动中方块的运算：TE</li>
+<li>移动中方块的到位：BE（粘性活塞受短脉冲）；TE（粘性活塞受长信号）</li>
+<li>玩家移动、放置破坏方块、与方块交互：NU</li>
+</ul>
+<p>注：瞬时指的是可属于任意阶段，触发即运算</p>
+<h2 id="实例-自加载型区块加载器伪和平"><a href="#实例-自加载型区块加载器伪和平" class="headerlink" title="实例 自加载型区块加载器伪和平"></a>实例 自加载型区块加载器伪和平</h2><p>对于基于在卸载后能加载回自身的区块加载器的伪和平，在重加载时是否存在 1gt 的刷怪空档期是至关重要的，因为这直接与伪和平是否可用 100% 阻止生物刷新相关。完美的伪和平装置是不存在可刷怪空档期的</p>
+<p>让我们分析一下基于活塞区块加载器的伪和平：</p>
+<p>活塞区块加载器，利用了方块事件可以加载区块的原理，通过在每个gt利用活塞计划方块事件来确保自动保存后能加载回自身区块。</p>
+<p><img src="/deeply-dissecting-minecraft_1/BELoader1.png" alt="活塞加载器伪和平1"><br>备注：此活塞加载器并非完美设计，但足以应用于本实例分析</p>
+<p>这个方案是可以 100% 阻止生物刷新的，也就是不存在 1gt 的刷怪间隔。微观时序分析很简单。先列一下相关的阶段：</p>
+<table>
+<thead>
+<tr>
+<th>序号</th>
+<th>阶段</th>
+<th>名称</th>
+<th>缩写</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>5</td>
+<td>方块事件</td>
+<td>Block Event</td>
+<td>BE</td>
+</tr>
+<tr>
+<td>9</td>
+<td>刷怪</td>
+<td>Spawning</td>
+<td>S</td>
+</tr>
+<tr>
+<td>10</td>
+<td>区块卸载</td>
+<td>Chunk Unload</td>
+<td>CU</td>
+</tr>
+</tbody></table>
+<p>可看到，在自动保存等引发的区块卸载之后，下一次进行刷怪前，游戏执行了方块事件相关的运算，并在此处加载回了存怪的区块，让怪物容量超过上限，阻止下一次进行刷怪时的生物刷新。因此，这是一个完美的伪和平</p>
+<hr>
+<p>如果出于某些原因，活塞区块加载器与存怪装置不在同一个区块，需要使用漏斗加载存怪区块，如下图所示。这样的话这种伪和平装置是否还是完美的？</p>
+<p><img src="/deeply-dissecting-minecraft_1/BELoader2.png" alt="活塞加载器伪和平2"></p>
+<p>相关的阶段：</p>
+<table>
+<thead>
+<tr>
+<th>序号</th>
+<th>阶段</th>
+<th>名称</th>
+<th>缩写</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>5</td>
+<td>方块事件</td>
+<td>Block Event</td>
+<td>BE</td>
+</tr>
+<tr>
+<td>7</td>
+<td>方块实体</td>
+<td>Tile Entity</td>
+<td>TE</td>
+</tr>
+<tr>
+<td>9</td>
+<td>刷怪</td>
+<td>Spawning</td>
+<td>S</td>
+</tr>
+<tr>
+<td>10</td>
+<td>区块卸载</td>
+<td>Chunk Unload</td>
+<td>CU</td>
+</tr>
+</tbody></table>
+<p>让我们看一下这个设计的区块被卸载时的微观时序</p>
+<table>
+<thead>
+<tr>
+<th>GameTick</th>
+<th>阶段</th>
+<th>事件</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>N</td>
+<td>S</td>
+<td>伪和平开启，不刷怪</td>
+</tr>
+<tr>
+<td>N</td>
+<td>CU</td>
+<td>伪和平装置的区块被卸载</td>
+</tr>
+<tr>
+<td>N + 1</td>
+<td>BE</td>
+<td>活塞加载器区块加载，漏斗A被加载并立刻被添加至世界参与运算的TE列表</td>
+</tr>
+<tr>
+<td>N + 1</td>
+<td>TE</td>
+<td>漏斗加载存怪装置区块</td>
+</tr>
+<tr>
+<td>N + 1</td>
+<td>S</td>
+<td>刷怪阶段内怪物容量被占满，伪和平开启，不刷怪</td>
+</tr>
+</tbody></table>
+<p>因此，这个伪和平设计也能保证 100% 时刻不刷怪，是个完美的伪和平</p>
+<hr>
+<p>假如有个小天才嫌一个漏斗太少，非得多串几个漏斗才接到存怪装置区块，那会怎么样？</p>
+<p><img src="/deeply-dissecting-minecraft_1/BELoader3.png" alt="活塞加载器伪和平3"></p>
+<p>区块卸载在 GameTick N，活塞加载器自加载在 GameTick N+1 的  BE，三个漏斗依次加载区块使存怪区域在 GameTick N+1 的 TE 被加载？并不是这样的</p>
+<p>TE 阶段有个性质：在 TE 阶段内新增的 TE 实体，并不会立即参与运算，而是会先加入一个临时的列表 <code>addedTileEntityList</code>，等到该 TE 阶段运算结束后再统一添加新 TE 实体至参与运算的 TE 列表 <code>loadedTileEntityList</code> 中，也就是说在 GameTick N 新增的 TE 实体要等到 GameTick N+1 的 TE 阶段才能进行运算</p>
+<p>因此，这个小天才活塞区块加载器伪和平的微观时序是这样的：</p>
+<table>
+<thead>
+<tr>
+<th>GameTick</th>
+<th>阶段</th>
+<th>事件</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>N</td>
+<td>S</td>
+<td>伪和平开启，不刷怪</td>
+</tr>
+<tr>
+<td>N</td>
+<td>CU</td>
+<td>伪和平装置的区块被卸载</td>
+</tr>
+<tr>
+<td>N + 1</td>
+<td>BE</td>
+<td>活塞加载器区块加载，漏斗 A 被加载并立刻被添加至世界参与运算的TE列表</td>
+</tr>
+<tr>
+<td>N + 1</td>
+<td>TE</td>
+<td>漏斗 A 加载漏斗 B 所在的区块。漏斗 B 被加载但在 TE 阶段结束时才被添加进参与运算的 TE 列表</td>
+</tr>
+<tr>
+<td>N + 1</td>
+<td>S</td>
+<td>伪和平失效，<strong>刷怪</strong></td>
+</tr>
+<tr>
+<td>N + 2</td>
+<td>TE</td>
+<td>漏斗 B 加载漏斗 C 所在的区块。漏斗 C 被加载但在 TE 阶段结束时才被添加进参与运算的 TE 列表</td>
+</tr>
+<tr>
+<td>N + 2</td>
+<td>S</td>
+<td>伪和平失效，<strong>刷怪</strong></td>
+</tr>
+<tr>
+<td>N + 3</td>
+<td>TE</td>
+<td>漏斗 C 加载存怪装置区块</td>
+</tr>
+<tr>
+<td>N + 3</td>
+<td>S</td>
+<td>伪和平开启，不刷怪</td>
+</tr>
+</tbody></table>
+<p>因此这个伪和平方案在每次被卸载时，足足有 2gt 的刷怪空档期，不是一个完美的伪和平方案</p>
+]]></content>
+      <categories>
+        <category>Minecraft</category>
+      </categories>
+      <tags>
+        <tag>Minecraft</tag>
+        <tag>深度剖析MC</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>深度剖析Minecraft 2 方块更新</title>
+    <url>/2020/09/16/deeply-dissecting-minecraft_2/</url>
+    <content><![CDATA[<h1 id="方块更新"><a href="#方块更新" class="headerlink" title="方块更新"></a>方块更新</h1><p>感谢 <a href="https://space.bilibili.com/112998430">迟昫123</a> 与 <a href="https://space.bilibili.com/397105271">qwrrdshfsghv</a> 的捉虫</p>
+<h2 id="方块更新性质"><a href="#方块更新性质" class="headerlink" title="方块更新性质"></a>方块更新性质</h2><h3 id="方块更新的种类"><a href="#方块更新的种类" class="headerlink" title="方块更新的种类"></a>方块更新的种类</h3><p>1.13 之后，方块更新分为了两种类型，分别是 <code>NeighborChanged</code> 与 <code>PostPlacement</code>，简称 NC 与 PP 更新。若要与 1.13 之前相比，可将 1.13 之前的所有方块更新都视为 NC 更新</p>
+<p>这两种方块更新的类型在官方的反混淆表（来自 1.14.4）中的名称分别为 neighborChanged 与 updateShape，其命名也能有助于理解上述对两类方块更新具体含义</p>
+<a id="more"></a>
+
+<h4 id="NeighborChanged"><a href="#NeighborChanged" class="headerlink" title="NeighborChanged"></a>NeighborChanged</h4><p>NeighborChanged 更新，指的是最基础的，最符合“方块更新”一次含义的更新。红石元件的状态变化、方块的放置与破坏、方块开始移动以及方块到位都可以产生 NC 更新。除此之外，各种杂七杂八地方块变化<strong>大多</strong>也都能产生 NC 更新</p>
+<p>游戏里能产生 NC 更新的事件太多了，不便于一一列举。不过能响应 NC 更新的却不算多。<strong>所有</strong>能响应 NC 更新的事件有：</p>
+<ul>
+<li>活板门、栅栏门、木门、铁门更新开关状态</li>
+<li>霜冰检测融化</li>
+<li>活塞检测移动</li>
+<li>活塞头给予活塞底座 NC 更新</li>
+<li>红石粉、中继器、比较器、红石火把、各类铁轨、命令方块、投掷器、发射器、音符盒、红石灯、TNT更新状态</li>
+<li>水、岩浆检测状态</li>
+<li>灵魂沙、岩浆块添加生成气泡柱的 TT 事件</li>
+<li>海绵尝试吸水</li>
+</ul>
+<p><img src="/2020/09/16/deeply-dissecting-minecraft_2/NC%E6%9B%B4%E6%96%B0%E6%96%B9%E5%9D%97.png" alt="NC更新方块"></p>
+<p>对，就这些。不过，根据日常经验来看，有不少需要方块更新的事件却不在这。不要着急，他们在 PostPlacement 更新中</p>
+<p>有此可见，各类红石元件处于 bud 态时，如无信号源的伸出活塞，不点燃的 TNT 等，需要的是 NC 更新，才能让它们意识到状态改变而恢复到正常的状态</p>
+<h4 id="PostPlacement"><a href="#PostPlacement" class="headerlink" title="PostPlacement"></a>PostPlacement</h4><p>PostPlacement，指的是方块发生变化后导致的临近方块与之交互情况发生变化的更新。</p>
+<p><strong>所有</strong>能响应 PP 更新的事件有：</p>
+<ul>
+<li>各类依附性方块（火把、雪片地毯蛋糕、各类花草作物、拉杆按钮、木门铁门、火焰等）判断依附的方块是否合法并决定是否掉落</li>
+<li>连接型方块（栅栏石墙玻璃板、楼梯、箱子、红石粉绊线、地狱门、高草紫颂植物等）更新当前与相邻方块连接状态</li>
+<li>中继器更新被锁状态</li>
+<li>音符盒更新乐器类型</li>
+<li>树叶更新离木距离</li>
+<li>混凝土粉末判定是否凝固</li>
+<li>水源与可含水的方块添加更新流体状态的 TT 事件</li>
+<li><strong>侦测器添加发出信号的 TT 事件</strong></li>
+<li>重力方块添加检测掉落的 TT 事件</li>
+<li>草径、耕地添加检测是否被压的 TT 事件</li>
+<li><strong>仙人掌添加状态是否合法的 TT 事件</strong></li>
+<li>活珊瑚添加检测是否离水的 TT 事件</li>
+</ul>
+<p><img src="/2020/09/16/deeply-dissecting-minecraft_2/PP%E6%9B%B4%E6%96%B0%E6%96%B9%E5%9D%97.png" alt="PP更新方块"></p>
+<p>有一点值得注意，调用 PP 更新时是带有一个方向参数的，也就是 PP 更新是有着方向区别的，方向不对的 PP 更新在某些代码中存在特判情况下并不能影响方块的状态。比如，对于一个依附于西面方块上的浮空火把，从东南北上下放置破坏方块触发 PP 更新是无法让它掉落的。这一点也是 1.13+ 与 1.12- 的一个重要的区别。</p>
+<h2 id="方块更新的实现"><a href="#方块更新的实现" class="headerlink" title="方块更新的实现"></a>方块更新的实现</h2><p>先把会出现的名词列一遍：</p>
+<ul>
+<li>一个位置的方块（以下简称方块）受到了 NC 更新</li>
+<li>一个方块发出了 NC 更新</li>
+<li>一个方块发出了除 <code>&lt;方向&gt;</code> 外的 NC 更新</li>
+<li>一个方块受到了 PP 更新</li>
+<li>一个方块发出了 PP 更新</li>
+</ul>
+<p>注1：<code>&lt;方向&gt;</code> 为 <code>东</code> <code>南</code> <code>西</code> <code>北</code> <code>上</code> <code>下</code> 中的任意一者</p>
+<p>注2：一个方块发出方块更新，也就是一个方块于其所在位置发出方块更新，或者说是一个位置发出了方块更新，由于指的都是一种事件并无歧义，都是可行的表述，可视上下文语境挑选合适者</p>
+<h3 id="一个方块受到了-NC-更新"><a href="#一个方块受到了-NC-更新" class="headerlink" title="一个方块受到了 NC 更新"></a>一个方块受到了 NC 更新</h3><p>一个方块受到了 NC 更新，将会调用位于这个方块的 <code>neighborChanged</code> 方法，并处理受到更新后的改变（见2.1.1.1 NeighborChanged）</p>
+<p>具体代码见下 World 类中的 <code>neighborChanged</code> 方法</p>
+<h3 id="一个方块发出了-NC-更新"><a href="#一个方块发出了-NC-更新" class="headerlink" title="一个方块发出了 NC 更新"></a>一个方块发出了 NC 更新</h3><p><img src="/2020/09/16/deeply-dissecting-minecraft_2/%E5%85%AD%E6%AF%97%E9%82%BB%E6%96%B9%E5%9D%97.png" alt="六毗邻方块"></p>
+<p>当一个方块发出 NC 更新时，这个方块将会使其毗邻的六个方块依次受到 NC 更新。这里的“依次受到”的顺序为：</p>
+<ol>
+<li>西 -x</li>
+<li>东 +x</li>
+<li>下 -y</li>
+<li>上 +y</li>
+<li>北 -z</li>
+<li>南 +z</li>
+</ol>
+<p>具体代码见下 World 类中的 <code>notifyNeighborsOfStateChange</code></p>
+<h3 id="一个方块发出了除-lt-方向-gt-外的-NC-更新"><a href="#一个方块发出了除-lt-方向-gt-外的-NC-更新" class="headerlink" title="一个方块发出了除 &lt;方向&gt; 外的 NC 更新"></a>一个方块发出了除 &lt;方向&gt; 外的 NC 更新</h3><p>注：<code>&lt;方向&gt;</code> 为 <code>东</code> <code>南</code> <code>西</code> <code>北</code> <code>上</code> <code>下</code> 中的任意一者</p>
+<p>一个方块发出了除 <code>&lt;方向&gt;</code> 外的 NC 更新的表现，与上 2.2.2 并无太大区别区别仅为这次发出的 NC 更新将会跳过指定的一个方向，也就是只更新 5 个毗邻的方块</p>
+<p>这种特殊的方块更新<strong>仅</strong>于中继器/比较器/侦测器在其指向方块发出更新时使用</p>
+<p><img src="/2020/09/16/deeply-dissecting-minecraft_2/%E4%BA%94%E6%AF%97%E9%82%BB%E6%96%B9%E5%9D%97.png" alt="五毗邻方块"></p>
+<p>具体代码见下 World 类中的 <code>notifyNeighborsOfStateExcept</code> 方法</p>
+<h3 id="一个方块受到了-PP-更新"><a href="#一个方块受到了-PP-更新" class="headerlink" title="一个方块受到了 PP 更新"></a>一个方块受到了 PP 更新</h3><p>一个方块受到了 PP 更新，将会调用位于这个方块的 <code>updatePostPlacement</code> 方法，并处理受到更新后的改变（见2.1.1.2 PostPlacement）</p>
+<p>具体代码见下 IBlockState 类中的 <code>updatePostPlacement</code> 方法</p>
+<h3 id="一个方块发出了-PP-更新"><a href="#一个方块发出了-PP-更新" class="headerlink" title="一个方块发出了 PP 更新"></a>一个方块发出了 PP 更新</h3><p><img src="/2020/09/16/deeply-dissecting-minecraft_2/%E5%85%AD%E6%AF%97%E9%82%BB%E6%96%B9%E5%9D%97.png" alt="六毗邻方块"></p>
+<p>当一个方块发出 PP 更新时，这个方块将会使其毗邻的六个方块依次受到 PP 更新。这里的“依次受到”的顺序为：</p>
+<ol>
+<li>西 -x</li>
+<li>东 +x</li>
+<li>北 -z</li>
+<li>南 +z</li>
+<li>下 -y</li>
+<li>上 +y</li>
+</ol>
+<p>可以发现，PP 更新的更新顺序是 xzy 而非 NC 更新的 xyz。这一点是值得注意的</p>
+<p>具体代码见下 Block 类中的 <code>updateNeighbors</code> 方法</p>
+<h2 id="瞎扯"><a href="#瞎扯" class="headerlink" title="瞎扯"></a>瞎扯</h2><p>NC 与 PP 更新这两种更新概念非常类似容易混淆，我个人觉得可以这样理解：</p>
+<ul>
+<li>NC 是红石元件等功能性方块的状态的更新</li>
+<li>PP 是因与周围方块交互，导致一个方块状态改变的更新</li>
+</ul>
+<p>因为 NC 更新的大部分是属于红石元件的相应，而 PP 更新更偏向于相邻方块状态变化造成的响应。不过得具体情况具体分析不能一概而论。</p>
+<p>可以发现上述部分我描述方块更新的具体例子时都是列举响应方块更新的实例，没有列举产生方块更新的事件。这是因为 MC 里能产生方块更新的地方实在是太多了。</p>
+<p>1.13 把方块更新拆成两类的做法有些魔幻，不知道麻将是想优化游戏还是只是想乱改改赌一赌能不能修掉 TNT 复制。不过至少对于绝大部分电路中利用到方块更新的部分是没有影响的</p>
+<p>麻将代码中还有些很迷惑的地方，比如同样是气泡柱产生源，除了放下方块时均会添加尝试生成气泡的 TT 事件外，灵魂沙只在受到 NC 更新时添加 TT 事件，而岩浆块只在受到上方的来自水的 PP 更新时添加 TT 事件</p>
+<h2 id="方块变化的实现"><a href="#方块变化的实现" class="headerlink" title="方块变化的实现"></a>方块变化的实现</h2><p>MC 里绝大部分对世界中方块的修改是通过 <code>World</code> 类的 <code>setBlockState</code> <a href="net/minecraft/world/World.java:226">^setBlockState</a> 来实现的。以将位置 Pos 的方块从 A 修改至 B 的流程如下：</p>
+<ol>
+<li>运算方块变化导致区段信息的改变</li>
+<li>更新 Heightmap</li>
+<li>调用 A 的 <code>onReplaced</code> 方法</li>
+<li>更新天空光</li>
+<li>调用 B 的 <code>onBlockAdded</code> 方法</li>
+<li>更新可能的新的方块实体</li>
+<li>更新方块光</li>
+<li>位于 Pos 的方块发出一次 NC 更新</li>
+<li>若 B 能被比较器响应则更新附近的比较器</li>
+<li>位于 Pos 的方块发出一次 PP 更新</li>
+</ol>
+<p>其中 8.、9.、10. 在不同类型中的方块变化里是可选跳过的，具体实现是游戏在调用 <code>setBlockState</code> 的时候会传递一个 <code>flags</code> 参数，通过设置 <code>flags</code> 不同二进制位中的 0/1 来实现对修改完方块后触发各种方式各种类型方块更新的控制，也就是说 <code>setBlockState</code> 会产生的方块更新的种类与方式有着非常多种可能，因此一一列举是不太现实的。不过，经验告诉我们：</p>
+<ul>
+<li>方块的人工放置与破坏、音符盒与活塞的动作会先后产生 NC 与 PP 更新</li>
+<li>各种方块状态的改变如门的开关、栅栏的连接、中继器的激活会在其所在位置产生 PP 更新</li>
+<li>可强充能的红石信号源元件能产生大范围的 NC 更新</li>
+<li>等等</li>
+</ul>
+<h2 id="方块更新检测器-发生器"><a href="#方块更新检测器-发生器" class="headerlink" title="方块更新检测器 / 发生器"></a>方块更新检测器 / 发生器</h2><p>一个被 QC 激活的 bud 态活塞，即为一个 NC 更新检测器，这也是最常用的 NC 更新检测器。当活塞底座受到 NC 更新时，活塞将在下一个 BE 阶段开始伸缩一次</p>
+<p><img src="/2020/09/16/deeply-dissecting-minecraft_2/bud%E6%B4%BB%E5%A1%9E.png" alt="bud活塞"></p>
+<p>能响应 PP 更新并能多次使用的方块寥寥无几，做常用的就是侦测器了。当侦测器脸朝着的方块发出一个 PP 更新时，侦测器将会立即添加一个 TT 事件并在对应的 TT 阶段输出脉冲，因此侦测器是一个很棒的 PP 更新检测器。图里则是侦测器检测栅栏门开关的一个例子</p>
+<p><img src="/2020/09/16/deeply-dissecting-minecraft_2/%E4%BE%A6%E6%B5%8B%E5%99%A8.png" alt="侦测器"></p>
+<p>上面就是两种十分常用的方块更新检测器，当然能检测 NC 或 PP 更新的方式还有很多，这里就不一一叙述了。</p>
+<p>至于方块更新发生器，能同时发出 NC + PP 更新的事件有很多，如方块的放置、音符盒的点击。他们都能同时使 NC 更新检测器与 PP 更新检测器响应</p>
+<p><img src="/2020/09/16/deeply-dissecting-minecraft_2/%E6%94%BE%E7%BD%AE%E6%96%B9%E5%9D%97.png" alt="放置方块"></p>
+<p>如果要只发出 NC 更新，可以使用红石元件，如中继器。中继器在调节档位时会在其指向的方块的位置发出一个 NC 更新</p>
+<p><img src="/2020/09/16/deeply-dissecting-minecraft_2/%E4%B8%AD%E7%BB%A7%E5%99%A8%E6%9B%B4%E6%96%B0.png" alt="中继器更新"></p>
+<p>还有一种可行的方法是打开箱子。对于一个箱子，当玩家打开它时它会发出一个 NC 更新</p>
+<p><img src="/2020/09/16/deeply-dissecting-minecraft_2/%E6%89%93%E5%BC%80%E7%AE%B1%E5%AD%90.png" alt="打开箱子"></p>
+<p>如果仅需发出 PP 更新，常用的方法则是开关栅栏门/活板门。当栅栏门/活板门开关时，它们仅会发出一个 PP 更新而无 NC 更新</p>
+<p><img src="/2020/09/16/deeply-dissecting-minecraft_2/%E6%89%93%E5%BC%80%E6%A0%85%E6%A0%8F%E9%97%A8.png" alt="打开栅栏门"></p>
+<h2 id="即时更新元件"><a href="#即时更新元件" class="headerlink" title="即时更新元件"></a>即时更新元件</h2><p>即时更新元件，指的是那些收到方块更新后立即在当前阶段改变其状态，并发出指定类型的更新（可能没有）的元件。它们被广泛地用于信号传递以及方块更新的传导</p>
+<h3 id="充能-激活铁轨"><a href="#充能-激活铁轨" class="headerlink" title="充能 / 激活铁轨"></a>充能 / 激活铁轨</h3><p>当充能 / 激活铁轨（以下以充能铁轨为例）受到 NC 更新时，它会先检测当前位置是否合法。若不合法，则掉落，否则执行铁轨的更新</p>
+<p>在铁轨的更新中，首先铁轨会通过计算临近铁轨状态来判断当前的状态是否需要改变，具体怎么判断的这里就不多解释了。如果需要更新，铁轨会依次执行位于 BlockRailPowered 类的 <code>updateState</code> 方法中的以下内容：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">worldIn.setBlockState(pos, state.with(POWERED, Boolean.valueOf(flag1)), 3);</span><br><span class="line">worldIn.notifyNeighborsOfStateChange(pos.down(), this);</span><br><span class="line"></span><br><span class="line">if (state.get(SHAPE).isAscending())</span><br><span class="line">&#123;</span><br><span class="line">    worldIn.notifyNeighborsOfStateChange(pos.up(), this);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>也就是：</p>
+<ol>
+<li>改变方块状态，在铁轨处依次发出 NC 与 PP 更新</li>
+<li>在铁轨下方一格发出 NC 更新</li>
+<li>若铁轨是倾斜放置的，则在铁轨上方一格发出 NC 更新</li>
+</ol>
+<p>不过，注意到，充能铁轨的 <code>onReplaced</code> 方法本身也有进行方块更新。对于充能铁轨而言，<code>onReplaced</code> 方法将依次执行：</p>
+<ol>
+<li>若铁轨是倾斜放置的，则在铁轨上方一格发出 NC 更新</li>
+<li>在铁轨自身位置发出 NC 更新</li>
+<li>在铁轨下方一格发出 NC 更新</li>
+</ol>
+<p>因此，合并起来，在充能铁轨状态改变时，将会依次执行这些方块更新：</p>
+<ol>
+<li>若铁轨是倾斜放置的，则在铁轨上方一格发出 NC 更新</li>
+<li>在铁轨自身位置发出 NC 更新</li>
+<li>在铁轨下方一格发出 NC 更新</li>
+<li>在铁轨自身位置发出 NC 更新</li>
+<li>在铁轨自身位置发出 PP 更新</li>
+<li>在铁轨下方一格发出 NC 更新</li>
+<li>若铁轨是倾斜放置的，则在铁轨上方一格发出 NC 更新</li>
+</ol>
+<p>别问我为什么要这么繁琐地更新，要问就问麻将</p>
+<h3 id="红石粉"><a href="#红石粉" class="headerlink" title="红石粉"></a>红石粉</h3><p>红石粉方块几乎仅对 NC 更新进行响应，即使是判断自身位置是否合法也是通过 NC 更新进行的。对于 PP 更新，红石粉接受上方和四周的 PP 更新用来更新与相邻红石粉的被实体方块压线/连接状态</p>
+<p>当红石粉受到 NC 更新时，它会计算不考虑自己时它能达到的信号强度，如果不同，则进行更新。红石粉将会在其位置发出 NC 更新，并在于其毗邻的 6 个方块的位置上发出 NC 更新，总共有 7 个位置将会发出 NC 更新。这七个位置的更新顺序并不是固定的，游戏会将这 7 个位置存入一个哈希表并导出成列表，随后逐个读取列表里的位置进行发出 NC 更新。至于为什么要用哈希表打乱，问麻将去¯_(ツ)_/¯</p>
+<h3 id="活板-栅栏-木门、漏斗"><a href="#活板-栅栏-木门、漏斗" class="headerlink" title="活板/栅栏/木门、漏斗"></a>活板/栅栏/木门、漏斗</h3><p>各类活板门、栅栏门、木门铁门，以及漏斗的机制，算是比较简单的。它们在由于玩家操作或者红石信号导致开关状态的改变时，会在所在位置<strong>立即</strong>触发一个 PP 更新，仅此而已。因此，它们并不能用来更新 bud 态的元件</p>
+<h3 id="音符盒"><a href="#音符盒" class="headerlink" title="音符盒"></a>音符盒</h3><p>音符盒与各类门很相似，但却有不少不同。</p>
+<ul>
+<li>音符盒在被玩家右键调音时，或者在被红石信号激活/取消激活时，会<strong>立即</strong>在所在的位置先后触发 NC 与 PP 更新。这也是音符盒可以用于更新 bud 态的元件的原因</li>
+<li>音符盒在被玩家左键发音时，不会触发方块更新</li>
+</ul>
+<p>音符盒进行上述三类操作（调音 / 发音 / 激活）后，会在可以发音时，即上方是空气方块时，计划一个 BlockEvent ，并在 BE 阶段发出对应的声音并生成音符粒子</p>
+<h3 id="依附性方块"><a href="#依附性方块" class="headerlink" title="依附性方块"></a>依附性方块</h3><p>绝大部分依附性方块，如火把、花草、红石粉、耕地上的作物，在受到来自其附着方块位置的 PP 或 NC 更新时，都会立即破坏并依据情况掉落。因此它们也可称为即时更新的元件</p>
+<p>之所以说是绝大部分，是因为存在某些如紫颂花、仙人掌等的依附性方块是在 TileTick 阶段进行掉落的，这也给强制催熟的可能性打下了基础</p>
+<h3 id="半即时更新元件"><a href="#半即时更新元件" class="headerlink" title="半即时更新元件"></a>半即时更新元件</h3><p>这类元件仅在激活/触发时为即时更新，但在取消激活时是在 TileTick 阶段进行运算的。它们有：</p>
+<ul>
+<li>按钮</li>
+<li>压力板</li>
+<li>绊线</li>
+<li>绊线钩</li>
+<li>红石灯</li>
+</ul>
+<h2 id="更新抑制"><a href="#更新抑制" class="headerlink" title="更新抑制"></a>更新抑制</h2><p>一个方块发出方块的更新可以导致了另一个方块的更新，如果此时另一个方块也发出了方块更新，那么说不定可以再更新一个新的方块。如果有无限的方块排一排等着更新，如果给一它们一个方块更新，它们能一口气全部更新完吗？虽然实际上应该是可以的，但是基于 MC 的实现机制，答案是：不行</p>
+<p><img src="/2020/09/16/deeply-dissecting-minecraft_2/%E5%A4%A7%E9%9D%A2%E7%A7%AF%E7%9A%84bud%E9%93%81%E8%BD%A8.png" alt="大面积的bud铁轨"></p>
+<p>在处理方块更新时，游戏内是简单地通过递归处理的，而最大的递归次数，是由 java 虚拟机的栈空间所决定的。栈空间不像堆空间，在默认条件下容量不大，这导致了当出现递归更新过量方块时栈空间将会耗尽，导致 java 抛出了栈溢出的异常（实际上栈溢出后可能抛出的是其他类型的异常，这里为了方便表述称其为栈溢出异常）</p>
+<p>异常可是个很危险的东西。出现异常时，程序将会一直忽略之后的操作，一直往外跳出，直到异常被捕获。在大部分 MC 流程中，异常将会在最底层的 MinecraftServer 类的 <code>run</code> 方法中被捕获，随后游戏将生成崩溃报告并强行关闭服务器，也就是崩服，服务器崩溃了</p>
+<p>不过，如果一个异常是在玩家操作阶段被玩家的动作触发，则这个异常将会在 Util 类的 <code>runTask</code> 方法中被捕获并作为一个 Fatal 输出，而非被 MinecraftServer 捕获，也就是说玩家动作引发的异常是不会引起服务端崩溃的。作为异常之一的栈溢出，如果是由玩家操作引起的，比如玩家打掉了一个接连插了几千个旗子的方块，或者玩家在大面积的 bud 态充能铁轨旁边放置了方块，虽会导致栈溢出，但都<strong>不会</strong>导致游戏崩溃</p>
+<p><img src="/2020/09/16/deeply-dissecting-minecraft_2/%E6%89%8B%E6%94%BE%E6%96%B9%E5%9D%97.png" alt="手放方块"></p>
+<p>由于栈溢出可以跳过在异常捕获前的所有运算，因此可以用此来跳过一些运算以实现普通游戏里不可能的操作，如跳过对特定方块的更新，从而制造各种悬空木门、贴在告示牌背面的告示牌、切片的地狱门；也可以跳过对玩家物品栏物品的操作，在不消耗工具耐久或者不消耗手中物品的情况下破坏/放置方块。这一类操作，我们统称为为<strong>更新抑制</strong></p>
+<p><img src="/2020/09/16/deeply-dissecting-minecraft_2/%E6%9B%B4%E6%96%B0%E6%8A%91%E5%88%B6.png" alt="更新抑制"></p>
+<p>关于更新抑制与可协助产生更新抑制的更新抑制器，Xcom6000 制作过一个非常详细的讲解视频，红石科技搬运组已在 bilibili 将其翻译成熟肉。推荐大家去观看学习。<a href="https://www.bilibili.com/video/av83979198">传送门</a></p>
+<h3 id="方块更新与深度优先搜索"><a href="#方块更新与深度优先搜索" class="headerlink" title="方块更新与深度优先搜索"></a>方块更新与深度优先搜索</h3><p>方块受到更新，方块改变状态，方块发出更新，依次更新毗邻方块，新方块受到更新……这一层层递归的过程，本质上正是一个深度优先搜索，也就是 DFS（Depth First Search）。每当一个 bud 充能铁轨受到更新了，将会按照其发出 NC 更新的顺序，以及 NC 更新的更新顺序，往新的 bud 铁轨方块递归下去</p>
+<p>关于深度优先搜索，或者 DFS，网络上相关的资料一搜一大把，这里就不再重复阐述了</p>
+<p>使用更新抑制来阻断方块更新的一个难点，即是如何控制更新顺序，使<strong>方块更新在传递至需阻止更新的方块前就进入更新抑制器</strong>触发栈溢出。现在，方块更新传递的机制我们已探明（DFS），方块更新顺序我们也已清楚（NC / PP更新的更新顺序），只要了解清楚 DFS 的机制确定好更新顺序方向，就可以轻松的计算出来了</p>
+]]></content>
+      <categories>
+        <category>Minecraft</category>
+      </categories>
+      <tags>
+        <tag>Minecraft</tag>
+        <tag>深度剖析MC</tag>
+      </tags>
+  </entry>
+</search>
