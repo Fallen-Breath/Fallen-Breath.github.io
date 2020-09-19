@@ -358,59 +358,28 @@
 <p>优先级：相同</p>
 <p>创建顺序（事件 id）：A 先于 B</p>
 <p>因此 A 先执行</p>
-<h2 id="多元件组合"><a href="#多元件组合" class="headerlink" title="多元件组合"></a>多元件组合</h2><p>在<strong>总延迟相同</strong>的前提下，用不同档位凑出来的中继器/比较器序列谁先执行，是一个老生常谈的问题，比如下图</p>
+<h2 id="多元件组合"><a href="#多元件组合" class="headerlink" title="多元件组合"></a>多元件组合</h2><p>在<strong>总延迟相同</strong>的前提下，用不同档位凑出来的中继器/比较器序列谁先输出信号，是一个老生常谈的问题，比如下图</p>
 <p><img src="/2020/09/16/deeply-dissecting-minecraft_3-1/multi0.png" alt="multi0"></p>
 <p>由于总延迟是相同的，并且最末端的元件具有相同的优先级，我们不能简单地观察最末端的元件来判断执行顺序，我们需要结合其余元件进行考虑，得出最末端元件创建事件的顺序间的先后关系，从而得到执行顺序</p>
-<p>令拉杆拉下的时刻为 gt0。由于序列 A 的末端中继器的点亮事件是在 gt2 创建，而序列 B 末端中继器的点亮事件是在 gt8 创建，晚于序列 A 的末端中继器，因此序列 A 末端中继器先于序列 B 的激活</p>
+<p>由于在这些判断顺序的实例中，第 n 个元件的计划刻事件创建事件往往是与第 n - 1 个元件的点亮时刻是相同的，因此可以用低 n -1 个元件的点亮时刻来替代第 n 个元件的创建事件时刻</p>
+<p>令拉杆拉下的时刻为 gt0。由于序列 A 的第一个中继器是在 gt2 点亮，而序列 B 的第一个中继器是在 gt 8 点亮，晚于序列 A 的第一个中继器，因此序列 A 的第二个也就是末端的中继器先于序列 B 的末端中继器激活</p>
 <p>如果还有更多的元件呢，那我们继续比较下去！</p>
 <ul>
-<li><p>如果最末端的元件点亮时刻与优先级均相同，则判断次末端元件的点亮先后</p>
-</li>
-<li><p>若次末端的元件点亮时刻与优先级均相同，则判断倒数第三个元件的点亮先后顺序</p>
-</li>
-<li><p>若倒数第三个元件的元件点亮时刻与优先级均相同，则判断倒数第四个元件的点亮先后顺序</p>
-</li>
-<li><p>……</p>
-</li>
+<li>若次末端的元件点亮时刻与优先级均相同，则判断倒数第三个元件的点亮先后顺序</li>
+<li>若倒数第三个元件的元件点亮时刻与优先级均相同，则判断倒数第四个元件的点亮先后顺序</li>
+<li>……</li>
 </ul>
-<p>这一步一步的套娃，正是一个典型的多关键字排序</p>
-<h2 id="通用的比较方法——多关键字排序"><a href="#通用的比较方法——多关键字排序" class="headerlink" title="通用的比较方法——多关键字排序"></a>通用的比较方法——多关键字排序</h2><p>前提条件：每一个序列由若干个计划刻元件组成，不同序列的输入时间（精度：游戏刻）以及输出时间均相同</p>
-<p>定义二元组 <code>(time, priority)</code> 表示一个元件的属性。其中 <code>time</code> 表示该元件的点亮的游戏刻，<code>priority</code> 表示该元件点亮事件的优先级。如一个位于 gt10 点亮的前方无方块的红石中继器可用 <code>(10, -1)</code> 这个二元组表示。</p>
-<p>对于二元组间的大小关系，首先比较二元组第一个元素的大小，相等的话再比较第二个元素的大小，因此二元组较小意味着执行顺序较先</p>
-<p>下面为该算法的实现流程：</p>
-<ol>
-<li>对于每个带比较的元件序列，<strong>从末端往前</strong>逆序地依次列出所有元件所代表的二元组，并在最后人为地附加一个终止符 <code>$</code>。规定，终止符比任意一个二元组都小</li>
-<li>随后，从前往后比较每个二元组的大小，这一步类似字符串间的大小判断。若大小不等，则比较结果已出，否则，比较下一位，重复直至得出结果</li>
-<li>如果两序列长度相对并且判断到终止符仍未出结果，则需要分析两个序列的输入信号的输入顺序了，这可能涉及到其他类型的元件/阶段相关的特性，在此处不展开分析。这可以看作是关键字的继续增加，本质上仍为多关键字排序</li>
-</ol>
-<p>下面是一些实例分析：</p>
+<p>也就是，从尾到头依次比较点亮顺序，直到比较出结果；或者直到比较的两个序列是同一个元件，这时比较更新顺序即可</p>
+<p>下面是一些例子：</p>
 <p><img src="/2020/09/16/deeply-dissecting-minecraft_3-1/multi0.png" alt="multi0"></p>
-<ul>
-<li>A：<code>(10, -1)</code>, <code>(2, -3)</code>, <code>$</code><sup id="fnref:3"><a href="#fn:3" rel="footnote">3</a></sup></li>
-<li>B: <code>(10, -1)</code>, <code>(8, -3)</code>, <code>$</code></li>
-</ul>
-<p>比较：第一个二元组相等，均为 <code>(10, -1)</code>。对于第二个二元组，A 的更小，因此序列 A 先输出</p>
+<p>末端的中继器的优先级及点亮时间均相同，比较前端的中继器点亮时间：A 先，因此 A 序列比 B 序列先输出</p>
 <hr>
 <p><img src="/2020/09/16/deeply-dissecting-minecraft_3-1/multi1.png" alt="multi1"></p>
-<ul>
-<li>A: <code>(10, -1)</code>, <code>(2, -3)</code>, <code>$</code></li>
-<li>B: <code>(10, -1)</code>, <code>(2, -1)</code>, <code>$</code><sup id="fnref:4"><a href="#fn:4" rel="footnote">4</a></sup></li>
-<li>C: <code>(10, -1)</code>, <code>(4, -3)</code>, <code>$</code></li>
-<li>D: <code>(10, -1)</code>, <code>(6, -3)</code>, <code>$</code></li>
-<li>E: <code>(10, -1)</code>, <code>(8, -3)</code>, <code>$</code></li>
-</ul>
-<p>大小关系为：A &lt; B &lt; C &lt; D &lt; E</p>
+<p>A, B 与 C, D, E 的比较与上图相同，对于 A, B，第一个元件点亮的优先级是 A 的中继器更高，因此 A 比 B 先输出。总输出顺序为 A, B, C, D, E</p>
 <hr>
 <p><img src="/2020/09/16/deeply-dissecting-minecraft_3-1/multi2.png" alt="multi2"></p>
-<ul>
-<li>A: <code>(4, -1)</code>, <code>$</code></li>
-<li>B: <code>(4, -1)</code>, <code>(2, -3)</code>, <code>$</code></li>
-<li>C: <code>(4, -1)</code>, <code>(2, -1)</code>, <code>$</code></li>
-<li>D: <code>(4, 0)</code>, <code>(2, -3)</code>, <code>$</code></li>
-<li>E: <code>(4, 0)</code>, <code>(2, 0)</code>, <code>$</code></li>
-</ul>
-<p>大小关系为：A &lt; B &lt; C &lt; D &lt; E</p>
-<h1 id="计划刻元件"><a href="#计划刻元件" class="headerlink" title="计划刻元件"></a>计划刻元件</h1><p>见《<a href="/2020/09/17/deeply-dissecting-minecraft_3-2/" title="深度剖析Minecraft 3-2 计划刻">深度剖析Minecraft 3-2 计划刻</a>》</p>
+<p>根据最末端元件的优先级可立即得到 A, B, C 比 D, E 先输出。A 的中继器最先得到输入信号，因此 A 最先输出。剩余序列比较方法同上，比较第一个元件的优先级即可得出总输出顺序为 A, B, C, D, E</p>
+<h1 id="计划刻元件"><a href="#计划刻元件" class="headerlink" title="计划刻元件"></a>计划刻元件</h1><p>见《<a href="/2020/09/17/deeply-dissecting-minecraft_3-2/" title="深度剖析Minecraft 3-2 计划刻元件">深度剖析Minecraft 3-2 计划刻元件</a>》</p>
 <h1 id="计划刻性质的应用"><a href="#计划刻性质的应用" class="headerlink" title="计划刻性质的应用"></a>计划刻性质的应用</h1><h2 id="计划刻滞后-EMP"><a href="#计划刻滞后-EMP" class="headerlink" title="计划刻滞后/EMP"></a>计划刻滞后/EMP</h2><blockquote>
 <p>More like a redstone EMP</p>
 <p>—— Casper2002 @ <a target="_blank" rel="noopener" href="https://youtu.be/1GWaZ5vEd3A">https://youtu.be/1GWaZ5vEd3A</a></p>
@@ -494,7 +463,7 @@
 </tbody></table>
 <p>这就是强制催熟仙人掌的时序分析。由于仙人掌的计划刻延迟为 1gt，我们最快每秒可进行 $20 / 1 = 20$ 次强制催熟，也就是在忽略随机刻作用的前提下，需要 16 次生长才可增高的仙人掌一小时即可长高 $3600 * 20 / 16 = 4500$ 次，效率远超传统的自然生长仙人掌农田</p>
 <p>随机刻伪造在1.16中被修复，各种对随机刻有响应的方块执行随机刻相关逻辑的代码被移至了 <code>randomTick</code> 方法中</p>
-<div id="footnotes"><hr><div id="footnotelist"><ol style="list-style:none; padding-left: 0;"><li id="fn:1"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">1.</span><span style="display: inline-block; vertical-align: top;">在实际的代码实现中，65536 这个限制是在循环开始前就应用了</span><a href="#fnref:1" rev="footnote"> ↩</a></li><li id="fn:2"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">2.</span><span style="display: inline-block; vertical-align: top;">在具体代码实现中，计划刻事件在检查的第三步已经创建，以便于判断计划刻队列中是否存在相同的事件</span><a href="#fnref:2" rev="footnote"> ↩</a></li><li id="fn:3"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">3.</span><span style="display: inline-block; vertical-align: top;">当中继器前方是非反向的中继器/比较器时，其点亮事件的优先级为 -3</span><a href="#fnref:3" rev="footnote"> ↩</a></li><li id="fn:4"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">4.</span><span style="display: inline-block; vertical-align: top;">当/比较器前方是非反向的中继器/比较器时，其点亮事件的优先级为 -1</span><a href="#fnref:4" rev="footnote"> ↩</a></li></ol></div></div>
+<div id="footnotes"><hr><div id="footnotelist"><ol style="list-style:none; padding-left: 0;"><li id="fn:1"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">1.</span><span style="display: inline-block; vertical-align: top;">在实际的代码实现中，65536 这个限制是在循环开始前就应用了</span><a href="#fnref:1" rev="footnote"> ↩</a></li><li id="fn:2"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">2.</span><span style="display: inline-block; vertical-align: top;">在具体代码实现中，计划刻事件在检查的第三步已经创建，以便于判断计划刻队列中是否存在相同的事件</span><a href="#fnref:2" rev="footnote"> ↩</a></li></ol></div></div>
     </div>
 
     
@@ -534,8 +503,8 @@
       <i class="fa fa-chevron-left"></i> 深度剖析Minecraft 2 方块更新
     </a></div>
       <div class="post-nav-item">
-    <a href="/2020/09/17/deeply-dissecting-minecraft_3-2/" rel="next" title="深度剖析Minecraft 3-2 计划刻">
-      深度剖析Minecraft 3-2 计划刻 <i class="fa fa-chevron-right"></i>
+    <a href="/2020/09/17/deeply-dissecting-minecraft_3-2/" rel="next" title="深度剖析Minecraft 3-2 计划刻元件">
+      深度剖析Minecraft 3-2 计划刻元件 <i class="fa fa-chevron-right"></i>
     </a></div>
     </div>
       </footer>
@@ -595,7 +564,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF%E8%AE%A1%E5%88%92%E5%88%BB"><span class="nav-number">1.</span> <span class="nav-text">什么是计划刻</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%AE%A1%E5%88%92%E5%88%BB%E7%9A%84%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86"><span class="nav-number">2.</span> <span class="nav-text">计划刻的实现原理</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AE%A1%E5%88%92%E5%88%BB%E4%BA%8B%E4%BB%B6"><span class="nav-number">2.1.</span> <span class="nav-text">计划刻事件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AE%A1%E5%88%92%E5%88%BB%E9%98%B6%E6%AE%B5"><span class="nav-number">2.2.</span> <span class="nav-text">计划刻阶段</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AE%A1%E5%88%92%E5%88%BB%E4%BA%8B%E4%BB%B6%E7%9A%84%E6%B7%BB%E5%8A%A0"><span class="nav-number">2.3.</span> <span class="nav-text">计划刻事件的添加</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AE%A1%E5%88%92%E5%88%BB%E4%BA%8B%E4%BB%B6%E7%9A%84%E5%88%A0%E9%99%A4"><span class="nav-number">2.4.</span> <span class="nav-text">计划刻事件的删除</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%AE%A1%E5%88%92%E5%88%BB%E4%BA%8B%E4%BB%B6%E6%89%A7%E8%A1%8C%E9%A1%BA%E5%BA%8F"><span class="nav-number">3.</span> <span class="nav-text">计划刻事件执行顺序</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8D%95%E4%B8%AA%E5%85%83%E4%BB%B6"><span class="nav-number">3.1.</span> <span class="nav-text">单个元件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A4%9A%E5%85%83%E4%BB%B6%E7%BB%84%E5%90%88"><span class="nav-number">3.2.</span> <span class="nav-text">多元件组合</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%80%9A%E7%94%A8%E7%9A%84%E6%AF%94%E8%BE%83%E6%96%B9%E6%B3%95%E2%80%94%E2%80%94%E5%A4%9A%E5%85%B3%E9%94%AE%E5%AD%97%E6%8E%92%E5%BA%8F"><span class="nav-number">3.3.</span> <span class="nav-text">通用的比较方法——多关键字排序</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%AE%A1%E5%88%92%E5%88%BB%E5%85%83%E4%BB%B6"><span class="nav-number">4.</span> <span class="nav-text">计划刻元件</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%AE%A1%E5%88%92%E5%88%BB%E6%80%A7%E8%B4%A8%E7%9A%84%E5%BA%94%E7%94%A8"><span class="nav-number">5.</span> <span class="nav-text">计划刻性质的应用</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AE%A1%E5%88%92%E5%88%BB%E6%BB%9E%E5%90%8E-EMP"><span class="nav-number">5.1.</span> <span class="nav-text">计划刻滞后&#x2F;EMP</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%9A%8F%E6%9C%BA%E5%88%BB%E4%BC%AA%E9%80%A0"><span class="nav-number">5.2.</span> <span class="nav-text">随机刻伪造</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF%E8%AE%A1%E5%88%92%E5%88%BB"><span class="nav-number">1.</span> <span class="nav-text">什么是计划刻</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%AE%A1%E5%88%92%E5%88%BB%E7%9A%84%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86"><span class="nav-number">2.</span> <span class="nav-text">计划刻的实现原理</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AE%A1%E5%88%92%E5%88%BB%E4%BA%8B%E4%BB%B6"><span class="nav-number">2.1.</span> <span class="nav-text">计划刻事件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AE%A1%E5%88%92%E5%88%BB%E9%98%B6%E6%AE%B5"><span class="nav-number">2.2.</span> <span class="nav-text">计划刻阶段</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AE%A1%E5%88%92%E5%88%BB%E4%BA%8B%E4%BB%B6%E7%9A%84%E6%B7%BB%E5%8A%A0"><span class="nav-number">2.3.</span> <span class="nav-text">计划刻事件的添加</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AE%A1%E5%88%92%E5%88%BB%E4%BA%8B%E4%BB%B6%E7%9A%84%E5%88%A0%E9%99%A4"><span class="nav-number">2.4.</span> <span class="nav-text">计划刻事件的删除</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%AE%A1%E5%88%92%E5%88%BB%E4%BA%8B%E4%BB%B6%E6%89%A7%E8%A1%8C%E9%A1%BA%E5%BA%8F"><span class="nav-number">3.</span> <span class="nav-text">计划刻事件执行顺序</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8D%95%E4%B8%AA%E5%85%83%E4%BB%B6"><span class="nav-number">3.1.</span> <span class="nav-text">单个元件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A4%9A%E5%85%83%E4%BB%B6%E7%BB%84%E5%90%88"><span class="nav-number">3.2.</span> <span class="nav-text">多元件组合</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%AE%A1%E5%88%92%E5%88%BB%E5%85%83%E4%BB%B6"><span class="nav-number">4.</span> <span class="nav-text">计划刻元件</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%AE%A1%E5%88%92%E5%88%BB%E6%80%A7%E8%B4%A8%E7%9A%84%E5%BA%94%E7%94%A8"><span class="nav-number">5.</span> <span class="nav-text">计划刻性质的应用</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AE%A1%E5%88%92%E5%88%BB%E6%BB%9E%E5%90%8E-EMP"><span class="nav-number">5.1.</span> <span class="nav-text">计划刻滞后&#x2F;EMP</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%9A%8F%E6%9C%BA%E5%88%BB%E4%BC%AA%E9%80%A0"><span class="nav-number">5.2.</span> <span class="nav-text">随机刻伪造</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
