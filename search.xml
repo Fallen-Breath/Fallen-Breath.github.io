@@ -704,12 +704,7 @@
 <tbody><tr>
 <td>0</td>
 <td>TT.0.侦测器</td>
-<td>侦测器点亮。侦测器添加位于 gt 2 的计划刻事件用于熄灭，优先级为 0（关于侦测器的执行计划刻事件时的逻辑，见 <a href="#3-4-5-侦测器">侦测器</a>）</td>
-</tr>
-<tr>
-<td>0</td>
-<td>TT.0.侦测器</td>
-<td>侦测器发出方块更新。比较器受到方块更新，发现可输出信号，添加位于 gt 2 的计划刻事件，优先级为 0</td>
+<td>侦测器 A 点亮，添加位于 gt 2 的计划刻事件。侦测器更新比较器，比较器发现自身可亮起，添加位于 gt 2 的计划事件</td>
 </tr>
 <tr>
 <td>2</td>
@@ -723,6 +718,44 @@
 </tr>
 </tbody></table>
 <p><strong>2. 延长等优先级的 2gt 脉冲</strong></p>
+<p>为了让比较器在执行其计划刻事件的时候输入端仍有信号，除了提升比较器的计划刻事件的优先级外，是否还有方法？更新比较器，让比较器添加计划刻事件的那个侦测器肯定不能起到作用了，那么是否可以额外添加一个侦测器，让第二个侦测器在比较器事件执行完毕之后再熄灭？答案是可以，方案如下：</p>
+<p><img src="/2020/09/17/deeply-dissecting-minecraft_3.4/D:%5CCodes%5Chexo_blog%5Csource_posts%5Cdeeply-dissecting-minecraft_3.4%5Cdouble_observer_comparator.gif" alt="双侦测器激活比较器"></p>
+<p>时序分析如下：</p>
+<table>
+<thead>
+<tr>
+<th>游戏刻</th>
+<th>游戏阶段</th>
+<th>事件</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>0</td>
+<td>TT.0.侦测器 A</td>
+<td>侦测器 A 点亮，添加位于 gt 2 的计划刻事件。侦测器更新比较器，比较器发现自身可亮起，添加位于 gt 2 的计划事件</td>
+</tr>
+<tr>
+<td>0</td>
+<td>TT.0.侦测器 B</td>
+<td>侦测器 A 点亮，添加位于 gt 2 的计划刻事件。侦测器更新比较器，比较器尝试添加位于 gt 2 的计划事件，不过由于计划刻队列中已有该事件，忽略操作</td>
+</tr>
+<tr>
+<td>2</td>
+<td>TT.0.侦测器 A</td>
+<td>侦测器 A 熄灭</td>
+</tr>
+<tr>
+<td>2</td>
+<td>TT.0.比较器</td>
+<td>虽然侦测器 A 熄灭了，但是侦测器 B 仍处于亮起状态。比较器判断目前输出信号强度（0）与应当输出的信号强度（15），不相等。<strong>比较器亮起</strong></td>
+</tr>
+<tr>
+<td>2</td>
+<td>TT.0.侦测器 B</td>
+<td>侦测器 B 熄灭</td>
+</tr>
+</tbody></table>
+<p>值得注意的是，该方案的铁轨不可用 2gt 的计划刻元件脉冲去激活，具体原因与侦测器的实现有关</p>
 <h4 id="使用-0t-信号激活比较器"><a href="#使用-0t-信号激活比较器" class="headerlink" title="使用 0t 信号激活比较器"></a>使用 0t 信号激活比较器</h4><h4 id="无延迟比较器"><a href="#无延迟比较器" class="headerlink" title="无延迟比较器"></a>无延迟比较器</h4><h4 id="比较器更新检测器"><a href="#比较器更新检测器" class="headerlink" title="比较器更新检测器"></a>比较器更新检测器</h4><h2 id="3-4-4-红石火把"><a href="#3-4-4-红石火把" class="headerlink" title="3.4.4 红石火把"></a>3.4.4 红石火把</h2><h3 id="计划刻事件执行"><a href="#计划刻事件执行" class="headerlink" title="计划刻事件执行"></a>计划刻事件执行</h3><p>blabla</p>
 <h2 id="3-4-5-侦测器"><a href="#3-4-5-侦测器" class="headerlink" title="3.4.5 侦测器"></a>3.4.5 侦测器</h2><h3 id="计划刻事件执行-1"><a href="#计划刻事件执行-1" class="headerlink" title="计划刻事件执行"></a>计划刻事件执行</h3><p>blabla</p>
 <h2 id="投掷器-发射器"><a href="#投掷器-发射器" class="headerlink" title="投掷器/发射器"></a>投掷器/发射器</h2><h3 id="计划刻事件执行-2"><a href="#计划刻事件执行-2" class="headerlink" title="计划刻事件执行"></a>计划刻事件执行</h3><p>blabla</p>
