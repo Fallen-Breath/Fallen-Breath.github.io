@@ -764,8 +764,9 @@
 <li>若的前状态为熄灭，则改为亮起状态，再判断输入端是否有信号，若无信号则添加一个延迟为其自身的延迟，优先级为 -1 <sup id="fnref:3"><a href="#fn:3" rel="footnote">3</a></sup> 的计划刻事件用于熄灭。也就是说，即便在执行计划刻事件的时候输入信号已经消失，中继器也依然会亮起，这也是中继器可响应并输出任意短的正脉冲的原理</li>
 </ul>
 <p>上述过程中，改变其亮起状态时，在其所在位置发出的更新仅含状态更新。中继器在其前方发出的大范围方块更新见 <a href="#3-4-1-红石二极管">红石二极管</a> 的发出更新小节</p>
-<h3 id="3-4-2-4-受状态更新时"><a href="#3-4-2-4-受状态更新时" class="headerlink" title="3.4.2.4 受状态更新时"></a>3.4.2.4 受状态更新时</h3><p>当中继器受到状态更新时，若更新方向为水平方向，且方向为垂直于中继器的指向方向</p>
-<h2 id="3-4-3-红石比较器"><a href="#3-4-3-红石比较器" class="headerlink" title="3.4.3 红石比较器"></a>3.4.3 红石比较器</h2><table>
+<h3 id="3-4-2-4-受状态更新时"><a href="#3-4-2-4-受状态更新时" class="headerlink" title="3.4.2.4 受状态更新时"></a>3.4.2.4 受状态更新时</h3><p>当中继器受到状态更新时，若更新方向为水平方向，且方向为垂直于中继器的指向方向，则更新自身的被锁状态。中继器当且仅当被一个二极管指向侧面的时候会被锁住</p>
+<p>【图片】</p>
+<h3 id="实例"><a href="#实例" class="headerlink" title="实例"></a>实例</h3><h2 id="3-4-3-红石比较器"><a href="#3-4-3-红石比较器" class="headerlink" title="3.4.3 红石比较器"></a>3.4.3 红石比较器</h2><table>
 <thead>
 <tr>
 <th>名称</th>
@@ -844,16 +845,18 @@
 <p>  下图是一些常见的给予比较器侧面输入信号的方法</p>
 </li>
 </ul>
-<p><img src="/2020/09/17/deeply-dissecting-minecraft_3.4/D:%5CCodes%5Chexo_blog%5Csource_posts%5Cdeeply-dissecting-minecraft_3.4%5Ccomparetor_side_input.png" alt="比较器侧面输入"></p>
-<p>不过，强充能元件并非只有中继器、比较器。如果使用指令等方式得到了浮空方块，你甚至可以使用拉杆、按钮等元件进行输入：</p>
+<p><img src="/2020/09/17/deeply-dissecting-minecraft_3.4/comparetor_side_input.png" alt="比较器侧面输入"></p>
+<p>不过，强充能元件并非只有中继器、比较器。当比较器前方有二极管时，比较器可响应侦测器的侧方输入。如果使用指令等方式得到了浮空方块，你甚至可以使用拉杆、按钮等元件进行输入：</p>
 <p><img src="/2020/09/17/deeply-dissecting-minecraft_3.4/comparetor_side_input_sp.png" alt="comparetor_side_input_sp"></p>
 <p>现在，我们已经知道比较器的后方输入以及侧面输入的信号强度了，现在只需要根据其所处模式（比较模式/减法模式）再次计算，即可得出比较器的输出信号了：</p>
 <ul>
-<li><p>比较模式：$输出信号 = 后方输入$（大小比较的相关链接并非在此处）</p>
-</li>
-<li><p>减法模式：$输出信号 = max(0, 后方输入 - 侧面输入)$</p>
-</li>
+<li>比较模式：$输出信号 = 后方输入$（大小比较的相关逻辑并不在此处）</li>
+<li>减法模式：$输出信号 = max(0, 后方输入 - 侧面输入)$</li>
 </ul>
+<p>之后，比较器就可以判断是否应该输出信号了。这部分的实现很简单，直接列出代码：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">boolean</span> <span class="title">shouldBePowered</span><span class="params">(World worldIn, BlockPos pos, IBlockState state)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> i = <span class="keyword">this</span>.calculateInputStrength(worldIn, pos, state);</span><br><span class="line">    <span class="keyword">if</span> (i &gt;= <span class="number">15</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span> (i == <span class="number">0</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span> i &gt;= <span class="keyword">this</span>.getPowerOnSides(worldIn, pos, state);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里也是比较模式大小相关逻辑的实现之处</p>
 <h3 id="3-4-3-3-检测信号变化"><a href="#3-4-3-3-检测信号变化" class="headerlink" title="3.4.3.3 检测信号变化"></a>3.4.3.3 检测信号变化</h3><p>与中继器类似，比较器会计算其当前应该输出的信号强度，并与当前自身储存着的信号强度作对比。如果输出的信号强度有改变，或者其亮起状态有变化，则添加一个计划刻事件，优先级如下：</p>
 <ul>
 <li>若其指向方块为红石二极管，且红石二极管的朝向非反向，则优先级为 -1</li>
