@@ -39,6 +39,10 @@
 <meta property="og:image" content="https://fallen-breath.github.io/2020/09/17/deeply-dissecting-minecraft_3.4/0t_x_comparator.gif">
 <meta property="og:image" content="https://fallen-breath.github.io/2020/09/17/deeply-dissecting-minecraft_3.4/comparetor_0t_wave.png">
 <meta property="og:image" content="https://fallen-breath.github.io/2020/09/17/deeply-dissecting-minecraft_3.4/0t_clock_comparator.gif">
+<meta property="og:image" content="https://fallen-breath.github.io/2020/09/17/deeply-dissecting-minecraft_3.4/not_instant_comparator.gif">
+<meta property="og:image" content="https://fallen-breath.github.io/2020/09/17/deeply-dissecting-minecraft_3.4/instant_comparator.gif">
+<meta property="og:image" content="https://fallen-breath.github.io/2020/09/17/deeply-dissecting-minecraft_3.4/half_instant_comparator.gif">
+<meta property="og:image" content="https://fallen-breath.github.io/2020/09/17/deeply-dissecting-minecraft_3.4/real_instant_comparator.gif">
 <meta property="article:published_time" content="2020-09-17T06:50:29.000Z">
 <meta property="article:modified_time" content="2020-09-17T06:50:29.000Z">
 <meta property="article:author" content="Fallen_Breath">
@@ -260,7 +264,7 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>5.3k</span>
+              <span>5.5k</span>
             </span>
             <span class="post-meta-item" title="阅读时长">
               <span class="post-meta-item-icon">
@@ -666,11 +670,19 @@
 <td>比较器熄灭</td>
 </tr>
 </tbody></table>
-<p>如果将比较器输入信号是否存在视作 0, 1，画出波形图的话，是这样子的</p>
+<p>如果将比较器输入信号是否存在视作 0 1，画出波形图的话，是这样子的</p>
 <p><img src="/2020/09/17/deeply-dissecting-minecraft_3.4/comparetor_0t_wave.png" alt="波形图"></p>
 <p>类似的，如果我们每 2gt 都发出一次上述 0gt 脉冲的话，比较器就能一直保持常亮状态。下方是上述例子示意装置的一个简单扩展，如果有必要的话甚至可以让比较器的输出信号强度也保持不变</p>
 <p><img src="/2020/09/17/deeply-dissecting-minecraft_3.4/0t_clock_comparator.gif" alt="0gt脉冲常激活比较器"></p>
-<h4 id="无延迟比较器"><a href="#无延迟比较器" class="headerlink" title="无延迟比较器"></a>无延迟比较器</h4><h4 id="比较器更新检测器"><a href="#比较器更新检测器" class="headerlink" title="比较器更新检测器"></a>比较器更新检测器</h4><h2 id="3-4-4-红石火把"><a href="#3-4-4-红石火把" class="headerlink" title="3.4.4 红石火把"></a>3.4.4 红石火把</h2><h3 id="计划刻事件执行"><a href="#计划刻事件执行" class="headerlink" title="计划刻事件执行"></a>计划刻事件执行</h3><p>blabla</p>
+<h4 id="无延迟比较器"><a href="#无延迟比较器" class="headerlink" title="无延迟比较器"></a>无延迟比较器</h4><p>在传统的使用比较器传输模拟信号的线路中，比较器逐个亮起，依次往前传递信号，传输速度较慢，如下图</p>
+<p><img src="/2020/09/17/deeply-dissecting-minecraft_3.4/not_instant_comparator.gif" alt="有无延迟比较器"></p>
+<p>让我们分析一下上图，为什么这个比较器链传输信号如此之慢。上图中，比较器 B 需要等待比较器 A 亮起后才可亮起；比较器 C 需要等待比较器 B 亮起后才可亮起；比较器 D 需要等待比较器 C 亮起后才可亮起……每次等待，都耗费了 2gt 的时间进行延迟</p>
+<p>这些一个个的 2gt 延迟真的有必要存在吗？答案是不。我们可以仅在一个 gt 的计划刻阶段中就完成 A 至 G 所有比较器的点亮，这就是无延迟比较器</p>
+<p>下图是一个简单的无延迟比较器的例子及其时序分析</p>
+<p><img src="/2020/09/17/deeply-dissecting-minecraft_3.4/instant_comparator.gif" alt="无延迟比较器"></p>
+<p><img src="/2020/09/17/deeply-dissecting-minecraft_3.4/half_instant_comparator.gif" alt="于输入15信号的下降沿失效"></p>
+<p><img src="/2020/09/17/deeply-dissecting-minecraft_3.4/real_instant_comparator.gif" alt="全情况可用的无延迟比较器"></p>
+<h4 id="比较器更新检测器"><a href="#比较器更新检测器" class="headerlink" title="比较器更新检测器"></a>比较器更新检测器</h4><h2 id="3-4-4-红石火把"><a href="#3-4-4-红石火把" class="headerlink" title="3.4.4 红石火把"></a>3.4.4 红石火把</h2><h3 id="计划刻事件执行"><a href="#计划刻事件执行" class="headerlink" title="计划刻事件执行"></a>计划刻事件执行</h3><p>blabla</p>
 <h2 id="3-4-5-侦测器"><a href="#3-4-5-侦测器" class="headerlink" title="3.4.5 侦测器"></a>3.4.5 侦测器</h2><h3 id="计划刻事件执行-1"><a href="#计划刻事件执行-1" class="headerlink" title="计划刻事件执行"></a>计划刻事件执行</h3><p>blabla</p>
 <h2 id="投掷器-发射器"><a href="#投掷器-发射器" class="headerlink" title="投掷器/发射器"></a>投掷器/发射器</h2><h3 id="计划刻事件执行-2"><a href="#计划刻事件执行-2" class="headerlink" title="计划刻事件执行"></a>计划刻事件执行</h3><p>blabla</p>
 <h2 id="红石灯"><a href="#红石灯" class="headerlink" title="红石灯"></a>红石灯</h2><h3 id="计划刻事件执行-3"><a href="#计划刻事件执行-3" class="headerlink" title="计划刻事件执行"></a>计划刻事件执行</h3><p>blabla</p>
@@ -860,7 +872,7 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">48 分钟</span>
+    <span title="站点阅读时长">49 分钟</span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
   </div>
