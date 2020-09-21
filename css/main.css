@@ -406,7 +406,7 @@ code {
   word-wrap: break-word;
 }
 .highlight *::selection {
-  background: #d6d6d6;
+  background: #a4a4a4;
 }
 .highlight pre {
   border: 0;
