@@ -305,6 +305,7 @@ td {
   border-bottom: 3px solid #ddd;
 }
 th {
+  min-width: 100px;
   font-weight: 700;
   padding-bottom: 10px;
 }
