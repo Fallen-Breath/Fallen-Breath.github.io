@@ -264,14 +264,14 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>5.5k</span>
+              <span>6.3k</span>
             </span>
             <span class="post-meta-item" title="阅读时长">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>10 分钟</span>
+              <span>11 分钟</span>
             </span>
             <div class="post-description">计划刻元件库，元件属性机制全剖析！</div>
 
@@ -287,10 +287,7 @@
         <h1 id="3-4-计划刻元件"><a href="#3-4-计划刻元件" class="headerlink" title="3.4 计划刻元件"></a>3.4 计划刻元件</h1><p>阅前必读：</p>
 <p>《<a href="/2020/09/16/deeply-dissecting-minecraft_2/" title="深度剖析Minecraft #2 方块更新">深度剖析Minecraft #2 方块更新</a>》</p>
 <p>《<a href="/2020/09/16/deeply-dissecting-minecraft_3/" title="深度剖析Minecraft #3 计划刻">深度剖析Minecraft #3 计划刻</a>》</p>
-<h2 id="3-4-1-红石二极管"><a href="#3-4-1-红石二极管" class="headerlink" title="3.4.1 红石二极管"></a>3.4.1 红石二极管</h2><blockquote>
-<p>net.minecraft.block.BlockRedstoneDiode (1.13.2 mcp)<br>net.minecraft.block.AbstractRedstoneGateBlock (1.15.2 yarn)</p>
-</blockquote>
-<table>
+<h2 id="3-4-1-红石二极管"><a href="#3-4-1-红石二极管" class="headerlink" title="3.4.1 红石二极管"></a>3.4.1 红石二极管</h2><table>
 <thead>
 <tr>
 <th>名称</th>
@@ -417,7 +414,8 @@
 <p>上述过程中，改变其亮起状态时，在其所在位置发出的更新仅含状态更新。中继器在其前方发出的大范围方块更新见 <a href="#3-4-1-红石二极管">红石二极管</a> 的发出更新小节</p>
 <h3 id="3-4-2-4-受状态更新时"><a href="#3-4-2-4-受状态更新时" class="headerlink" title="3.4.2.4 受状态更新时"></a>3.4.2.4 受状态更新时</h3><p>当中继器受到状态更新时，若更新方向为水平方向，且方向为垂直于中继器的指向方向，则更新自身的被锁状态。中继器当且仅当被一个二极管指向侧面的时候会被锁住</p>
 <p><img src="/2020/09/17/deeply-dissecting-minecraft_3.4/repeater_lock.gif" alt="中继器响应状态更新"></p>
-<h3 id="实例"><a href="#实例" class="headerlink" title="实例"></a>实例</h3><h2 id="3-4-3-红石比较器"><a href="#3-4-3-红石比较器" class="headerlink" title="3.4.3 红石比较器"></a>3.4.3 红石比较器</h2><table>
+<h3 id="实例"><a href="#实例" class="headerlink" title="实例"></a>实例</h3><p>www</p>
+<h2 id="3-4-3-红石比较器"><a href="#3-4-3-红石比较器" class="headerlink" title="3.4.3 红石比较器"></a>3.4.3 红石比较器</h2><table>
 <thead>
 <tr>
 <th>名称</th>
@@ -677,10 +675,86 @@
 <h4 id="无延迟比较器"><a href="#无延迟比较器" class="headerlink" title="无延迟比较器"></a>无延迟比较器</h4><p>在传统的使用比较器传输模拟信号的线路中，比较器逐个亮起，依次往前传递信号，传输速度较慢，如下图</p>
 <p><img src="/2020/09/17/deeply-dissecting-minecraft_3.4/not_instant_comparator.gif" alt="有无延迟比较器"></p>
 <p>让我们分析一下上图，为什么这个比较器链传输信号如此之慢。上图中，比较器 B 需要等待比较器 A 亮起后才可亮起；比较器 C 需要等待比较器 B 亮起后才可亮起；比较器 D 需要等待比较器 C 亮起后才可亮起……每次等待，都耗费了 2gt 的时间进行延迟</p>
-<p>这些一个个的 2gt 延迟真的有必要存在吗？答案是不。我们可以仅在一个 gt 的计划刻阶段中就完成 A 至 G 所有比较器的点亮，这就是无延迟比较器</p>
-<p>下图是一个简单的无延迟比较器的例子及其时序分析</p>
+<p>这些一个个的 2gt 延迟真的有必要存在吗？答案是不。我们可以仅在一个 gt 的计划刻阶段中就完成所有比较器的点亮，这就是无延迟比较器</p>
+<p>下图是一个简单的无延迟比较器的例子</p>
 <p><img src="/2020/09/17/deeply-dissecting-minecraft_3.4/instant_comparator.gif" alt="无延迟比较器"></p>
+<p>无延迟比较器的基本思路是，通过使用额外的计划刻元件的短脉冲，主动使所有比较器在<strong>同一个 gt 依次</strong>执行自己用于亮起的计划刻事件，使得比较器链在瞬间同时点亮。这一个操作将长距离传输信号的时间复杂度从 $\Theta(n)$ 降至了 $\Theta(1)$，从线性降为常数级，仿佛用于传输信号的比较器都没有延迟，因此我们称之为无延迟比较器</p>
+<p>下面是上图中的无延迟比较器的亮起操作的时序分析。熄灭/信号改变的时序分析同理：</p>
+<table>
+<thead>
+<tr>
+<th>游戏刻</th>
+<th>游戏阶段</th>
+<th>事件</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>0</td>
+<td>NU</td>
+<td>拉杆拉下</td>
+</tr>
+<tr>
+<td>2</td>
+<td>TT</td>
+<td>比较器 1 亮起。侦测器亮起，中继器<strong>从近到远依次</strong>添加位于 gt 4 的计划刻事件</td>
+</tr>
+<tr>
+<td>4</td>
+<td>TT.-1.中继器 A</td>
+<td>亮起，更新比较器 A，比较器 A 添加位于 gt 6 的计划刻事件</td>
+</tr>
+<tr>
+<td>4</td>
+<td>TT.-1.中继器 B</td>
+<td>亮起，更新比较器 B，比较器 B 添加位于 gt 6 的计划刻事件</td>
+</tr>
+<tr>
+<td>……</td>
+<td>……</td>
+<td>……</td>
+</tr>
+<tr>
+<td>4</td>
+<td>TT.-1.中继器 F</td>
+<td>亮起，更新比较器 F，比较器 F 添加位于 gt 6 的计划刻事件</td>
+</tr>
+<tr>
+<td>4</td>
+<td>TT.0</td>
+<td>比较器 2 亮起。侦测器熄灭</td>
+</tr>
+<tr>
+<td>6</td>
+<td>TT.-1</td>
+<td>中继器 A ~ F 依次熄灭</td>
+</tr>
+<tr>
+<td>6</td>
+<td>TT.0.比较器 A</td>
+<td>比较器 A 发现其输入端有来自比较器 2 的信号，亮起</td>
+</tr>
+<tr>
+<td>6</td>
+<td>TT.0.比较器 B</td>
+<td>比较器 B 发现其输入端有来自比较器 A 的信号，亮起</td>
+</tr>
+<tr>
+<td>……</td>
+<td>……</td>
+<td>……</td>
+</tr>
+<tr>
+<td>6</td>
+<td>TT.0.比较器 F</td>
+<td>比较器 F 发现其输入端有来自比较器 E 的信号，亮起</td>
+</tr>
+</tbody></table>
+<p>不过，上述无延迟比较器有一个缺点，就是在输入信号强度为 15 的情况下改变信号强度时不能维持无延迟。这是因为当输入的信号强度是 15 时，比较器链中都储存着强度为 15 的信号，而侧方位中继器发出的脉冲信号强度也是 15，两者大小相等，导致了中继器无法诱使比较器添加计划刻事件。如下图所示：</p>
 <p><img src="/2020/09/17/deeply-dissecting-minecraft_3.4/half_instant_comparator.gif" alt="于输入15信号的下降沿失效"></p>
+<p>对此的解决方法也并不困难。我们需要的是诱使比较器添加计划刻事件，只要按顺序添加了就可以，至于比较器是因为什么原因而添加计划刻事件，我们并不关系</p>
+<p>当比较器输出信号是 15 的时候，还有什么方法能诱使比较器添加计划刻事件呢？在减法模式下向比较器侧面输入 15 信号！</p>
+<p>blabla</p>
+<p>对于无延迟链上的每一个比较器，我们首先向其后端输入信号强度为 15 的脉冲，再向其侧面输入信号强度为 15 的脉冲，即可在所有情况下无延迟地传递信号</p>
 <p><img src="/2020/09/17/deeply-dissecting-minecraft_3.4/real_instant_comparator.gif" alt="全情况可用的无延迟比较器"></p>
 <h4 id="比较器更新检测器"><a href="#比较器更新检测器" class="headerlink" title="比较器更新检测器"></a>比较器更新检测器</h4><h2 id="3-4-4-红石火把"><a href="#3-4-4-红石火把" class="headerlink" title="3.4.4 红石火把"></a>3.4.4 红石火把</h2><h3 id="计划刻事件执行"><a href="#计划刻事件执行" class="headerlink" title="计划刻事件执行"></a>计划刻事件执行</h3><p>blabla</p>
 <h2 id="3-4-5-侦测器"><a href="#3-4-5-侦测器" class="headerlink" title="3.4.5 侦测器"></a>3.4.5 侦测器</h2><h3 id="计划刻事件执行-1"><a href="#计划刻事件执行-1" class="headerlink" title="计划刻事件执行"></a>计划刻事件执行</h3><p>blabla</p>
@@ -867,12 +941,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="站点总字数">27k</span>
+    <span title="站点总字数">28k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">49 分钟</span>
+    <span title="站点阅读时长">50 分钟</span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
   </div>
