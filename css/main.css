@@ -1802,6 +1802,7 @@ pre .javascript .function {
 .post-body img,
 .post-body video {
   margin-bottom: 20px;
+  max-width: 70%;
 }
 .post-body .video-container {
   height: 0;
