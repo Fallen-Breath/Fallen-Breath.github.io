@@ -229,6 +229,9 @@ span.exturl {
   word-wrap: break-word;
   cursor: pointer;
 }
+sup a {
+  color: darkblue;
+}
 a:hover,
 span.exturl:hover {
   border-bottom-color: var(--link-hover-color);
