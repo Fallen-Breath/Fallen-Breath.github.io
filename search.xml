@@ -881,7 +881,7 @@
 <tbody><tr>
 <td>0</td>
 <td>TT.0.侦测器</td>
-<td>侦测器点亮。侦测器添加位于 gt 2 的计划刻事件用于熄灭，优先级为 0</td>
+<td>侦测器点亮。侦测器添加位于 gt 2 的计划刻事件用于熄灭，优先级为 0（关于侦测器的执行计划刻事件时的逻辑，见 <a href="#3-4-5-侦测器">侦测器</a>）</td>
 </tr>
 <tr>
 <td>0</td>
@@ -899,12 +899,45 @@
 <td>比较器判断目前输出信号强度（0）与应当输出的信号强度（0），无变化，不执行任何操作</td>
 </tr>
 </tbody></table>
+<p>可见，比较器的计划刻事件执行的时候输入端信号已经消失，这导致了比较器不响应侦测器的脉冲</p>
+<hr>
 <p>若想要使用计划刻元件发出的2gt脉冲来激活比较器，有两种方法</p>
 <p><strong>1. 提升比较器的优先级</strong></p>
-<p>可看到，时序分析中</p>
+<p>观察时序分析表，容易发现如果让 gt 2 中比较器的事件先于侦测器执行，则可以让侦测器执行计划刻事件时侦测器仍处于激活状态。一种可行的方法就是提升比较器的优先级，更准确地说，提升比较器添加用于亮起的计划刻事件的优先级。我们可以通过在比较器前方添加中继器来实现</p>
+<p>【图片】</p>
+<p>时序分析：</p>
+<table>
+<thead>
+<tr>
+<th>游戏刻</th>
+<th>游戏阶段</th>
+<th>事件</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>0</td>
+<td>TT.0.侦测器</td>
+<td>侦测器点亮。侦测器添加位于 gt 2 的计划刻事件用于熄灭，优先级为 0（关于侦测器的执行计划刻事件时的逻辑，见 <a href="#3-4-5-侦测器">侦测器</a>）</td>
+</tr>
+<tr>
+<td>0</td>
+<td>TT.0.侦测器</td>
+<td>侦测器发出方块更新。比较器受到方块更新，发现可输出信号，添加位于 gt 2 的计划刻事件，优先级为 0</td>
+</tr>
+<tr>
+<td>2</td>
+<td>TT.<strong>-1</strong>.比较器</td>
+<td>比较器判断目前输出信号强度（0）与应当输出的信号强度（15），不相等。<strong>比较器亮起</strong></td>
+</tr>
+<tr>
+<td>2</td>
+<td>TT.0.侦测器</td>
+<td>侦测器熄灭</td>
+</tr>
+</tbody></table>
 <p><strong>2. 延长等优先级的 2gt 脉冲</strong></p>
-<h4 id="使用-0t-信号激活比较器"><a href="#使用-0t-信号激活比较器" class="headerlink" title="使用 0t 信号激活比较器"></a>使用 0t 信号激活比较器</h4><h4 id="无延迟比较器"><a href="#无延迟比较器" class="headerlink" title="无延迟比较器"></a>无延迟比较器</h4><h4 id="比较器更新检测器"><a href="#比较器更新检测器" class="headerlink" title="比较器更新检测器"></a>比较器更新检测器</h4><h2 id="红石火把"><a href="#红石火把" class="headerlink" title="红石火把"></a>红石火把</h2><h3 id="计划刻事件执行"><a href="#计划刻事件执行" class="headerlink" title="计划刻事件执行"></a>计划刻事件执行</h3><p>blabla</p>
-<h2 id="侦测器"><a href="#侦测器" class="headerlink" title="侦测器"></a>侦测器</h2><h3 id="计划刻事件执行-1"><a href="#计划刻事件执行-1" class="headerlink" title="计划刻事件执行"></a>计划刻事件执行</h3><p>blabla</p>
+<h4 id="使用-0t-信号激活比较器"><a href="#使用-0t-信号激活比较器" class="headerlink" title="使用 0t 信号激活比较器"></a>使用 0t 信号激活比较器</h4><h4 id="无延迟比较器"><a href="#无延迟比较器" class="headerlink" title="无延迟比较器"></a>无延迟比较器</h4><h4 id="比较器更新检测器"><a href="#比较器更新检测器" class="headerlink" title="比较器更新检测器"></a>比较器更新检测器</h4><h2 id="3-4-4-红石火把"><a href="#3-4-4-红石火把" class="headerlink" title="3.4.4 红石火把"></a>3.4.4 红石火把</h2><h3 id="计划刻事件执行"><a href="#计划刻事件执行" class="headerlink" title="计划刻事件执行"></a>计划刻事件执行</h3><p>blabla</p>
+<h2 id="3-4-5-侦测器"><a href="#3-4-5-侦测器" class="headerlink" title="3.4.5 侦测器"></a>3.4.5 侦测器</h2><h3 id="计划刻事件执行-1"><a href="#计划刻事件执行-1" class="headerlink" title="计划刻事件执行"></a>计划刻事件执行</h3><p>blabla</p>
 <h2 id="投掷器-发射器"><a href="#投掷器-发射器" class="headerlink" title="投掷器/发射器"></a>投掷器/发射器</h2><h3 id="计划刻事件执行-2"><a href="#计划刻事件执行-2" class="headerlink" title="计划刻事件执行"></a>计划刻事件执行</h3><p>blabla</p>
 <h2 id="红石灯"><a href="#红石灯" class="headerlink" title="红石灯"></a>红石灯</h2><h3 id="计划刻事件执行-3"><a href="#计划刻事件执行-3" class="headerlink" title="计划刻事件执行"></a>计划刻事件执行</h3><p>blabla</p>
 <h2 id="探测类元件"><a href="#探测类元件" class="headerlink" title="探测类元件"></a>探测类元件</h2><h3 id="计划刻事件执行-4"><a href="#计划刻事件执行-4" class="headerlink" title="计划刻事件执行"></a>计划刻事件执行</h3><p>blabla</p>
@@ -1068,7 +1101,7 @@
 <p>根据最末端元件的优先级可立即得到 A, B, C 比 D, E 先输出。A 的中继器最先得到输入信号，因此 A 最先输出。剩余序列比较方法同上，比较第一个元件的优先级即可得出总输出顺序为 A, B, C, D, E</p>
 <h2 id="3-4-计划刻元件"><a href="#3-4-计划刻元件" class="headerlink" title="3.4 计划刻元件"></a>3.4 计划刻元件</h2><p>见《<a href="/2020/09/17/deeply-dissecting-minecraft_3.4/" title="深度剖析Minecraft #3.4 计划刻元件">深度剖析Minecraft #3.4 计划刻元件</a>》</p>
 <h2 id="3-5-时序描述"><a href="#3-5-时序描述" class="headerlink" title="3.5 时序描述"></a>3.5 时序描述</h2><p>在分析计划刻相关的时序的时候，计划刻事件的优先级以及计划刻事件的目标常常是我们关心的因素</p>
-<p>对于一个优先级为 <code>x</code> ，目标为 <code>y</code> 的计划刻事件，下面使用记号 <code>TileTick.prio=x,target=y</code>，或者简称 <strong><code>TT.x.y</code></strong> 来表示该事件执行时所处在的游戏阶段。当然，在不关心优先级或者目标的场合中，<code>.x</code> <code>.y</code> 是可以省略的</p>
+<p>对于一个优先级为 <code>x</code> ，目标为 <code>y</code> 的计划刻事件，下面使用记号 <code>TileTick.priority=x,target=y</code>，或者简称 <strong><code>TT.x.y</code></strong> 来表示该事件执行时所处在的游戏阶段。当然，在不关心优先级或者目标的场合中，<code>.x</code> <code>.y</code> 是可以省略的</p>
 <h2 id="3-6-计划刻性质的应用"><a href="#3-6-计划刻性质的应用" class="headerlink" title="3.6 计划刻性质的应用"></a>3.6 计划刻性质的应用</h2><h3 id="3-6-1-计划刻滞后-EMP"><a href="#3-6-1-计划刻滞后-EMP" class="headerlink" title="3.6.1 计划刻滞后/EMP"></a>3.6.1 计划刻滞后/EMP</h3><blockquote>
 <p>More like a redstone EMP</p>
 <p>—— Casper2002 @ <a href="https://youtu.be/1GWaZ5vEd3A">https://youtu.be/1GWaZ5vEd3A</a></p>
@@ -1112,6 +1145,7 @@
 <td>无线红石检测装置检测到执行到了时序，输出信号</td>
 </tr>
 </tbody></table>
+<p>不过，这一类装置<strong>仅可滞后计划刻事件的执行，不能让计划刻事件消失</strong></p>
 <h3 id="3-6-2-随机刻伪造"><a href="#3-6-2-随机刻伪造" class="headerlink" title="3.6.2 随机刻伪造"></a>3.6.2 随机刻伪造</h3><p>也不知道是历史遗留问题还是代码的复用问题，在游戏中，每个方块被随机刻选中时所调用的默认方法是其执行计划刻事件时所调用的方法 <code>net.minecraft.block.Block#tick</code></p>
 <figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Deprecated</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">randomTick</span><span class="params">(IBlockState state, World worldIn, BlockPos pos, Random random)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">this</span>.tick(state, worldIn, pos, random);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Deprecated</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">tick</span><span class="params">(IBlockState state, World worldIn, BlockPos pos, Random random)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
