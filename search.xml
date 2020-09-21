@@ -494,18 +494,20 @@
 <p>令输入端，即比较器后方一格处的方块为 A，比较器后方二格处的方块为 B</p>
 <p><img src="/2020/09/17/deeply-dissecting-minecraft_3-2/comparetor_input.png" alt="比较器输入信号"></p>
 <ol>
-<li>计算方块 A 的弱充能信号强度（与中继器相同），将输入强度设为该信号强度</li>
+<li>维护一个取值为 0 ~ 15 的整数 $s$ 作为比较器待确定的输入的信号强度</li>
+<li>计算方块 A 的弱充能信号强度（与中继器相同），将 $s$ 设为该信号强度</li>
 <li>判断方块 A 是否可输出比较器信号<ul>
-<li>如果是，则将输入强度设为 A 的比较器输出值。如比较器直接读取毗邻容器</li>
-<li>如果不是，若输入强度小于 15 且方块 A 为实体方块 <sup id="fnref:5"><a href="#fn:5" rel="footnote">5</a></sup>，则进行以下尝试：<ol>
-<li>如果方块 B 可输出比较器信号，则将输入强度设方块 B 的比较器输出值</li>
-<li>如果方块 B 为空气，则查找位于方块 B 处的可能依附于方块 A 的一个物品展示框实体，若找到则将输入强度设置为物品展示架的角度</li>
+<li>如果是，则将 $s$ 设为 A 的比较器输出值。如比较器直接读取毗邻容器</li>
+<li>如果不是，若 $s &lt; 15$ 且方块 A 为实体方块 <sup id="fnref:5"><a href="#fn:5" rel="footnote">5</a></sup>，则进行尝试使用 B 处可能的容器输出来覆盖当前的输入强度：<ol>
+<li>如果方块 B 可输出比较器信号，则将 $s$ 设方块 B 的比较器输出值</li>
+<li>如果方块 B 为空气，则查找位于方块 B 处的可能依附于方块 A 的一个物品展示框实体，若找到，则将 $s$ 设置为物品展示架的角度</li>
 </ol>
 </li>
 </ul>
 </li>
-<li>输入强度所储存的值即为所求</li>
+<li>$s$ 即为比较器的输入信号强度</li>
 </ol>
+<p>随后，比较器根据其所处模式，处理其侧面输入的信号的作用</p>
 <h3 id="检测信号变化-1"><a href="#检测信号变化-1" class="headerlink" title="检测信号变化"></a>检测信号变化</h3><p>与中继器类似，比较器会计算其当前来自多个输入端的信号强度，并与当前自身储存着的信号强度作对比。如果输出的信号强度有改变，或者其亮起状态有变化，则添加一个计划刻事件，优先级如下：</p>
 <ul>
 <li>若其指向方块为红石二极管，且红石二极管的朝向非反向，则优先级为 -1</li>
@@ -552,32 +554,32 @@
 
 <p>现在让我们来按顺序总结一下所有的游戏阶段运行顺序：</p>
 <ol>
-<li>成就命令相关 <a href="net/minecraft/server/MinecraftServer.java:850">^codeOrder1</a></li>
-<li>同步玩家的客户端时间 <a href="net/minecraft/server/MinecraftServer.java:867">^codeOrder2</a></li>
-<li>极限模式下难度锁困难判断 <a href="net/minecraft/world/WorldServer.java:176">^codeOrder3</a></li>
-<li>群系生成相关 <a href="net/minecraft/world/WorldServer.java:181">^codeOrder4</a></li>
-<li>玩家睡觉逻辑 <a href="net/minecraft/world/WorldServer.java:183">^codeOrder5</a></li>
-<li>生物、怪物刷新 <a href="net/minecraft/world/WorldServer.java:196">^codeOrder6</a></li>
-<li>区块卸载  <a href="net/minecraft/world/WorldServer.java:203">^codeOrder7</a></li>
-<li>天空光衰减计算 <a href="net/minecraft/world/WorldServer.java:204">^codeOrder8</a></li>
-<li>设置 GameTime 与 Daytime <a href="net/minecraft/world/WorldServer.java:211">^codeOrder9</a></li>
-<li>计划刻 Tile Tick (Next Tick Entry) <a href="net/minecraft/world/WorldServer.java:219">^codeOrder10</a></li>
-<li>随机检查并更新玩家附近的亮度 <a href="net/minecraft/world/WorldServer.java:382">^codeOrder11</a></li>
-<li>天空光的计算与将新增的 Tile Entity 储存至区块内；雷电；下雪与结冰；随机刻 <a href="net/minecraft/world/WorldServer.java:400">^codeOrder12</a></li>
-<li>玩家加载的区块列表更新，并发送客户端方块更新数据包 <a href="net/minecraft/world/WorldServer.java:223">^codeOrder13</a></li>
-<li>村庄运算 <a href="net/minecraft/world/WorldServer.java:225">^codeOrder14</a></li>
-<li>僵尸围城 <a href="net/minecraft/world/WorldServer.java:226">^codeOrder15</a></li>
-<li>地狱门缓存清空 <a href="net/minecraft/world/WorldServer.java:228">^codeOrder16</a></li>
-<li>方块事件 Block Event <a href="net/minecraft/world/WorldServer.java:230">^codeOrder17</a></li>
-<li>维度卸载判定相关 <a href="net/minecraft/world/WorldServer.java:528">^codeOrder18</a></li>
-<li>维度相关的运算，目前仅有末地的龙战相关逻辑 <a href="net/minecraft/world/WorldServer.java:540">^codeOrder19</a></li>
-<li>天气相关实体运算 <a href="net/minecraft/world/World.java:1203">^codeOrder20</a></li>
-<li>玩家实体运算 <a href="net/minecraft/world/World.java:1256">^codeOrder21</a></li>
-<li>普通实体运算 <a href="net/minecraft/world/World.java:1257">^codeOrder22</a></li>
-<li>方块实体运算 <a href="net/minecraft/world/World.java:13113">^codeOrder23</a></li>
-<li>发送客户端实体更新数据包 <a href="net.minecraft.world.WorldServer.java:897">^codeOrder24</a></li>
-<li>网络玩家信息运算 <a href="net/minecraft/server/MinecraftServer.java:909">^codeOrder25</a></li>
-<li>自动保存 <a href="net/minecraft/server/MinecraftServer.java:811">^codeOrder26</a></li>
+<li>成就命令相关 <sup id="fnref:1"><a href="#fn:1" rel="footnote">1</a></sup></li>
+<li>同步玩家的客户端时间 <sup id="fnref:2"><a href="#fn:2" rel="footnote">2</a></sup></li>
+<li>极限模式下难度锁困难判断 <sup id="fnref:3"><a href="#fn:3" rel="footnote">3</a></sup></li>
+<li>群系生成相关 <sup id="fnref:4"><a href="#fn:4" rel="footnote">4</a></sup></li>
+<li>玩家睡觉逻辑 <sup id="fnref:5"><a href="#fn:5" rel="footnote">5</a></sup></li>
+<li>生物、怪物刷新 <sup id="fnref:6"><a href="#fn:6" rel="footnote">6</a></sup></li>
+<li>区块卸载  <sup id="fnref:7"><a href="#fn:7" rel="footnote">7</a></sup></li>
+<li>天空光衰减计算 <sup id="fnref:8"><a href="#fn:8" rel="footnote">8</a></sup></li>
+<li>设置 GameTime 与 Daytime <sup id="fnref:9"><a href="#fn:9" rel="footnote">9</a></sup></li>
+<li>计划刻 Tile Tick (Next Tick Entry) <sup id="fnref:10"><a href="#fn:10" rel="footnote">10</a></sup></li>
+<li>随机检查并更新玩家附近的亮度 <sup id="fnref:11"><a href="#fn:11" rel="footnote">11</a></sup></li>
+<li>天空光的计算与将新增的 Tile Entity 储存至区块内；雷电；下雪与结冰；随机刻 <sup id="fnref:12"><a href="#fn:12" rel="footnote">12</a></sup></li>
+<li>玩家加载的区块列表更新，并发送客户端方块更新数据包 <sup id="fnref:13"><a href="#fn:13" rel="footnote">13</a></sup></li>
+<li>村庄运算 <sup id="fnref:14"><a href="#fn:14" rel="footnote">14</a></sup></li>
+<li>僵尸围城 <sup id="fnref:15"><a href="#fn:15" rel="footnote">15</a></sup></li>
+<li>地狱门缓存清空 <sup id="fnref:16"><a href="#fn:16" rel="footnote">16</a></sup></li>
+<li>方块事件 Block Event <sup id="fnref:17"><a href="#fn:17" rel="footnote">17</a></sup></li>
+<li>维度卸载判定相关 <sup id="fnref:18"><a href="#fn:18" rel="footnote">18</a></sup></li>
+<li>维度相关的运算，目前仅有末地的龙战相关逻辑 <sup id="fnref:19"><a href="#fn:19" rel="footnote">19</a></sup></li>
+<li>天气相关实体运算 <sup id="fnref:20"><a href="#fn:20" rel="footnote">20</a></sup></li>
+<li>玩家实体运算 <sup id="fnref:21"><a href="#fn:21" rel="footnote">21</a></sup></li>
+<li>普通实体运算 <sup id="fnref:22"><a href="#fn:22" rel="footnote">22</a></sup></li>
+<li>方块实体运算 <sup id="fnref:23"><a href="#fn:23" rel="footnote">23</a></sup></li>
+<li>发送客户端实体更新数据包 <sup id="fnref:24"><a href="#fn:24" rel="footnote">24</a></sup></li>
+<li>网络玩家信息运算 <sup id="fnref:25"><a href="#fn:25" rel="footnote">25</a></sup></li>
+<li>自动保存 <sup id="fnref:26"><a href="#fn:26" rel="footnote">26</a></sup></li>
 </ol>
 <h2 id="GameTick"><a href="#GameTick" class="headerlink" title="GameTick"></a>GameTick</h2><p>GameTick（gt），也就是游戏刻，或者说游戏里的时间量，是用来衡量电路延迟、生物生存周期等的重要指标。要想明确 GameTick 是什么，就先得给出 GameTick 的定义</p>
 <p>作为一个离散的时间量，在游戏的运算过程中一定存在某个时刻，GameTick 这个时间量发生改变，这就是 GameTick 的分界线。在 1.1 节，我们从代码执行顺序的角度列出了游戏的运算顺序。在这个长达 24 条的列表里，我将 GameTick 的分界线的划分在：<strong>8. 设置GameTime与Daytime</strong>，并给出GameTick的定义：</p>
@@ -723,7 +725,7 @@
 <h2 id="实例-自加载型区块加载器伪和平"><a href="#实例-自加载型区块加载器伪和平" class="headerlink" title="实例 自加载型区块加载器伪和平"></a>实例 自加载型区块加载器伪和平</h2><p>对于基于在卸载后能加载回自身的区块加载器的伪和平，在重加载时是否存在 1gt 的刷怪空档期是至关重要的，因为这直接与伪和平是否可用 100% 阻止生物刷新相关。完美的伪和平装置是不存在可刷怪空档期的</p>
 <p>让我们分析一下基于活塞区块加载器的伪和平：</p>
 <p>活塞区块加载器，利用了方块事件可以加载区块的原理，通过在每个gt利用活塞计划方块事件来确保自动保存后能加载回自身区块。</p>
-<p><img src="/deeply-dissecting-minecraft_1/BELoader1.png" alt="活塞加载器伪和平1"><br>备注：此活塞加载器并非完美设计，但足以应用于本实例分析</p>
+<p><img src="/2020/09/16/deeply-dissecting-minecraft_1/BELoader1.png" alt="活塞加载器伪和平1"><br>备注：此活塞加载器并非完美设计，但足以应用于本实例分析</p>
 <p>这个方案是可以 100% 阻止生物刷新的，也就是不存在 1gt 的刷怪间隔。微观时序分析很简单。先列一下相关的阶段：</p>
 <table>
 <thead>
@@ -756,7 +758,7 @@
 <p>可看到，在自动保存等引发的区块卸载之后，下一次进行刷怪前，游戏执行了方块事件相关的运算，并在此处加载回了存怪的区块，让怪物容量超过上限，阻止下一次进行刷怪时的生物刷新。因此，这是一个完美的伪和平</p>
 <hr>
 <p>如果出于某些原因，活塞区块加载器与存怪装置不在同一个区块，需要使用漏斗加载存怪区块，如下图所示。这样的话这种伪和平装置是否还是完美的？</p>
-<p><img src="/deeply-dissecting-minecraft_1/BELoader2.png" alt="活塞加载器伪和平2"></p>
+<p><img src="/2020/09/16/deeply-dissecting-minecraft_1/BELoader2.png" alt="活塞加载器伪和平2"></p>
 <p>相关的阶段：</p>
 <table>
 <thead>
@@ -830,7 +832,7 @@
 <p>因此，这个伪和平设计也能保证 100% 时刻不刷怪，是个完美的伪和平</p>
 <hr>
 <p>假如有个小天才嫌一个漏斗太少，非得多串几个漏斗才接到存怪装置区块，那会怎么样？</p>
-<p><img src="/deeply-dissecting-minecraft_1/BELoader3.png" alt="活塞加载器伪和平3"></p>
+<p><img src="/2020/09/16/deeply-dissecting-minecraft_1/BELoader3.png" alt="活塞加载器伪和平3"></p>
 <p>区块卸载在 GameTick N，活塞加载器自加载在 GameTick N+1 的  BE，三个漏斗依次加载区块使存怪区域在 GameTick N+1 的 TE 被加载？并不是这样的</p>
 <p>TE 阶段有个性质：在 TE 阶段内新增的 TE 实体，并不会立即参与运算，而是会先加入一个临时的列表 <code>addedTileEntityList</code>，等到该 TE 阶段运算结束后再统一添加新 TE 实体至参与运算的 TE 列表 <code>loadedTileEntityList</code> 中，也就是说在 GameTick N 新增的 TE 实体要等到 GameTick N+1 的 TE 阶段才能进行运算</p>
 <p>因此，这个小天才活塞区块加载器伪和平的微观时序是这样的：</p>
@@ -888,7 +890,7 @@
 <td>伪和平开启，不刷怪</td>
 </tr>
 </tbody></table>
-<p>因此这个伪和平方案在每次被卸载时，足足有 2gt 的刷怪空档期，不是一个完美的伪和平方案</p>
+<p>因此这个伪和平方案在每次被卸载时，足足有 2gt 的刷怪空档期，不是一个完美的伪和平方案<div id="footnotes"><hr><div id="footnotelist"><ol style="list-style:none; padding-left: 0;"><li id="fn:1"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">1.</span><span style="display: inline-block; vertical-align: top;">net/minecraft/server/MinecraftServer.java:850</span><a href="#fnref:1" rev="footnote"> ↩</a></li><li id="fn:2"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">2.</span><span style="display: inline-block; vertical-align: top;">net/minecraft/server/MinecraftServer.java:867</span><a href="#fnref:2" rev="footnote"> ↩</a></li><li id="fn:3"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">3.</span><span style="display: inline-block; vertical-align: top;">net/minecraft/world/WorldServer.java:176</span><a href="#fnref:3" rev="footnote"> ↩</a></li><li id="fn:4"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">4.</span><span style="display: inline-block; vertical-align: top;">net/minecraft/world/WorldServer.java:181</span><a href="#fnref:4" rev="footnote"> ↩</a></li><li id="fn:5"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">5.</span><span style="display: inline-block; vertical-align: top;">net/minecraft/world/WorldServer.java:183</span><a href="#fnref:5" rev="footnote"> ↩</a></li><li id="fn:6"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">6.</span><span style="display: inline-block; vertical-align: top;">net/minecraft/world/WorldServer.java:196</span><a href="#fnref:6" rev="footnote"> ↩</a></li><li id="fn:7"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">7.</span><span style="display: inline-block; vertical-align: top;">net/minecraft/world/WorldServer.java:203</span><a href="#fnref:7" rev="footnote"> ↩</a></li><li id="fn:8"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">8.</span><span style="display: inline-block; vertical-align: top;">net/minecraft/world/WorldServer.java:204</span><a href="#fnref:8" rev="footnote"> ↩</a></li><li id="fn:9"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">9.</span><span style="display: inline-block; vertical-align: top;">net/minecraft/world/WorldServer.java:211</span><a href="#fnref:9" rev="footnote"> ↩</a></li><li id="fn:10"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">10.</span><span style="display: inline-block; vertical-align: top;">net/minecraft/world/WorldServer.java:219</span><a href="#fnref:10" rev="footnote"> ↩</a></li><li id="fn:11"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">11.</span><span style="display: inline-block; vertical-align: top;">net/minecraft/world/WorldServer.java:382</span><a href="#fnref:11" rev="footnote"> ↩</a></li><li id="fn:12"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">12.</span><span style="display: inline-block; vertical-align: top;">net/minecraft/world/WorldServer.java:400</span><a href="#fnref:12" rev="footnote"> ↩</a></li><li id="fn:13"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">13.</span><span style="display: inline-block; vertical-align: top;">net/minecraft/world/WorldServer.java:223</span><a href="#fnref:13" rev="footnote"> ↩</a></li><li id="fn:14"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">14.</span><span style="display: inline-block; vertical-align: top;">net/minecraft/world/WorldServer.java:225</span><a href="#fnref:14" rev="footnote"> ↩</a></li><li id="fn:15"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">15.</span><span style="display: inline-block; vertical-align: top;">net/minecraft/world/WorldServer.java:226</span><a href="#fnref:15" rev="footnote"> ↩</a></li><li id="fn:16"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">16.</span><span style="display: inline-block; vertical-align: top;">net/minecraft/world/WorldServer.java:228</span><a href="#fnref:16" rev="footnote"> ↩</a></li><li id="fn:17"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">17.</span><span style="display: inline-block; vertical-align: top;">net/minecraft/world/WorldServer.java:230</span><a href="#fnref:17" rev="footnote"> ↩</a></li><li id="fn:18"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">18.</span><span style="display: inline-block; vertical-align: top;">net/minecraft/world/WorldServer.java:528</span><a href="#fnref:18" rev="footnote"> ↩</a></li><li id="fn:19"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">19.</span><span style="display: inline-block; vertical-align: top;">net/minecraft/world/WorldServer.java:540</span><a href="#fnref:19" rev="footnote"> ↩</a></li><li id="fn:20"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">20.</span><span style="display: inline-block; vertical-align: top;">net/minecraft/world/World.java:1203</span><a href="#fnref:20" rev="footnote"> ↩</a></li><li id="fn:21"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">21.</span><span style="display: inline-block; vertical-align: top;">net/minecraft/world/World.java:1256</span><a href="#fnref:21" rev="footnote"> ↩</a></li><li id="fn:22"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">22.</span><span style="display: inline-block; vertical-align: top;">net/minecraft/world/World.java:1257</span><a href="#fnref:22" rev="footnote"> ↩</a></li><li id="fn:23"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">23.</span><span style="display: inline-block; vertical-align: top;">net/minecraft/world/World.java:13113</span><a href="#fnref:23" rev="footnote"> ↩</a></li><li id="fn:24"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">24.</span><span style="display: inline-block; vertical-align: top;">net.minecraft.world.WorldServer.java:897</span><a href="#fnref:24" rev="footnote"> ↩</a></li><li id="fn:25"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">25.</span><span style="display: inline-block; vertical-align: top;">net/minecraft/server/MinecraftServer.java:909</span><a href="#fnref:25" rev="footnote"> ↩</a></li><li id="fn:26"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">26.</span><span style="display: inline-block; vertical-align: top;">net/minecraft/server/MinecraftServer.java:811</span><a href="#fnref:26" rev="footnote"> ↩</a></li></ol></div></div></p>
 ]]></content>
       <categories>
         <category>Minecraft</category>
