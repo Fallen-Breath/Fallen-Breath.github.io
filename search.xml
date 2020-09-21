@@ -436,7 +436,7 @@
       </tags>
   </entry>
   <entry>
-    <title>深度剖析Minecraft \#2 方块更新</title>
+    <title>深度剖析Minecraft #2 方块更新</title>
     <url>/2020/09/16/deeply-dissecting-minecraft_2/</url>
     <content><![CDATA[<h1 id="2-方块更新"><a href="#2-方块更新" class="headerlink" title="2 方块更新"></a>2 方块更新</h1><p>感谢 <a href="https://space.bilibili.com/112998430">迟昫123</a> 与 <a href="https://space.bilibili.com/397105271">qwrrdshfsghv</a> 的捉虫</p>
 <h2 id="2-1-方块更新性质"><a href="#2-1-方块更新性质" class="headerlink" title="2.1 方块更新性质"></a>2.1 方块更新性质</h2><h3 id="2-1-1-方块更新的种类"><a href="#2-1-1-方块更新的种类" class="headerlink" title="2.1.1 方块更新的种类"></a>2.1.1 方块更新的种类</h3><p>1.13 之后，方块更新分为了两种类型，分别是 <code>NeighborChanged</code> 与 <code>PostPlacement</code>，简称 NC 与 PP 更新。若要与 1.13 之前相比，可将 1.13 之前的所有方块更新都视为 NC 更新。下文将用<strong>方块更新</strong>一词指代 NC 更新，用<strong>状态更新</strong>一词指代 PP 更新</p>
