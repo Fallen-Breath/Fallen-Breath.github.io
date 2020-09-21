@@ -366,7 +366,7 @@
 <td>其当前的亮起状态。我们称该标签为假时二极管熄灭，该标签为真时二极管熄灭</td>
 </tr>
 </tbody></table>
-<h4 id="响应方块更新"><a href="#响应方块更新" class="headerlink" title="响应方块更新"></a>响应方块更新</h4><p>当二极管受到方块更新时，它会首先检测其位置是否合法，若不合法则掉落为物品，并先在所在位置发出方块更新，再在其毗邻 6 方块的位置发出方块更新（顺序：-y, +y, -z, +z, -x, +x <sup id="fnref:1"><a href="#fn:1" rel="footnote">1</a></sup>）；若合法，则开始检测信号变化<sup id="fnref:2"><a href="#fn:2" rel="footnote">2</a></sup>。具体的检测信号变化的方法见 <a href="#红石中继器">红石中继器</a> 以及 <a href="#红石比较器">红石比较器</a></p>
+<h4 id="响应方块更新"><a href="#响应方块更新" class="headerlink" title="响应方块更新"></a>响应方块更新</h4><p>当二极管受到方块更新时，它会首先检测其位置是否合法，若不合法则掉落为物品，并先在所在位置发出方块更新，再在其毗邻 6 方块的位置发出方块更新（顺序：-y, +y, -z, +z, -x, +x <sup id="fnref:1"><a href="#fn:1" rel="footnote">1</a></sup>）；若合法，则开始检测信号变化 <sup id="fnref:2"><a href="#fn:2" rel="footnote">2</a></sup>。具体的检测信号变化的方法见 <a href="#红石中继器">红石中继器</a> 以及 <a href="#红石比较器">红石比较器</a></p>
 <h4 id="发出更新"><a href="#发出更新" class="headerlink" title="发出更新"></a>发出更新</h4><p>当二极管的状态发生变化的时候，它会先给其指向方块一个方块更新（下图黄色玻璃），再于其指向方块的位置处发出一个除其指向方向反方向的方块更新（下图红色玻璃）</p>
 <p><img src="/2020/09/17/deeply-dissecting-minecraft_3-2/%E7%BA%A2%E7%9F%B3%E4%BA%8C%E6%9E%81%E7%AE%A1%E6%9B%B4%E6%96%B0%E8%8C%83%E5%9B%B4%E7%A4%BA%E6%84%8F.png" alt="红石二极管更新范围示意"></p>
 <h3 id="红石中继器"><a href="#红石中继器" class="headerlink" title="红石中继器"></a>红石中继器</h3><table>
@@ -381,7 +381,7 @@
 <td>net.minecraft.block.BlockRedstoneRepeater</td>
 </tr>
 <tr>
-<td></td>
+<td>基类</td>
 <td>net.minecraft.block.BlockRedstoneDiode</td>
 </tr>
 <tr>
@@ -512,7 +512,14 @@
 <li>其他情况，优先级为 0</li>
 </ul>
 <h4 id="计划刻事件执行-1"><a href="#计划刻事件执行-1" class="headerlink" title="计划刻事件执行"></a>计划刻事件执行</h4><p>aa</p>
-<h2 id="红石火把"><a href="#红石火把" class="headerlink" title="红石火把"></a>红石火把</h2><h2 id="侦测器"><a href="#侦测器" class="headerlink" title="侦测器"></a>侦测器</h2><h2 id="投掷器-发射器"><a href="#投掷器-发射器" class="headerlink" title="投掷器/发射器"></a>投掷器/发射器</h2><h2 id="红石灯"><a href="#红石灯" class="headerlink" title="红石灯"></a>红石灯</h2><h2 id="探测类元件"><a href="#探测类元件" class="headerlink" title="探测类元件"></a>探测类元件</h2><h2 id="其他红石元件"><a href="#其他红石元件" class="headerlink" title="其他红石元件"></a>其他红石元件</h2><h2 id="非红石元件"><a href="#非红石元件" class="headerlink" title="非红石元件"></a>非红石元件</h2><h2 id="流体"><a href="#流体" class="headerlink" title="流体"></a>流体</h2><p>wwww    <div id="footnotes"><hr><div id="footnotelist"><ol style="list-style:none; padding-left: 0;"><li id="fn:1"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">1.</span><span style="display: inline-block; vertical-align: top;">net.minecraft.util.EnumFacing#values</span><a href="#fnref:1" rev="footnote"> ↩</a></li><li id="fn:2"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">2.</span><span style="display: inline-block; vertical-align: top;">net.minecraft.block.BlockRedstoneDiode#updateState</span><a href="#fnref:2" rev="footnote"> ↩</a></li><li id="fn:3"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">3.</span><span style="display: inline-block; vertical-align: top;">在 1.15 及以后，该事件的优先级改为 -2</span><a href="#fnref:3" rev="footnote"> ↩</a></li><li id="fn:4"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">4.</span><span style="display: inline-block; vertical-align: top;">也就是比较器方块实体并未实现 <code>net.minecraft.util.ITickable</code> 这个接口</span><a href="#fnref:4" rev="footnote"> ↩</a></li><li id="fn:5"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">5.</span><span style="display: inline-block; vertical-align: top;">net.minecraft.block.Block#isNormalCube</span><a href="#fnref:5" rev="footnote"> ↩</a></li></ol></div></div></p>
+<h2 id="红石火把"><a href="#红石火把" class="headerlink" title="红石火把"></a>红石火把</h2><p>k</p>
+<h2 id="侦测器"><a href="#侦测器" class="headerlink" title="侦测器"></a>侦测器</h2><p>k</p>
+<h2 id="投掷器-发射器"><a href="#投掷器-发射器" class="headerlink" title="投掷器/发射器"></a>投掷器/发射器</h2><p>k</p>
+<h2 id="红石灯"><a href="#红石灯" class="headerlink" title="红石灯"></a>红石灯</h2><p>k</p>
+<h2 id="探测类元件"><a href="#探测类元件" class="headerlink" title="探测类元件"></a>探测类元件</h2><p>k</p>
+<h2 id="其他红石元件"><a href="#其他红石元件" class="headerlink" title="其他红石元件"></a>其他红石元件</h2><p>k</p>
+<h2 id="非红石元件"><a href="#非红石元件" class="headerlink" title="非红石元件"></a>非红石元件</h2><p>k</p>
+<h2 id="流体"><a href="#流体" class="headerlink" title="流体"></a>流体</h2><p>wwww    <div id="footnotes"><hr><div id="footnotelist"><ol style="list-style:none; padding-left: 0;"><li id="fn:1"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">1.</span><span style="display: inline-block; vertical-align: top;">net.minecraft.util.EnumFacing#values</span><a href="#fnref:1" rev="footnote"> ↩</a></li><li id="fn:2"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">2.</span><span style="display: inline-block; vertical-align: top;">net.minecraft.block.BlockRedstoneDiode#updateState</span><a href="#fnref:2" rev="footnote"> ↩</a></li><li id="fn:3"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">3.</span><span style="display: inline-block; vertical-align: top;">在 1.15 及以后，该事件的优先级改为 -2</span><a href="#fnref:3" rev="footnote"> ↩</a></li><li id="fn:4"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">4.</span><span style="display: inline-block; vertical-align: top;">也就是比较器方块实体并未实现 <code>net.minecraft.util.ITickable</code> 这个接口</span><a href="#fnref:4" rev="footnote"> ↩</a></li><li id="fn:5"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">5.</span><span style="display: inline-block; vertical-align: top;">net.minecraft.block.Block#isNormalCube</span><a href="#fnref:5" rev="footnote"> ↩</a></li></ol></div></div></p>
 ]]></content>
       <categories>
         <category>Minecraft</category>
