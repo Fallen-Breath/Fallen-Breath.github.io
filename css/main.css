@@ -219,6 +219,9 @@ h6 {
 p {
   margin: 0 0 20px 0;
 }
+.post-body > p {
+  text-indent: 2em;
+}
 a,
 span.exturl {
   border-bottom: 1px solid #999;
