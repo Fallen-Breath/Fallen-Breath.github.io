@@ -308,12 +308,82 @@
   <entry>
     <title>深度剖析Minecraft 3-2 计划刻元件</title>
     <url>/2020/09/17/deeply-dissecting-minecraft_3-2/</url>
-    <content><![CDATA[<h1 id="计划刻元件"><a href="#计划刻元件" class="headerlink" title="计划刻元件"></a>计划刻元件</h1><h2 id="红石二极管"><a href="#红石二极管" class="headerlink" title="红石二极管"></a>红石二极管</h2><blockquote>
+    <content><![CDATA[<p>阅前必读：</p>
+<p>《<a href="/2020/09/16/deeply-dissecting-minecraft_2/" title="深度剖析Minecraft 2 方块更新">深度剖析Minecraft 2 方块更新</a>》</p>
+<p>《<a href="/2020/09/16/deeply-dissecting-minecraft_3-1/" title="深度剖析Minecraft 3-1 计划刻">深度剖析Minecraft 3-1 计划刻</a>》</p>
+<h1 id="计划刻元件"><a href="#计划刻元件" class="headerlink" title="计划刻元件"></a>计划刻元件</h1><h2 id="红石二极管"><a href="#红石二极管" class="headerlink" title="红石二极管"></a>红石二极管</h2><blockquote>
 <p>net.minecraft.block.BlockRedstoneDiode (1.13.2 mcp)<br>net.minecraft.block.AbstractRedstoneGateBlock (1.15.2 yarn)</p>
 </blockquote>
+<table>
+<thead>
+<tr>
+<th>名称</th>
+<th>信息</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>类</td>
+<td>net.minecraft.block.BlockRedstoneDiode</td>
+</tr>
+<tr>
+<td>延迟</td>
+<td>非定值</td>
+</tr>
+<tr>
+<td>优先级</td>
+<td>非定值</td>
+</tr>
+<tr>
+<td>位置需求</td>
+<td>其下方依附着的方块上表面完整</td>
+</tr>
+<tr>
+<td>受方块更新时</td>
+<td>判断掉落，更新信号</td>
+</tr>
+<tr>
+<td>受状态更新时</td>
+<td>不响应</td>
+</tr>
+</tbody></table>
 <p>这是一个抽象类，是红石中继器以及红石比较器的基类，也就是说中继器跟比较器的本质是一个二极管，有许多的机制是完全相同的</p>
-<p>合法环境需求：其下方依附着的方块上表面完整（<code>worldIn.getBlockState(pos.down()).isTopSolid()</code>），于受到方块更新时</p>
-<h3 id="红石中继器"><a href="#红石中继器" class="headerlink" title="红石中继器"></a>红石中继器</h3><h2 id="红石比较器"><a href="#红石比较器" class="headerlink" title="红石比较器"></a>红石比较器</h2><h2 id="红石火把"><a href="#红石火把" class="headerlink" title="红石火把"></a>红石火把</h2><h2 id="侦测器"><a href="#侦测器" class="headerlink" title="侦测器"></a>侦测器</h2><h2 id="投掷器-发射器"><a href="#投掷器-发射器" class="headerlink" title="投掷器/发射器"></a>投掷器/发射器</h2><h2 id="红石灯"><a href="#红石灯" class="headerlink" title="红石灯"></a>红石灯</h2><h2 id="探测类元件"><a href="#探测类元件" class="headerlink" title="探测类元件"></a>探测类元件</h2><h2 id="其他红石元件"><a href="#其他红石元件" class="headerlink" title="其他红石元件"></a>其他红石元件</h2><h2 id="非红石元件"><a href="#非红石元件" class="headerlink" title="非红石元件"></a>非红石元件</h2><h2 id="流体"><a href="#流体" class="headerlink" title="流体"></a>流体</h2>]]></content>
+<p>当红石二极管受到方块更新时，它会首先检测其位置是否合法，若不合法则掉落为物品，并先在所在位置发出方块更新，再在其毗邻 6 方块的位置发出方块更新（顺序：-y, +y, -z, +z, -x, +x <sup id="fnref:1"><a href="#fn:1" rel="footnote">1</a></sup>）；若合法，则开始检测信号变化</p>
+<p>检测信号变化：由于此部分的实现仅在红石中继器中得到调用，因此这部分将移至下文的 <a href="#红石中继器">红石中继器</a> 小节</p>
+<h3 id="红石中继器"><a href="#红石中继器" class="headerlink" title="红石中继器"></a>红石中继器</h3><table>
+<thead>
+<tr>
+<th>名称</th>
+<th>信息</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>类</td>
+<td>net.minecraft.block.BlockRedstoneRepeater</td>
+</tr>
+<tr>
+<td>延迟</td>
+<td>非定值</td>
+</tr>
+<tr>
+<td>优先级</td>
+<td>非定值</td>
+</tr>
+<tr>
+<td>位置需求</td>
+<td>同 <a href="#红石二极管">红石二极管</a></td>
+</tr>
+<tr>
+<td>受方块更新时</td>
+<td>同 <a href="#红石二极管">红石二极管</a></td>
+</tr>
+<tr>
+<td>受状态更新时</td>
+<td>更新自身被锁的状态</td>
+</tr>
+</tbody></table>
+<p>红石中继器（简称中继器）的延迟并非定值，是通过其档位，也就是其 <code>delay</code> 标签确定的，延迟时长为 <code>delay</code> * 2</p>
+<p>检测信号变化：中继器接受来自其输入端方块的弱充能信号，与其当前的 <code>powered</code> 标签进行对比</p>
+<h3 id="红石比较器"><a href="#红石比较器" class="headerlink" title="红石比较器"></a>红石比较器</h3><h2 id="红石火把"><a href="#红石火把" class="headerlink" title="红石火把"></a>红石火把</h2><h2 id="侦测器"><a href="#侦测器" class="headerlink" title="侦测器"></a>侦测器</h2><h2 id="投掷器-发射器"><a href="#投掷器-发射器" class="headerlink" title="投掷器/发射器"></a>投掷器/发射器</h2><h2 id="红石灯"><a href="#红石灯" class="headerlink" title="红石灯"></a>红石灯</h2><h2 id="探测类元件"><a href="#探测类元件" class="headerlink" title="探测类元件"></a>探测类元件</h2><h2 id="其他红石元件"><a href="#其他红石元件" class="headerlink" title="其他红石元件"></a>其他红石元件</h2><h2 id="非红石元件"><a href="#非红石元件" class="headerlink" title="非红石元件"></a>非红石元件</h2><h2 id="流体1-net-minecraft-util-EnumFacing-values-↩"><a href="#流体1-net-minecraft-util-EnumFacing-values-↩" class="headerlink" title="流体1.net.minecraft.util.EnumFacing#values ↩"></a>流体<div id="footnotes"><hr><div id="footnotelist"><ol style="list-style:none; padding-left: 0;"><li id="fn:1"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">1.</span><span style="display: inline-block; vertical-align: top;">net.minecraft.util.EnumFacing#values</span><a href="#fnref:1" rev="footnote"> ↩</a></li></ol></div></div></h2>]]></content>
       <categories>
         <category>Minecraft</category>
       </categories>
@@ -761,7 +831,7 @@
 <p><img src="/2020/09/16/deeply-dissecting-minecraft_2/%E4%BA%94%E6%AF%97%E9%82%BB%E6%96%B9%E5%9D%97.png" alt="五毗邻方块"></p>
 <p>具体代码见下 World 类中的 <code>notifyNeighborsOfStateExcept</code> 方法</p>
 <h3 id="一个方块受到了状态更新"><a href="#一个方块受到了状态更新" class="headerlink" title="一个方块受到了状态更新"></a>一个方块受到了状态更新</h3><p>一个方块受到了状态更新，将会调用位于这个方块的 <code>updatePostPlacement</code> 方法，并处理受到更新后的改变</p>
-<p>具体代码见下 IBlockState 类中的 <code>updatePostPlacement</code> 方法（见 <a href="#PostPlacement">PostPlacement</a>）</p>
+<p>具体代码见下 IBlockState 类中的 <code>updatePostPlacement</code> 方法（见 <a href="#PostPlacement">PostPlacement</a> 小节）</p>
 <h3 id="一个方块发出了状态更新"><a href="#一个方块发出了状态更新" class="headerlink" title="一个方块发出了状态更新"></a>一个方块发出了状态更新</h3><p><img src="/2020/09/16/deeply-dissecting-minecraft_2/%E5%85%AD%E6%AF%97%E9%82%BB%E6%96%B9%E5%9D%97.png" alt="六毗邻方块"></p>
 <p>当一个方块发出状态更新时，这个方块将会使其毗邻的六个方块依次受到状态更新。这里的“依次受到”的顺序为：</p>
 <ol>
@@ -783,7 +853,7 @@
 <p>可以发现上述部分我描述方块更新的具体例子时都是列举响应方块更新的实例，没有列举产生方块更新的事件。这是因为 MC 里能产生方块更新的地方实在是太多了。</p>
 <p>1.13 把方块更新拆成两类的做法有些魔幻，不知道麻将是想优化游戏还是只是想乱改改赌一赌能不能修掉 TNT 复制。不过至少对于绝大部分电路中利用到方块更新的部分是没有影响的</p>
 <p>麻将代码中还有些很迷惑的地方，比如同样是气泡柱产生源，除了放下方块时均会添加尝试生成气泡的 TT 事件外，灵魂沙只在受到方块更新时添加 TT 事件，而岩浆块只在受到上方的来自水的状态更新时添加 TT 事件</p>
-<h2 id="方块变化的实现"><a href="#方块变化的实现" class="headerlink" title="方块变化的实现"></a>方块变化的实现</h2><p>MC 里绝大部分对世界中方块的修改是通过 <code>World</code> 类的 <code>setBlockState</code> <a href="net/minecraft/world/World.java:226">^setBlockState</a> 来实现的。以将位置 Pos 的方块从 A 修改至 B 的流程如下：</p>
+<h2 id="方块变化的实现"><a href="#方块变化的实现" class="headerlink" title="方块变化的实现"></a>方块变化的实现</h2><p>MC 里绝大部分对世界中方块的修改是通过 <code>World</code> 类的 <code>setBlockState</code> <sup id="fnref:1"><a href="#fn:1" rel="footnote">1</a></sup> 来实现的。以将位置 Pos 的方块从 A 修改至 B 的流程如下：</p>
 <ol>
 <li>运算方块变化导致区段信息的改变</li>
 <li>更新 Heightmap</li>
@@ -874,7 +944,7 @@
 <p>关于更新抑制与可协助产生更新抑制的更新抑制器，Xcom6000 制作过一个非常详细的讲解视频，红石科技搬运组已在 bilibili 将其翻译成熟肉。推荐大家去观看学习。<a href="https://www.bilibili.com/video/av83979198">传送门</a></p>
 <h3 id="方块更新与深度优先搜索"><a href="#方块更新与深度优先搜索" class="headerlink" title="方块更新与深度优先搜索"></a>方块更新与深度优先搜索</h3><p>方块受到更新，方块改变状态，方块发出更新，依次更新毗邻方块，新方块受到更新……这一层层递归的过程，本质上正是一个深度优先搜索，也就是 DFS（Depth First Search）。每当一个 bud 充能铁轨受到更新了，将会按照其发出方块更新的顺序，以及方块更新的更新顺序，往新的 bud 铁轨方块递归下去</p>
 <p>关于深度优先搜索，或者 DFS，网络上相关的资料一搜一大把，这里就不再重复阐述了</p>
-<p>使用更新抑制来阻断方块更新的一个难点，即是如何控制更新顺序，使<strong>方块更新在传递至需阻止更新的方块前就进入更新抑制器</strong>触发栈溢出。现在，方块更新传递的机制我们已探明（DFS），方块更新顺序我们也已清楚（方块/状态更新的更新顺序），只要了解清楚 DFS 的机制确定好更新顺序方向，就可以轻松的计算出来了</p>
+<p>使用更新抑制来阻断方块更新的一个难点，即是如何控制更新顺序，使<strong>方块更新在传递至需阻止更新的方块前就进入更新抑制器</strong>触发栈溢出。现在，方块更新传递的机制我们已探明（DFS），方块更新顺序我们也已清楚（方块/状态更新的更新顺序），只要了解清楚 DFS 的机制确定好更新顺序方向，就可以轻松的计算出来了<div id="footnotes"><hr><div id="footnotelist"><ol style="list-style:none; padding-left: 0;"><li id="fn:1"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">1.</span><span style="display: inline-block; vertical-align: top;">net/minecraft/world/World.java:226</span><a href="#fnref:1" rev="footnote"> ↩</a></li></ol></div></div></p>
 ]]></content>
       <categories>
         <category>Minecraft</category>
