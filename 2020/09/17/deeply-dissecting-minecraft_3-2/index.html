@@ -246,6 +246,10 @@
 <td>net.minecraft.block.BlockRedstoneDiode</td>
 </tr>
 <tr>
+<td>基类</td>
+<td>net.minecraft.block.BlockHorizontal</td>
+</tr>
+<tr>
 <td>延迟</td>
 <td>非定值</td>
 </tr>
@@ -267,9 +271,22 @@
 </tr>
 </tbody></table>
 <p>这是一个抽象类，是红石中继器以及红石比较器的基类，也就是说中继器跟比较器的本质是一个二极管，有许多的机制是完全相同的</p>
-<p>二极管的方块状态中均包含一个布尔值的标签 <code>powered</code> 用于储存其当前的亮起状态。我们称该标签为假时二极管熄灭，该标签为真时二极管熄灭</p>
-<p>当二极管受到方块更新时，它会首先检测其位置是否合法，若不合法则掉落为物品，并先在所在位置发出方块更新，再在其毗邻 6 方块的位置发出方块更新（顺序：-y, +y, -z, +z, -x, +x <sup id="fnref:1"><a href="#fn:1" rel="footnote">1</a></sup>）；若合法，则开始检测信号变化</p>
-<h4 id="检测信号变化"><a href="#检测信号变化" class="headerlink" title="检测信号变化"></a>检测信号变化</h4><p>由于此部分的实现仅在红石中继器中得到调用，并未在红石比较器中得到调用，因此这部分将移至下文的 <a href="#红石中继器">红石中继器</a> 小节</p>
+<h4 id="方块状态"><a href="#方块状态" class="headerlink" title="方块状态"></a>方块状态</h4><p>作为一个可水平旋转的方块，二极管继承了一个 <code>facing</code> 标签表示其水平指向。除此之外二极管还具有以下标签：</p>
+<table>
+<thead>
+<tr>
+<th>标签名</th>
+<th>取值</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>powered</td>
+<td>false, true</td>
+<td>其当前的亮起状态。我们称该标签为假时二极管熄灭，该标签为真时二极管熄灭</td>
+</tr>
+</tbody></table>
+<h4 id="响应方块更新"><a href="#响应方块更新" class="headerlink" title="响应方块更新"></a>响应方块更新</h4><p>当二极管受到方块更新时，它会首先检测其位置是否合法，若不合法则掉落为物品，并先在所在位置发出方块更新，再在其毗邻 6 方块的位置发出方块更新（顺序：-y, +y, -z, +z, -x, +x <sup id="fnref:1"><a href="#fn:1" rel="footnote">1</a></sup>）；若合法，则开始检测信号变化<sup id="fnref:2"><a href="#fn:2" rel="footnote">2</a></sup>。具体的检测信号变化的方法见 <a href="#红石中继器">红石中继器</a> 以及 <a href="#红石比较器">红石比较器</a></p>
 <h4 id="发出更新"><a href="#发出更新" class="headerlink" title="发出更新"></a>发出更新</h4><p>当二极管的状态发生变化的时候，它会先给其指向方块一个方块更新（下图黄色玻璃），再于其指向方块的位置处发出一个除其指向方向反方向的方块更新（下图红色玻璃）</p>
 <p><img src="/2020/09/17/deeply-dissecting-minecraft_3-2/%E7%BA%A2%E7%9F%B3%E4%BA%8C%E6%9E%81%E7%AE%A1%E6%9B%B4%E6%96%B0%E8%8C%83%E5%9B%B4%E7%A4%BA%E6%84%8F.png" alt="红石二极管更新范围示意"></p>
 <h3 id="红石中继器"><a href="#红石中继器" class="headerlink" title="红石中继器"></a>红石中继器</h3><table>
@@ -282,6 +299,10 @@
 <tbody><tr>
 <td>类</td>
 <td>net.minecraft.block.BlockRedstoneRepeater</td>
+</tr>
+<tr>
+<td></td>
+<td>net.minecraft.block.BlockRedstoneDiode</td>
 </tr>
 <tr>
 <td>延迟</td>
@@ -304,8 +325,27 @@
 <td>更新自身被锁的状态</td>
 </tr>
 </tbody></table>
-<p>红石中继器（简称中继器）的延迟并非定值，是通过其档位，也就是其 <code>delay</code> 标签确定的，延迟时长为 <code>delay</code> * 2</p>
-<h4 id="检测信号变化-1"><a href="#检测信号变化-1" class="headerlink" title="检测信号变化"></a>检测信号变化</h4><p>中继器接受来自其输入端方块的弱充能信号，与其当前的 <code>powered</code> 标签进行对比，若发现其状态需要改变，则添加一个计划刻事件用于延迟更新状态。计划刻事件的延迟如上所述，优先级如下：</p>
+<h4 id="方块状态-1"><a href="#方块状态-1" class="headerlink" title="方块状态"></a>方块状态</h4><p>红石中继器（简称中继器）在红石二极管的基础上，新增了两个方块标签：</p>
+<table>
+<thead>
+<tr>
+<th>标签名</th>
+<th>取值</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>delay</td>
+<td>1, 2, 3, 4</td>
+<td>储存中继器的延迟。计划刻事件的延迟将为 <code>delay</code> * 2</td>
+</tr>
+<tr>
+<td>locked</td>
+<td>false, true</td>
+<td>储存中继器是否被锁</td>
+</tr>
+</tbody></table>
+<h4 id="检测信号变化"><a href="#检测信号变化" class="headerlink" title="检测信号变化"></a>检测信号变化</h4><p>中继器接受来自其输入端方块的弱充能信号，与其当前的 <code>powered</code> 标签进行对比，若发现其状态需要改变，则添加一个计划刻事件用于延迟更新状态。计划刻事件的延迟如上所述，优先级如下：</p>
 <ul>
 <li>若其指向方块为红石二极管，且红石二极管的朝向非反向，则优先级为 -3</li>
 <li>若中继器的原 <code>powered</code> 标签为假，也即中继器准备熄灭，则优先级为 -2</li>
@@ -314,10 +354,85 @@
 <h4 id="计划刻事件执行"><a href="#计划刻事件执行" class="headerlink" title="计划刻事件执行"></a>计划刻事件执行</h4><p>如果中继器目前被锁住，则跳过该计划刻事件的执行。由于计划刻事件并不储存该事件是用于什么事件，中继器需要再次计算其输入端方块的弱充能信号，并与其当前的 <code>powered</code> 标签作比较：</p>
 <ul>
 <li>若当前状态为亮起且输入端无信号，则改为熄灭状态</li>
-<li>若的前状态为熄灭，则改为亮起状态，再判断输入端是否有信号，若无信号则添加一个延迟为其自身的延迟，优先级为 -1 <sup id="fnref:2"><a href="#fn:2" rel="footnote">2</a></sup> 的计划刻事件用于熄灭。也就是说，即便在执行计划刻事件的时候输入信号已经消失，中继器也依然会亮起，这也是中继器可响应并输出任意短的正脉冲的原理</li>
+<li>若的前状态为熄灭，则改为亮起状态，再判断输入端是否有信号，若无信号则添加一个延迟为其自身的延迟，优先级为 -1 <sup id="fnref:3"><a href="#fn:3" rel="footnote">3</a></sup> 的计划刻事件用于熄灭。也就是说，即便在执行计划刻事件的时候输入信号已经消失，中继器也依然会亮起，这也是中继器可响应并输出任意短的正脉冲的原理</li>
 </ul>
 <p>上述过程中，改变其亮起状态时，在其所在位置发出的更新仅含状态更新。中继器在其前方发出的大范围方块更新见 <a href="#红石二极管">红石二极管</a> 的发出更新小节</p>
-<h3 id="红石比较器"><a href="#红石比较器" class="headerlink" title="红石比较器"></a>红石比较器</h3><h2 id="红石火把"><a href="#红石火把" class="headerlink" title="红石火把"></a>红石火把</h2><h2 id="侦测器"><a href="#侦测器" class="headerlink" title="侦测器"></a>侦测器</h2><h2 id="投掷器-发射器"><a href="#投掷器-发射器" class="headerlink" title="投掷器/发射器"></a>投掷器/发射器</h2><h2 id="红石灯"><a href="#红石灯" class="headerlink" title="红石灯"></a>红石灯</h2><h2 id="探测类元件"><a href="#探测类元件" class="headerlink" title="探测类元件"></a>探测类元件</h2><h2 id="其他红石元件"><a href="#其他红石元件" class="headerlink" title="其他红石元件"></a>其他红石元件</h2><h2 id="非红石元件"><a href="#非红石元件" class="headerlink" title="非红石元件"></a>非红石元件</h2><h2 id="流体"><a href="#流体" class="headerlink" title="流体"></a>流体</h2><p>wwww<div id="footnotes"><hr><div id="footnotelist"><ol style="list-style:none; padding-left: 0;"><li id="fn:1"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">1.</span><span style="display: inline-block; vertical-align: top;">net.minecraft.util.EnumFacing#values</span><a href="#fnref:1" rev="footnote"> ↩</a></li><li id="fn:2"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">2.</span><span style="display: inline-block; vertical-align: top;">在 1.15 及以后，该事件的优先级改为 -2</span><a href="#fnref:2" rev="footnote"> ↩</a></li></ol></div></div></p>
+<h4 id="受状态更新时"><a href="#受状态更新时" class="headerlink" title="受状态更新时"></a>受状态更新时</h4><p>当中继器受到状态更新时，若更新方向为水平方向，且方向为垂直于中继器的指向方向</p>
+<h3 id="红石比较器"><a href="#红石比较器" class="headerlink" title="红石比较器"></a>红石比较器</h3><table>
+<thead>
+<tr>
+<th>名称</th>
+<th>信息</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>类</td>
+<td>net.minecraft.block.BlockRedstoneComparator</td>
+</tr>
+<tr>
+<td>基类</td>
+<td>net.minecraft.block.BlockRedstoneDiode</td>
+</tr>
+<tr>
+<td>延迟</td>
+<td>2</td>
+</tr>
+<tr>
+<td>优先级</td>
+<td>非定值</td>
+</tr>
+<tr>
+<td>位置需求</td>
+<td>同 <a href="#红石二极管">红石二极管</a></td>
+</tr>
+<tr>
+<td>受方块更新时</td>
+<td>同 <a href="#红石二极管">红石二极管</a></td>
+</tr>
+<tr>
+<td>受状态更新时</td>
+<td>不响应</td>
+</tr>
+</tbody></table>
+<h4 id="方块状态-2"><a href="#方块状态-2" class="headerlink" title="方块状态"></a>方块状态</h4><p>红石比较器（简称比较器）在红石二极管的基础上，新增了一个方块标签：</p>
+<table>
+<thead>
+<tr>
+<th>标签名</th>
+<th>取值</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>mode</td>
+<td>compare, subtract</td>
+<td>储存着比较器当前的模式（比较模式、减法模式）</td>
+</tr>
+</tbody></table>
+<p>对于当前比较器的输出信号的储存，可能是因为一些历史遗留问题（1.13 以前的方块附加值储存能力不足），是储存于比较器方块实体之中的。也就是说，比较器其实是一个含有方块实体的方块。不过由于该方块实体并不是常运算的方块实体 <sup id="fnref:4"><a href="#fn:4" rel="footnote">4</a></sup>，因此并不会带来额外的卡顿</p>
+<h4 id="信号强度计算"><a href="#信号强度计算" class="headerlink" title="信号强度计算"></a>信号强度计算</h4><p>首先，需要计算输入端的信号强度</p>
+<p>令输入端，即比较器后方一格处的方块为 A，比较器后方二格处的方块为 B</p>
+<p>【图片】</p>
+<ol>
+<li>计算方块 A 的弱充能信号强度（与中继器相同），将输入强度设为该信号强度</li>
+<li>判断方块 A 是否可输出比较器信号<ul>
+<li>如果是，则将输入强度设为 A 的比较器输出值。如比较器直接读取毗邻容器</li>
+<li>如果不是，若输入强度小于 15 且方块 A 为实体方块 <sup id="fnref:5"><a href="#fn:5" rel="footnote">5</a></sup>，则进行以下尝试：<ol>
+<li>如果方块 B 可输出比较器信号，则将输入强度设方块 B 的比较器输出值</li>
+<li>如果方块 B 为空气，则查找位于方块 B 处的可能依附于方块 A 的一个物品展示框实体，若找到则将输入强度设置为物品展示架的角度</li>
+</ol>
+</li>
+</ul>
+</li>
+<li>输入强度所储存的值即为所求</li>
+</ol>
+<h4 id="检测信号变化-1"><a href="#检测信号变化-1" class="headerlink" title="检测信号变化"></a>检测信号变化</h4><p>与中继器类似，比较器会计算其当前来自多个输入端的信号强度，并与当前自身储存着的信号强度作对比。如果输出的信号强度有改变，或者其亮起状态有变化，则添加一个计划刻事件，优先级如下：</p>
+<ul>
+<li>若其指向方块为红石二极管，且红石二极管的朝向非反向，则优先级为 -1</li>
+<li>其他情况，优先级为 0</li>
+</ul>
+<h4 id="计划刻事件执行-1"><a href="#计划刻事件执行-1" class="headerlink" title="计划刻事件执行"></a>计划刻事件执行</h4><p>aa</p>
+<h2 id="红石火把"><a href="#红石火把" class="headerlink" title="红石火把"></a>红石火把</h2><h2 id="侦测器"><a href="#侦测器" class="headerlink" title="侦测器"></a>侦测器</h2><h2 id="投掷器-发射器"><a href="#投掷器-发射器" class="headerlink" title="投掷器/发射器"></a>投掷器/发射器</h2><h2 id="红石灯"><a href="#红石灯" class="headerlink" title="红石灯"></a>红石灯</h2><h2 id="探测类元件"><a href="#探测类元件" class="headerlink" title="探测类元件"></a>探测类元件</h2><h2 id="其他红石元件"><a href="#其他红石元件" class="headerlink" title="其他红石元件"></a>其他红石元件</h2><h2 id="非红石元件"><a href="#非红石元件" class="headerlink" title="非红石元件"></a>非红石元件</h2><h2 id="流体"><a href="#流体" class="headerlink" title="流体"></a>流体</h2><p>wwww    <div id="footnotes"><hr><div id="footnotelist"><ol style="list-style:none; padding-left: 0;"><li id="fn:1"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">1.</span><span style="display: inline-block; vertical-align: top;">net.minecraft.util.EnumFacing#values</span><a href="#fnref:1" rev="footnote"> ↩</a></li><li id="fn:2"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">2.</span><span style="display: inline-block; vertical-align: top;">net.minecraft.block.BlockRedstoneDiode#updateState</span><a href="#fnref:2" rev="footnote"> ↩</a></li><li id="fn:3"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">3.</span><span style="display: inline-block; vertical-align: top;">在 1.15 及以后，该事件的优先级改为 -2</span><a href="#fnref:3" rev="footnote"> ↩</a></li><li id="fn:4"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">4.</span><span style="display: inline-block; vertical-align: top;">也就是比较器方块实体并未实现 <code>net.minecraft.util.ITickable</code> 这个接口</span><a href="#fnref:4" rev="footnote"> ↩</a></li><li id="fn:5"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">5.</span><span style="display: inline-block; vertical-align: top;">net.minecraft.block.Block#isNormalCube</span><a href="#fnref:5" rev="footnote"> ↩</a></li></ol></div></div></p>
 
     </div>
 
@@ -416,7 +531,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%AE%A1%E5%88%92%E5%88%BB%E5%85%83%E4%BB%B6"><span class="nav-number">1.</span> <span class="nav-text">计划刻元件</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BA%A2%E7%9F%B3%E4%BA%8C%E6%9E%81%E7%AE%A1"><span class="nav-number">1.1.</span> <span class="nav-text">红石二极管</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%A3%80%E6%B5%8B%E4%BF%A1%E5%8F%B7%E5%8F%98%E5%8C%96"><span class="nav-number">1.1.0.1.</span> <span class="nav-text">检测信号变化</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8F%91%E5%87%BA%E6%9B%B4%E6%96%B0"><span class="nav-number">1.1.0.2.</span> <span class="nav-text">发出更新</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BA%A2%E7%9F%B3%E4%B8%AD%E7%BB%A7%E5%99%A8"><span class="nav-number">1.1.1.</span> <span class="nav-text">红石中继器</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%A3%80%E6%B5%8B%E4%BF%A1%E5%8F%B7%E5%8F%98%E5%8C%96-1"><span class="nav-number">1.1.1.1.</span> <span class="nav-text">检测信号变化</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%AE%A1%E5%88%92%E5%88%BB%E4%BA%8B%E4%BB%B6%E6%89%A7%E8%A1%8C"><span class="nav-number">1.1.1.2.</span> <span class="nav-text">计划刻事件执行</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BA%A2%E7%9F%B3%E6%AF%94%E8%BE%83%E5%99%A8"><span class="nav-number">1.1.2.</span> <span class="nav-text">红石比较器</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BA%A2%E7%9F%B3%E7%81%AB%E6%8A%8A"><span class="nav-number">1.2.</span> <span class="nav-text">红石火把</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BE%A6%E6%B5%8B%E5%99%A8"><span class="nav-number">1.3.</span> <span class="nav-text">侦测器</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8A%95%E6%8E%B7%E5%99%A8-%E5%8F%91%E5%B0%84%E5%99%A8"><span class="nav-number">1.4.</span> <span class="nav-text">投掷器&#x2F;发射器</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BA%A2%E7%9F%B3%E7%81%AF"><span class="nav-number">1.5.</span> <span class="nav-text">红石灯</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8E%A2%E6%B5%8B%E7%B1%BB%E5%85%83%E4%BB%B6"><span class="nav-number">1.6.</span> <span class="nav-text">探测类元件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%B6%E4%BB%96%E7%BA%A2%E7%9F%B3%E5%85%83%E4%BB%B6"><span class="nav-number">1.7.</span> <span class="nav-text">其他红石元件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%9D%9E%E7%BA%A2%E7%9F%B3%E5%85%83%E4%BB%B6"><span class="nav-number">1.8.</span> <span class="nav-text">非红石元件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B5%81%E4%BD%93"><span class="nav-number">1.9.</span> <span class="nav-text">流体</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%AE%A1%E5%88%92%E5%88%BB%E5%85%83%E4%BB%B6"><span class="nav-number">1.</span> <span class="nav-text">计划刻元件</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BA%A2%E7%9F%B3%E4%BA%8C%E6%9E%81%E7%AE%A1"><span class="nav-number">1.1.</span> <span class="nav-text">红石二极管</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%96%B9%E5%9D%97%E7%8A%B6%E6%80%81"><span class="nav-number">1.1.0.1.</span> <span class="nav-text">方块状态</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%93%8D%E5%BA%94%E6%96%B9%E5%9D%97%E6%9B%B4%E6%96%B0"><span class="nav-number">1.1.0.2.</span> <span class="nav-text">响应方块更新</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8F%91%E5%87%BA%E6%9B%B4%E6%96%B0"><span class="nav-number">1.1.0.3.</span> <span class="nav-text">发出更新</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BA%A2%E7%9F%B3%E4%B8%AD%E7%BB%A7%E5%99%A8"><span class="nav-number">1.1.1.</span> <span class="nav-text">红石中继器</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%96%B9%E5%9D%97%E7%8A%B6%E6%80%81-1"><span class="nav-number">1.1.1.1.</span> <span class="nav-text">方块状态</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%A3%80%E6%B5%8B%E4%BF%A1%E5%8F%B7%E5%8F%98%E5%8C%96"><span class="nav-number">1.1.1.2.</span> <span class="nav-text">检测信号变化</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%AE%A1%E5%88%92%E5%88%BB%E4%BA%8B%E4%BB%B6%E6%89%A7%E8%A1%8C"><span class="nav-number">1.1.1.3.</span> <span class="nav-text">计划刻事件执行</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8F%97%E7%8A%B6%E6%80%81%E6%9B%B4%E6%96%B0%E6%97%B6"><span class="nav-number">1.1.1.4.</span> <span class="nav-text">受状态更新时</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BA%A2%E7%9F%B3%E6%AF%94%E8%BE%83%E5%99%A8"><span class="nav-number">1.1.2.</span> <span class="nav-text">红石比较器</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%96%B9%E5%9D%97%E7%8A%B6%E6%80%81-2"><span class="nav-number">1.1.2.1.</span> <span class="nav-text">方块状态</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BF%A1%E5%8F%B7%E5%BC%BA%E5%BA%A6%E8%AE%A1%E7%AE%97"><span class="nav-number">1.1.2.2.</span> <span class="nav-text">信号强度计算</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%A3%80%E6%B5%8B%E4%BF%A1%E5%8F%B7%E5%8F%98%E5%8C%96-1"><span class="nav-number">1.1.2.3.</span> <span class="nav-text">检测信号变化</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%AE%A1%E5%88%92%E5%88%BB%E4%BA%8B%E4%BB%B6%E6%89%A7%E8%A1%8C-1"><span class="nav-number">1.1.2.4.</span> <span class="nav-text">计划刻事件执行</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BA%A2%E7%9F%B3%E7%81%AB%E6%8A%8A"><span class="nav-number">1.2.</span> <span class="nav-text">红石火把</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BE%A6%E6%B5%8B%E5%99%A8"><span class="nav-number">1.3.</span> <span class="nav-text">侦测器</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8A%95%E6%8E%B7%E5%99%A8-%E5%8F%91%E5%B0%84%E5%99%A8"><span class="nav-number">1.4.</span> <span class="nav-text">投掷器&#x2F;发射器</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BA%A2%E7%9F%B3%E7%81%AF"><span class="nav-number">1.5.</span> <span class="nav-text">红石灯</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8E%A2%E6%B5%8B%E7%B1%BB%E5%85%83%E4%BB%B6"><span class="nav-number">1.6.</span> <span class="nav-text">探测类元件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%B6%E4%BB%96%E7%BA%A2%E7%9F%B3%E5%85%83%E4%BB%B6"><span class="nav-number">1.7.</span> <span class="nav-text">其他红石元件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%9D%9E%E7%BA%A2%E7%9F%B3%E5%85%83%E4%BB%B6"><span class="nav-number">1.8.</span> <span class="nav-text">非红石元件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B5%81%E4%BD%93"><span class="nav-number">1.9.</span> <span class="nav-text">流体</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
