@@ -307,7 +307,7 @@
 <p><img src="/2020/09/16/deeply-dissecting-minecraft_2/%E4%BA%94%E6%AF%97%E9%82%BB%E6%96%B9%E5%9D%97.png" alt="五毗邻方块"></p>
 <p>具体代码见下 World 类中的 <code>notifyNeighborsOfStateExcept</code> 方法</p>
 <h3 id="2-2-4-一个方块受到了状态更新"><a href="#2-2-4-一个方块受到了状态更新" class="headerlink" title="2.2.4 一个方块受到了状态更新"></a>2.2.4 一个方块受到了状态更新</h3><p>一个方块受到了状态更新，将会调用位于这个方块的 <code>updatePostPlacement</code> 方法，并处理受到更新后的改变</p>
-<p>具体代码见下 IBlockState 类中的 <code>updatePostPlacement</code> 方法（见 [PostPlacement](#2.1.1.2 PostPlacement) 小节）</p>
+<p>具体代码见下 IBlockState 类中的 <code>updatePostPlacement</code> 方法（见 <a href="#2-1-1-2-PostPlacement">PostPlacement</a> 小节）</p>
 <h3 id="2-2-5-一个方块发出了状态更新"><a href="#2-2-5-一个方块发出了状态更新" class="headerlink" title="2.2.5 一个方块发出了状态更新"></a>2.2.5 一个方块发出了状态更新</h3><p><img src="/2020/09/16/deeply-dissecting-minecraft_2/%E5%85%AD%E6%AF%97%E9%82%BB%E6%96%B9%E5%9D%97.png" alt="六毗邻方块"></p>
 <p>当一个方块发出状态更新时，这个方块将会使其毗邻的六个方块依次受到状态更新。这里的“依次受到”的顺序为：</p>
 <ol>

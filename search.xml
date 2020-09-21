@@ -505,7 +505,7 @@
 <p><img src="/2020/09/16/deeply-dissecting-minecraft_2/%E4%BA%94%E6%AF%97%E9%82%BB%E6%96%B9%E5%9D%97.png" alt="五毗邻方块"></p>
 <p>具体代码见下 World 类中的 <code>notifyNeighborsOfStateExcept</code> 方法</p>
 <h3 id="2-2-4-一个方块受到了状态更新"><a href="#2-2-4-一个方块受到了状态更新" class="headerlink" title="2.2.4 一个方块受到了状态更新"></a>2.2.4 一个方块受到了状态更新</h3><p>一个方块受到了状态更新，将会调用位于这个方块的 <code>updatePostPlacement</code> 方法，并处理受到更新后的改变</p>
-<p>具体代码见下 IBlockState 类中的 <code>updatePostPlacement</code> 方法（见 [PostPlacement](#2.1.1.2 PostPlacement) 小节）</p>
+<p>具体代码见下 IBlockState 类中的 <code>updatePostPlacement</code> 方法（见 <a href="#2-1-1-2-PostPlacement">PostPlacement</a> 小节）</p>
 <h3 id="2-2-5-一个方块发出了状态更新"><a href="#2-2-5-一个方块发出了状态更新" class="headerlink" title="2.2.5 一个方块发出了状态更新"></a>2.2.5 一个方块发出了状态更新</h3><p><img src="/2020/09/16/deeply-dissecting-minecraft_2/%E5%85%AD%E6%AF%97%E9%82%BB%E6%96%B9%E5%9D%97.png" alt="六毗邻方块"></p>
 <p>当一个方块发出状态更新时，这个方块将会使其毗邻的六个方块依次受到状态更新。这里的“依次受到”的顺序为：</p>
 <ol>
@@ -634,7 +634,7 @@
     <title>深度剖析Minecraft #3.4 计划刻元件</title>
     <url>/2020/09/17/deeply-dissecting-minecraft_3.4/</url>
     <content><![CDATA[<h1 id="3-4-计划刻元件"><a href="#3-4-计划刻元件" class="headerlink" title="3.4 计划刻元件"></a>3.4 计划刻元件</h1><p>阅前必读：</p>
-<p>《<a href="/2020/09/16/deeply-dissecting-minecraft_2/" title="深度剖析Minecraft \#2 方块更新">深度剖析Minecraft \#2 方块更新</a>》</p>
+<p>《<a href="/2020/09/16/deeply-dissecting-minecraft_2/" title="深度剖析Minecraft #2 方块更新">深度剖析Minecraft #2 方块更新</a>》</p>
 <p>《<a href="/2020/09/16/deeply-dissecting-minecraft_3/" title="深度剖析Minecraft #3 计划刻">深度剖析Minecraft #3 计划刻</a>》</p>
 <h2 id="3-4-1-红石二极管"><a href="#3-4-1-红石二极管" class="headerlink" title="3.4.1 红石二极管"></a>3.4.1 红石二极管</h2><blockquote>
 <p>net.minecraft.block.BlockRedstoneDiode (1.13.2 mcp)<br>net.minecraft.block.AbstractRedstoneGateBlock (1.15.2 yarn)</p>
@@ -691,7 +691,7 @@
 <td>其当前的亮起状态。我们称该标签为假时二极管熄灭，该标签为真时二极管熄灭</td>
 </tr>
 </tbody></table>
-<h3 id="3-4-1-2-响应方块更新"><a href="#3-4-1-2-响应方块更新" class="headerlink" title="3.4.1.2 响应方块更新"></a>3.4.1.2 响应方块更新</h3><p>当二极管受到方块更新时，它会首先检测其位置是否合法，若不合法则掉落为物品，并先在所在位置发出方块更新，再在其毗邻 6 方块的位置发出方块更新（顺序：-y, +y, -z, +z, -x, +x <sup id="fnref:1"><a href="#fn:1" rel="footnote">1</a></sup>）；若合法，则开始检测信号变化 <sup id="fnref:2"><a href="#fn:2" rel="footnote">2</a></sup>。具体的检测信号变化的方法见 <a href="#红石中继器">红石中继器</a> 以及 <a href="#红石比较器">红石比较器</a></p>
+<h3 id="3-4-1-2-响应方块更新"><a href="#3-4-1-2-响应方块更新" class="headerlink" title="3.4.1.2 响应方块更新"></a>3.4.1.2 响应方块更新</h3><p>当二极管受到方块更新时，它会首先检测其位置是否合法，若不合法则掉落为物品，并先在所在位置发出方块更新，再在其毗邻 6 方块的位置发出方块更新（顺序：-y, +y, -z, +z, -x, +x <sup id="fnref:1"><a href="#fn:1" rel="footnote">1</a></sup>）；若合法，则开始检测信号变化 <sup id="fnref:2"><a href="#fn:2" rel="footnote">2</a></sup>。具体的检测信号变化的方法见 <a href="#3-4-1-红石二极管">红石中继器</a> 以及 <a href="#3-4-2-红石中继器">红石比较器</a></p>
 <h3 id="3-4-1-3-发出更新"><a href="#3-4-1-3-发出更新" class="headerlink" title="3.4.1.3 发出更新"></a>3.4.1.3 发出更新</h3><p>当二极管的状态发生变化的时候，它会先给其指向方块一个方块更新（下图黄色玻璃），再于其指向方块的位置处发出一个除其指向方向反方向的方块更新（下图红色玻璃）</p>
 <p><img src="/2020/09/17/deeply-dissecting-minecraft_3.4/diode_update_range.png" alt="二极管更新范围示意"></p>
 <h2 id="3-4-2-红石中继器"><a href="#3-4-2-红石中继器" class="headerlink" title="3.4.2 红石中继器"></a>3.4.2 红石中继器</h2><table>
