@@ -30,9 +30,9 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://fallen-breath.github.io/2020/09/17/deeply-dissecting-minecraft_3.4/diode_update_range.png">
 <meta property="og:image" content="https://fallen-breath.github.io/2020/09/17/deeply-dissecting-minecraft_3.4/repeater_lock.gif">
-<meta property="og:image" content="https://fallen-breath.github.io/2020/09/17/deeply-dissecting-minecraft_3.4/D:%5CCodes%5Chexo_blog%5Csource_posts%5Cdeeply-dissecting-minecraft_3.4%5C4gtrepeater1.gif">
-<meta property="og:image" content="https://fallen-breath.github.io/2020/09/17/deeply-dissecting-minecraft_3.4/D:%5CCodes%5Chexo_blog%5Csource_posts%5Cdeeply-dissecting-minecraft_3.4%5C4gtrepeater2.gif">
-<meta property="og:image" content="https://fallen-breath.github.io/2020/09/17/deeply-dissecting-minecraft_3.4/D:%5CCodes%5Chexo_blog%5Csource_posts%5Cdeeply-dissecting-minecraft_3.4%5C4gtrepeater3.gif">
+<meta property="og:image" content="https://fallen-breath.github.io/2020/09/17/deeply-dissecting-minecraft_3.4/4gtrepeater1.gif">
+<meta property="og:image" content="https://fallen-breath.github.io/2020/09/17/deeply-dissecting-minecraft_3.4/4gtrepeater2.gif">
+<meta property="og:image" content="https://fallen-breath.github.io/2020/09/17/deeply-dissecting-minecraft_3.4/4gtrepeater3.gif">
 <meta property="og:image" content="https://fallen-breath.github.io/2020/09/17/deeply-dissecting-minecraft_3.4/comparetor_input.png">
 <meta property="og:image" content="https://fallen-breath.github.io/2020/09/17/deeply-dissecting-minecraft_3.4/comparetor_side_input.png">
 <meta property="og:image" content="https://fallen-breath.github.io/2020/09/17/deeply-dissecting-minecraft_3.4/comparetor_side_input_sp.png">
@@ -345,8 +345,8 @@
 <td>其当前的亮起状态。我们称该标签为假时二极管熄灭，该标签为真时二极管熄灭</td>
 </tr>
 </tbody></table>
-<h3 id="3-4-1-2-响应方块更新"><a href="#3-4-1-2-响应方块更新" class="headerlink" title="3.4.1.2 响应方块更新"></a>3.4.1.2 响应方块更新</h3><p>当二极管受到方块更新时，它会首先检测其位置是否合法，若不合法则掉落为物品，并先在所在位置发出方块更新，再在其毗邻 6 方块的位置发出方块更新（顺序：-y, +y, -z, +z, -x, +x <sup id="fnref:1"><a href="#fn:1" rel="footnote">1</a></sup>）；若合法，则开始检测信号变化 <sup id="fnref:2"><a href="#fn:2" rel="footnote">2</a></sup>。具体的检测信号变化的方法见 <a href="#3-4-1-红石二极管">红石中继器</a> 以及 <a href="#3-4-2-红石中继器">红石比较器</a></p>
-<h3 id="3-4-1-3-发出更新"><a href="#3-4-1-3-发出更新" class="headerlink" title="3.4.1.3 发出更新"></a>3.4.1.3 发出更新</h3><p>当二极管的状态发生变化的时候，它会先给其指向方块一个方块更新（下图黄色玻璃），再于其指向方块的位置处发出一个除其指向方向反方向的方块更新（下图红色玻璃）。图中所有的染色玻璃也即是所有的<strong>受到</strong>方块更新的方块的位置</p>
+<h3 id="3-4-1-2-响应方块更新"><a href="#3-4-1-2-响应方块更新" class="headerlink" title="3.4.1.2 响应方块更新"></a>3.4.1.2 响应方块更新</h3><p>当二极管受到方块更新时，它会首先检测其所处位置是否满足位置需求，若不满足则掉落为物品，并先在所在位置发出方块更新，再在其毗邻 6 方块的位置发出方块更新（顺序：-y, +y, -z, +z, -x, +x <sup id="fnref:1"><a href="#fn:1" rel="footnote">1</a></sup>）；若合法，则开始检测信号变化 <sup id="fnref:2"><a href="#fn:2" rel="footnote">2</a></sup>。具体的检测信号变化的方法见 <a href="#3-4-1-红石二极管">红石中继器</a> 以及 <a href="#3-4-2-红石中继器">红石比较器</a></p>
+<h3 id="3-4-1-3-发出更新"><a href="#3-4-1-3-发出更新" class="headerlink" title="3.4.1.3 发出更新"></a>3.4.1.3 发出更新</h3><p>当二极管的状态发生变化的时候，它会先给其指向方块一个方块更新（下图黄色玻璃），再于其指向方块的位置处（下图黄色玻璃）发出一个除其指向方向反方向的方块更新。图中所有的染色玻璃也即是所有的<strong>受到</strong>方块更新的方块的位置</p>
 <p><img src="/2020/09/17/deeply-dissecting-minecraft_3.4/diode_update_range.png" alt="二极管更新范围示意"></p>
 <p>具体的方法为 <code>net.minecraft.block.BlockRedstoneDiode#notifyNeighbors</code></p>
 <p>这一部分的调用之处是在 <code>onBlockAdded</code> 以及 <code>onReplaced</code> 中，因此只要涉及到二极管的方块状态的变化，均可以让这个二极管发出上述更新</p>
@@ -420,9 +420,9 @@
 <p>上述过程中，改变其亮起状态时，在其所在位置发出的更新仅含状态更新。中继器在其前方发出的大范围方块更新见 <a href="#3-4-1-红石二极管">红石二极管</a> 的发出更新小节</p>
 <h3 id="3-4-2-4-受状态更新时"><a href="#3-4-2-4-受状态更新时" class="headerlink" title="3.4.2.4 受状态更新时"></a>3.4.2.4 受状态更新时</h3><p>当中继器受到状态更新时，若更新方向为水平方向，且方向为垂直于中继器的指向方向，则更新自身的被锁状态。中继器当且仅当被一个二极管指向侧面的时候会被锁住</p>
 <p><img src="/2020/09/17/deeply-dissecting-minecraft_3.4/repeater_lock.gif" alt="中继器响应状态更新"></p>
-<h3 id="实例"><a href="#实例" class="headerlink" title="实例"></a>实例</h3><h4 id="与-4gt-时钟交互"><a href="#与-4gt-时钟交互" class="headerlink" title="与 4gt 时钟交互"></a>与 4gt 时钟交互</h4><p><img src="/2020/09/17/deeply-dissecting-minecraft_3.4/D:%5CCodes%5Chexo_blog%5Csource_posts%5Cdeeply-dissecting-minecraft_3.4%5C4gtrepeater1.gif" alt="与 4gt 时钟交互"></p>
-<p><img src="/2020/09/17/deeply-dissecting-minecraft_3.4/D:%5CCodes%5Chexo_blog%5Csource_posts%5Cdeeply-dissecting-minecraft_3.4%5C4gtrepeater2.gif" alt="4gtrepeater2"></p>
-<p><img src="/2020/09/17/deeply-dissecting-minecraft_3.4/D:%5CCodes%5Chexo_blog%5Csource_posts%5Cdeeply-dissecting-minecraft_3.4%5C4gtrepeater3.gif" alt="4gtrepeater3"></p>
+<h3 id="实例"><a href="#实例" class="headerlink" title="实例"></a>实例</h3><h4 id="与-4gt-时钟交互"><a href="#与-4gt-时钟交互" class="headerlink" title="与 4gt 时钟交互"></a>与 4gt 时钟交互</h4><p><img src="/2020/09/17/deeply-dissecting-minecraft_3.4/4gtrepeater1.gif" alt="与 4gt 时钟交互"></p>
+<p><img src="/2020/09/17/deeply-dissecting-minecraft_3.4/4gtrepeater2.gif" alt="4gtrepeater2"></p>
+<p><img src="/2020/09/17/deeply-dissecting-minecraft_3.4/4gtrepeater3.gif" alt="4gtrepeater3"></p>
 <h2 id="3-4-3-红石比较器"><a href="#3-4-3-红石比较器" class="headerlink" title="3.4.3 红石比较器"></a>3.4.3 红石比较器</h2><table>
 <thead>
 <tr>
