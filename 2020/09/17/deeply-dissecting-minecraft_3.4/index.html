@@ -30,6 +30,9 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://fallen-breath.github.io/2020/09/17/deeply-dissecting-minecraft_3.4/diode_update_range.png">
 <meta property="og:image" content="https://fallen-breath.github.io/2020/09/17/deeply-dissecting-minecraft_3.4/repeater_lock.gif">
+<meta property="og:image" content="https://fallen-breath.github.io/2020/09/17/deeply-dissecting-minecraft_3.4/D:%5CCodes%5Chexo_blog%5Csource_posts%5Cdeeply-dissecting-minecraft_3.4%5C4gtrepeater1.gif">
+<meta property="og:image" content="https://fallen-breath.github.io/2020/09/17/deeply-dissecting-minecraft_3.4/D:%5CCodes%5Chexo_blog%5Csource_posts%5Cdeeply-dissecting-minecraft_3.4%5C4gtrepeater2.gif">
+<meta property="og:image" content="https://fallen-breath.github.io/2020/09/17/deeply-dissecting-minecraft_3.4/D:%5CCodes%5Chexo_blog%5Csource_posts%5Cdeeply-dissecting-minecraft_3.4%5C4gtrepeater3.gif">
 <meta property="og:image" content="https://fallen-breath.github.io/2020/09/17/deeply-dissecting-minecraft_3.4/comparetor_input.png">
 <meta property="og:image" content="https://fallen-breath.github.io/2020/09/17/deeply-dissecting-minecraft_3.4/comparetor_side_input.png">
 <meta property="og:image" content="https://fallen-breath.github.io/2020/09/17/deeply-dissecting-minecraft_3.4/comparetor_side_input_sp.png">
@@ -42,7 +45,10 @@
 <meta property="og:image" content="https://fallen-breath.github.io/2020/09/17/deeply-dissecting-minecraft_3.4/not_instant_comparator.gif">
 <meta property="og:image" content="https://fallen-breath.github.io/2020/09/17/deeply-dissecting-minecraft_3.4/instant_comparator.gif">
 <meta property="og:image" content="https://fallen-breath.github.io/2020/09/17/deeply-dissecting-minecraft_3.4/half_instant_comparator.gif">
+<meta property="og:image" content="https://fallen-breath.github.io/2020/09/17/deeply-dissecting-minecraft_3.4/instant_comparator_sideway_pulse.png">
+<meta property="og:image" content="https://fallen-breath.github.io/2020/09/17/deeply-dissecting-minecraft_3.4/instant_comparator_pulse_order.png">
 <meta property="og:image" content="https://fallen-breath.github.io/2020/09/17/deeply-dissecting-minecraft_3.4/real_instant_comparator.gif">
+<meta property="og:image" content="https://fallen-breath.github.io/2020/09/17/deeply-dissecting-minecraft_3.4/D:%5CCodes%5Chexo_blog%5Csource_posts%5Cdeeply-dissecting-minecraft_3.4%5Cinstant_comparator_inf.gif">
 <meta property="article:published_time" content="2020-09-17T06:50:29.000Z">
 <meta property="article:modified_time" content="2020-09-17T06:50:29.000Z">
 <meta property="article:author" content="Fallen_Breath">
@@ -264,14 +270,14 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>6.3k</span>
+              <span>6.8k</span>
             </span>
             <span class="post-meta-item" title="阅读时长">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>11 分钟</span>
+              <span>12 分钟</span>
             </span>
             <div class="post-description">计划刻元件库，元件属性机制全剖析！</div>
 
@@ -414,7 +420,9 @@
 <p>上述过程中，改变其亮起状态时，在其所在位置发出的更新仅含状态更新。中继器在其前方发出的大范围方块更新见 <a href="#3-4-1-红石二极管">红石二极管</a> 的发出更新小节</p>
 <h3 id="3-4-2-4-受状态更新时"><a href="#3-4-2-4-受状态更新时" class="headerlink" title="3.4.2.4 受状态更新时"></a>3.4.2.4 受状态更新时</h3><p>当中继器受到状态更新时，若更新方向为水平方向，且方向为垂直于中继器的指向方向，则更新自身的被锁状态。中继器当且仅当被一个二极管指向侧面的时候会被锁住</p>
 <p><img src="/2020/09/17/deeply-dissecting-minecraft_3.4/repeater_lock.gif" alt="中继器响应状态更新"></p>
-<h3 id="实例"><a href="#实例" class="headerlink" title="实例"></a>实例</h3><p>www</p>
+<h3 id="实例"><a href="#实例" class="headerlink" title="实例"></a>实例</h3><h4 id="与-4gt-时钟交互"><a href="#与-4gt-时钟交互" class="headerlink" title="与 4gt 时钟交互"></a>与 4gt 时钟交互</h4><p><img src="/2020/09/17/deeply-dissecting-minecraft_3.4/D:%5CCodes%5Chexo_blog%5Csource_posts%5Cdeeply-dissecting-minecraft_3.4%5C4gtrepeater1.gif" alt="与 4gt 时钟交互"></p>
+<p><img src="/2020/09/17/deeply-dissecting-minecraft_3.4/D:%5CCodes%5Chexo_blog%5Csource_posts%5Cdeeply-dissecting-minecraft_3.4%5C4gtrepeater2.gif" alt="4gtrepeater2"></p>
+<p><img src="/2020/09/17/deeply-dissecting-minecraft_3.4/D:%5CCodes%5Chexo_blog%5Csource_posts%5Cdeeply-dissecting-minecraft_3.4%5C4gtrepeater3.gif" alt="4gtrepeater3"></p>
 <h2 id="3-4-3-红石比较器"><a href="#3-4-3-红石比较器" class="headerlink" title="3.4.3 红石比较器"></a>3.4.3 红石比较器</h2><table>
 <thead>
 <tr>
@@ -474,18 +482,18 @@
 <p>令输入端，即比较器后方一格处的方块为 A，比较器后方二格处的方块为 B</p>
 <p><img src="/2020/09/17/deeply-dissecting-minecraft_3.4/comparetor_input.png" alt="比较器输入信号"></p>
 <ol>
-<li>维护一个取值为 0 ~ 15 的整数 $s$ 作为比较器待确定的输入的信号强度</li>
-<li>计算方块 A 的弱充能信号强度（与中继器相同），将 $s$ 设为该信号强度</li>
+<li>维护一个取值为 0 ~ 15 的整数 $n$ 作为比较器待确定的输入的信号强度</li>
+<li>计算方块 A 的弱充能信号强度（与中继器相同），将 $n$ 设为该信号强度</li>
 <li>判断方块 A 是否可输出比较器信号<ul>
-<li>如果是，则将 $s$ 设为 A 的比较器输出值。如比较器直接读取毗邻容器</li>
-<li>如果不是，若 $s &lt; 15$ 且方块 A 为实体方块 <sup id="fnref:5"><a href="#fn:5" rel="footnote">5</a></sup>，则进行尝试使用 B 处可能的容器输出来覆盖当前的输入强度：<ol>
-<li>如果方块 B 可输出比较器信号，则将 $s$ 设方块 B 的比较器输出值</li>
-<li>如果方块 B 为空气，则查找位于方块 B 处的可能依附于方块 A 的一个物品展示框实体，若找到，则将 $s$ 设置为物品展示架的角度</li>
+<li>如果是，则将 $n$ 设为 A 的比较器输出值。如比较器直接读取毗邻容器</li>
+<li>如果不是，若 $n &lt; 15$ 且方块 A 为实体方块 <sup id="fnref:5"><a href="#fn:5" rel="footnote">5</a></sup>，则进行尝试使用 B 处可能的容器输出来覆盖当前的输入强度：<ol>
+<li>如果方块 B 可输出比较器信号，则将 $n$ 设方块 B 的比较器输出值</li>
+<li>如果方块 B 为空气，则查找位于方块 B 处的可能依附于方块 A 的一个物品展示框实体，若找到，则将 $n$ 设置为物品展示架的角度</li>
 </ol>
 </li>
 </ul>
 </li>
-<li>$s$ 即为比较器的输入信号强度</li>
+<li>$n$ 即为比较器的输入信号强度</li>
 </ol>
 <p>随后，比较器会计算其来自侧面的输入的最大值。比较器<strong>仅</strong>会接受以下三种形式的输入：</p>
 <ul>
@@ -678,7 +686,8 @@
 <p>这些一个个的 2gt 延迟真的有必要存在吗？答案是不。我们可以仅在一个 gt 的计划刻阶段中就完成所有比较器的点亮，这就是无延迟比较器</p>
 <p>下图是一个简单的无延迟比较器的例子</p>
 <p><img src="/2020/09/17/deeply-dissecting-minecraft_3.4/instant_comparator.gif" alt="无延迟比较器"></p>
-<p>无延迟比较器的基本思路是，通过使用额外的计划刻元件的短脉冲，主动使所有比较器在<strong>同一个 gt 依次</strong>执行自己用于亮起的计划刻事件，使得比较器链在瞬间同时点亮。这一个操作将长距离传输信号的时间复杂度从 $\Theta(n)$ 降至了 $\Theta(1)$，从线性降为常数级，仿佛用于传输信号的比较器都没有延迟，因此我们称之为无延迟比较器</p>
+<p>无延迟比较器的基本思路是，通过使用额外的计划刻元件的短脉冲，主动使所有比较器在<strong>同一个 gt 依次</strong>执行自己用于亮起的计划刻事件，使得比较器链在瞬间同时点亮。这种诱导比较器在指定时刻添加计划刻事件的脉冲，我们称之为<strong>诱导脉冲</strong>。</p>
+<p>上述操作将长距离传输信号的时间复杂度从 $\Theta(n)$ 降至了 $\Theta(1)$，从线性降为常数级，仿佛用于传输信号的比较器都是 0 延迟，因此我们称之为无延迟比较器</p>
 <p>下面是上图中的无延迟比较器的亮起操作的时序分析。熄灭/信号改变的时序分析同理：</p>
 <table>
 <thead>
@@ -749,13 +758,33 @@
 <td>比较器 F 发现其输入端有来自比较器 E 的信号，亮起</td>
 </tr>
 </tbody></table>
-<p>不过，上述无延迟比较器有一个缺点，就是在输入信号强度为 15 的情况下改变信号强度时不能维持无延迟。这是因为当输入的信号强度是 15 时，比较器链中都储存着强度为 15 的信号，而侧方位中继器发出的脉冲信号强度也是 15，两者大小相等，导致了中继器无法诱使比较器添加计划刻事件。如下图所示：</p>
+<p>不过，上述无延迟比较器有一个缺点，就是在输入信号强度为 15 的情况下改变信号强度时不能维持无延迟。这是因为当输入的信号强度是 15 时，比较器链中都储存着强度为 15 的信号，而侧方位中继器发出的脉冲信号强度也是 15，两者大小相等，导致了诱导脉冲无法诱使比较器添加计划刻事件。如下图所示：</p>
 <p><img src="/2020/09/17/deeply-dissecting-minecraft_3.4/half_instant_comparator.gif" alt="于输入15信号的下降沿失效"></p>
-<p>对此的解决方法也并不困难。我们需要的是诱使比较器添加计划刻事件，只要按顺序添加了就可以，至于比较器是因为什么原因而添加计划刻事件，我们并不关系</p>
-<p>当比较器输出信号是 15 的时候，还有什么方法能诱使比较器添加计划刻事件呢？在减法模式下向比较器侧面输入 15 信号！</p>
-<p>blabla</p>
-<p>对于无延迟链上的每一个比较器，我们首先向其后端输入信号强度为 15 的脉冲，再向其侧面输入信号强度为 15 的脉冲，即可在所有情况下无延迟地传递信号</p>
+<p>对此的解决方法也并不困难。我们需要的是诱使比较器添加计划刻事件，只要按顺序添加了就可以，至于比较器是因为什么原因而添加计划刻事件，我们并不关心</p>
+<p>当比较器输出信号是 15 的时候，还有什么方法能诱使比较器添加计划刻事件呢？在减法模式下向比较器侧面输入脉冲！这样子，比较器会发现其输出信号需要减去其侧面输入，从而添加计划刻事件</p>
+<p>在向其侧面输入脉冲的条件下，向其背面输入端的脉冲也不可去掉，如下图所示</p>
+<p><img src="/2020/09/17/deeply-dissecting-minecraft_3.4/instant_comparator_sideway_pulse.png" alt="侧面输入脉冲"></p>
+<p>设比较器的原信号强度为 $n$</p>
+<ul>
+<li>若 $n &gt; 0$，则来自比较器侧面的脉冲可让比较器输出的信号强度减小，从而诱使比较器添加计划刻事件</li>
+<li>若 $n &lt; 15$，则来自比较器后方的脉冲可让比较器输出的信号强度变为 15，从而诱使比较器添加计划刻事件</li>
+</ul>
+<p>当侧面输入与后方输入的信号强度相等时，比如使用中继器或侦测器这类输出 15 强度信号的元件时，这两个脉冲的顺序也是有讲究的。对于无延迟链上的每一个比较器，我们需要首先向其后端输入脉冲，再向其侧面输入脉冲，才可在所有情况下无延迟地传递信号。如果顺序相反，则当后端输入脉冲时，由于比较器侧面已存在信号强度 15 的输入，比较器将会输出 0 强度信号。若比较器储存着的信号已经是 0 强度了，那么这次脉冲输入就无法诱使比较器添加计划刻事件，从而使无延迟比较器失效</p>
+<p><img src="/2020/09/17/deeply-dissecting-minecraft_3.4/instant_comparator_pulse_order.png" alt="脉冲顺序"></p>
+<p>下面图这类兼容所有情况的信号变化的无延迟比较器的一个实现</p>
 <p><img src="/2020/09/17/deeply-dissecting-minecraft_3.4/real_instant_comparator.gif" alt="全情况可用的无延迟比较器"></p>
+<p>以上图为例，在使用中继器或中继器时，所有需要以以下的顺序向比较器输入诱导脉冲：</p>
+<ol>
+<li>比较器 A 的后方输入端</li>
+<li>比较器 A 的侧面输入端</li>
+<li>比较器 B 的后方输入端</li>
+<li>比较器 B 的侧面输入端</li>
+<li>……</li>
+<li>比较器 F 的后方输入端</li>
+<li>比较器 F 的侧面输入端</li>
+</ol>
+<p>当然，在实际使用中，由于上述无延迟比较器设计都不能无限地延长。不过，如果配合无延迟信号线使用，即可实现可无限延伸的无延迟比较器链。下面是一个可行的例子</p>
+<p><img src="/2020/09/17/deeply-dissecting-minecraft_3.4/D:%5CCodes%5Chexo_blog%5Csource_posts%5Cdeeply-dissecting-minecraft_3.4%5Cinstant_comparator_inf.gif" alt="instant_comparator_inf"></p>
 <h4 id="比较器更新检测器"><a href="#比较器更新检测器" class="headerlink" title="比较器更新检测器"></a>比较器更新检测器</h4><h2 id="3-4-4-红石火把"><a href="#3-4-4-红石火把" class="headerlink" title="3.4.4 红石火把"></a>3.4.4 红石火把</h2><h3 id="计划刻事件执行"><a href="#计划刻事件执行" class="headerlink" title="计划刻事件执行"></a>计划刻事件执行</h3><p>blabla</p>
 <h2 id="3-4-5-侦测器"><a href="#3-4-5-侦测器" class="headerlink" title="3.4.5 侦测器"></a>3.4.5 侦测器</h2><h3 id="计划刻事件执行-1"><a href="#计划刻事件执行-1" class="headerlink" title="计划刻事件执行"></a>计划刻事件执行</h3><p>blabla</p>
 <h2 id="投掷器-发射器"><a href="#投掷器-发射器" class="headerlink" title="投掷器/发射器"></a>投掷器/发射器</h2><h3 id="计划刻事件执行-2"><a href="#计划刻事件执行-2" class="headerlink" title="计划刻事件执行"></a>计划刻事件执行</h3><p>blabla</p>
@@ -862,7 +891,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#3-4-%E8%AE%A1%E5%88%92%E5%88%BB%E5%85%83%E4%BB%B6"><span class="nav-text">3.4 计划刻元件</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#3-4-1-%E7%BA%A2%E7%9F%B3%E4%BA%8C%E6%9E%81%E7%AE%A1"><span class="nav-text">3.4.1 红石二极管</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-4-1-1-%E6%96%B9%E5%9D%97%E7%8A%B6%E6%80%81"><span class="nav-text">3.4.1.1 方块状态</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-4-1-2-%E5%93%8D%E5%BA%94%E6%96%B9%E5%9D%97%E6%9B%B4%E6%96%B0"><span class="nav-text">3.4.1.2 响应方块更新</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-4-1-3-%E5%8F%91%E5%87%BA%E6%9B%B4%E6%96%B0"><span class="nav-text">3.4.1.3 发出更新</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-4-2-%E7%BA%A2%E7%9F%B3%E4%B8%AD%E7%BB%A7%E5%99%A8"><span class="nav-text">3.4.2 红石中继器</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-4-2-1-%E6%96%B9%E5%9D%97%E7%8A%B6%E6%80%81"><span class="nav-text">3.4.2.1 方块状态</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-4-2-2-%E6%A3%80%E6%B5%8B%E4%BF%A1%E5%8F%B7%E5%8F%98%E5%8C%96"><span class="nav-text">3.4.2.2 检测信号变化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-4-2-3-%E8%AE%A1%E5%88%92%E5%88%BB%E4%BA%8B%E4%BB%B6%E6%89%A7%E8%A1%8C"><span class="nav-text">3.4.2.3 计划刻事件执行</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-4-2-4-%E5%8F%97%E7%8A%B6%E6%80%81%E6%9B%B4%E6%96%B0%E6%97%B6"><span class="nav-text">3.4.2.4 受状态更新时</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9E%E4%BE%8B"><span class="nav-text">实例</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-4-3-%E7%BA%A2%E7%9F%B3%E6%AF%94%E8%BE%83%E5%99%A8"><span class="nav-text">3.4.3 红石比较器</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-4-3-1-%E6%96%B9%E5%9D%97%E7%8A%B6%E6%80%81"><span class="nav-text">3.4.3.1 方块状态</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-4-3-2-%E4%BF%A1%E5%8F%B7%E5%BC%BA%E5%BA%A6%E8%AE%A1%E7%AE%97"><span class="nav-text">3.4.3.2 信号强度计算</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-4-3-3-%E6%A3%80%E6%B5%8B%E4%BF%A1%E5%8F%B7%E5%8F%98%E5%8C%96"><span class="nav-text">3.4.3.3 检测信号变化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-4-3-4-%E8%AE%A1%E5%88%92%E5%88%BB%E4%BA%8B%E4%BB%B6%E6%89%A7%E8%A1%8C"><span class="nav-text">3.4.3.4 计划刻事件执行</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9E%E4%BE%8B-1"><span class="nav-text">实例</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%93%8D%E5%BA%94%E8%AE%A1%E5%88%92%E5%88%BB%E5%85%83%E4%BB%B6%E7%9A%84-2gt-%E8%84%89%E5%86%B2"><span class="nav-text">响应计划刻元件的 2gt 脉冲</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8-0gt-%E4%BF%A1%E5%8F%B7%E6%BF%80%E6%B4%BB%E6%AF%94%E8%BE%83%E5%99%A8"><span class="nav-text">使用 0gt 信号激活比较器</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%97%A0%E5%BB%B6%E8%BF%9F%E6%AF%94%E8%BE%83%E5%99%A8"><span class="nav-text">无延迟比较器</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%AF%94%E8%BE%83%E5%99%A8%E6%9B%B4%E6%96%B0%E6%A3%80%E6%B5%8B%E5%99%A8"><span class="nav-text">比较器更新检测器</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-4-4-%E7%BA%A2%E7%9F%B3%E7%81%AB%E6%8A%8A"><span class="nav-text">3.4.4 红石火把</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%A1%E5%88%92%E5%88%BB%E4%BA%8B%E4%BB%B6%E6%89%A7%E8%A1%8C"><span class="nav-text">计划刻事件执行</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-4-5-%E4%BE%A6%E6%B5%8B%E5%99%A8"><span class="nav-text">3.4.5 侦测器</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%A1%E5%88%92%E5%88%BB%E4%BA%8B%E4%BB%B6%E6%89%A7%E8%A1%8C-1"><span class="nav-text">计划刻事件执行</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8A%95%E6%8E%B7%E5%99%A8-%E5%8F%91%E5%B0%84%E5%99%A8"><span class="nav-text">投掷器&#x2F;发射器</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%A1%E5%88%92%E5%88%BB%E4%BA%8B%E4%BB%B6%E6%89%A7%E8%A1%8C-2"><span class="nav-text">计划刻事件执行</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BA%A2%E7%9F%B3%E7%81%AF"><span class="nav-text">红石灯</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%A1%E5%88%92%E5%88%BB%E4%BA%8B%E4%BB%B6%E6%89%A7%E8%A1%8C-3"><span class="nav-text">计划刻事件执行</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8E%A2%E6%B5%8B%E7%B1%BB%E5%85%83%E4%BB%B6"><span class="nav-text">探测类元件</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%A1%E5%88%92%E5%88%BB%E4%BA%8B%E4%BB%B6%E6%89%A7%E8%A1%8C-4"><span class="nav-text">计划刻事件执行</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%B6%E4%BB%96%E7%BA%A2%E7%9F%B3%E5%85%83%E4%BB%B6"><span class="nav-text">其他红石元件</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%A1%E5%88%92%E5%88%BB%E4%BA%8B%E4%BB%B6%E6%89%A7%E8%A1%8C-5"><span class="nav-text">计划刻事件执行</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%9D%9E%E7%BA%A2%E7%9F%B3%E5%85%83%E4%BB%B6"><span class="nav-text">非红石元件</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%A1%E5%88%92%E5%88%BB%E4%BA%8B%E4%BB%B6%E6%89%A7%E8%A1%8C-6"><span class="nav-text">计划刻事件执行</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B5%81%E4%BD%93"><span class="nav-text">流体</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%A1%E5%88%92%E5%88%BB%E4%BA%8B%E4%BB%B6%E6%89%A7%E8%A1%8C-7"><span class="nav-text">计划刻事件执行</span></a></li></ol></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#3-4-%E8%AE%A1%E5%88%92%E5%88%BB%E5%85%83%E4%BB%B6"><span class="nav-text">3.4 计划刻元件</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#3-4-1-%E7%BA%A2%E7%9F%B3%E4%BA%8C%E6%9E%81%E7%AE%A1"><span class="nav-text">3.4.1 红石二极管</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-4-1-1-%E6%96%B9%E5%9D%97%E7%8A%B6%E6%80%81"><span class="nav-text">3.4.1.1 方块状态</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-4-1-2-%E5%93%8D%E5%BA%94%E6%96%B9%E5%9D%97%E6%9B%B4%E6%96%B0"><span class="nav-text">3.4.1.2 响应方块更新</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-4-1-3-%E5%8F%91%E5%87%BA%E6%9B%B4%E6%96%B0"><span class="nav-text">3.4.1.3 发出更新</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-4-2-%E7%BA%A2%E7%9F%B3%E4%B8%AD%E7%BB%A7%E5%99%A8"><span class="nav-text">3.4.2 红石中继器</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-4-2-1-%E6%96%B9%E5%9D%97%E7%8A%B6%E6%80%81"><span class="nav-text">3.4.2.1 方块状态</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-4-2-2-%E6%A3%80%E6%B5%8B%E4%BF%A1%E5%8F%B7%E5%8F%98%E5%8C%96"><span class="nav-text">3.4.2.2 检测信号变化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-4-2-3-%E8%AE%A1%E5%88%92%E5%88%BB%E4%BA%8B%E4%BB%B6%E6%89%A7%E8%A1%8C"><span class="nav-text">3.4.2.3 计划刻事件执行</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-4-2-4-%E5%8F%97%E7%8A%B6%E6%80%81%E6%9B%B4%E6%96%B0%E6%97%B6"><span class="nav-text">3.4.2.4 受状态更新时</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9E%E4%BE%8B"><span class="nav-text">实例</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%B8%8E-4gt-%E6%97%B6%E9%92%9F%E4%BA%A4%E4%BA%92"><span class="nav-text">与 4gt 时钟交互</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-4-3-%E7%BA%A2%E7%9F%B3%E6%AF%94%E8%BE%83%E5%99%A8"><span class="nav-text">3.4.3 红石比较器</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-4-3-1-%E6%96%B9%E5%9D%97%E7%8A%B6%E6%80%81"><span class="nav-text">3.4.3.1 方块状态</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-4-3-2-%E4%BF%A1%E5%8F%B7%E5%BC%BA%E5%BA%A6%E8%AE%A1%E7%AE%97"><span class="nav-text">3.4.3.2 信号强度计算</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-4-3-3-%E6%A3%80%E6%B5%8B%E4%BF%A1%E5%8F%B7%E5%8F%98%E5%8C%96"><span class="nav-text">3.4.3.3 检测信号变化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-4-3-4-%E8%AE%A1%E5%88%92%E5%88%BB%E4%BA%8B%E4%BB%B6%E6%89%A7%E8%A1%8C"><span class="nav-text">3.4.3.4 计划刻事件执行</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9E%E4%BE%8B-1"><span class="nav-text">实例</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%93%8D%E5%BA%94%E8%AE%A1%E5%88%92%E5%88%BB%E5%85%83%E4%BB%B6%E7%9A%84-2gt-%E8%84%89%E5%86%B2"><span class="nav-text">响应计划刻元件的 2gt 脉冲</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8-0gt-%E4%BF%A1%E5%8F%B7%E6%BF%80%E6%B4%BB%E6%AF%94%E8%BE%83%E5%99%A8"><span class="nav-text">使用 0gt 信号激活比较器</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%97%A0%E5%BB%B6%E8%BF%9F%E6%AF%94%E8%BE%83%E5%99%A8"><span class="nav-text">无延迟比较器</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%AF%94%E8%BE%83%E5%99%A8%E6%9B%B4%E6%96%B0%E6%A3%80%E6%B5%8B%E5%99%A8"><span class="nav-text">比较器更新检测器</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-4-4-%E7%BA%A2%E7%9F%B3%E7%81%AB%E6%8A%8A"><span class="nav-text">3.4.4 红石火把</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%A1%E5%88%92%E5%88%BB%E4%BA%8B%E4%BB%B6%E6%89%A7%E8%A1%8C"><span class="nav-text">计划刻事件执行</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-4-5-%E4%BE%A6%E6%B5%8B%E5%99%A8"><span class="nav-text">3.4.5 侦测器</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%A1%E5%88%92%E5%88%BB%E4%BA%8B%E4%BB%B6%E6%89%A7%E8%A1%8C-1"><span class="nav-text">计划刻事件执行</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8A%95%E6%8E%B7%E5%99%A8-%E5%8F%91%E5%B0%84%E5%99%A8"><span class="nav-text">投掷器&#x2F;发射器</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%A1%E5%88%92%E5%88%BB%E4%BA%8B%E4%BB%B6%E6%89%A7%E8%A1%8C-2"><span class="nav-text">计划刻事件执行</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BA%A2%E7%9F%B3%E7%81%AF"><span class="nav-text">红石灯</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%A1%E5%88%92%E5%88%BB%E4%BA%8B%E4%BB%B6%E6%89%A7%E8%A1%8C-3"><span class="nav-text">计划刻事件执行</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8E%A2%E6%B5%8B%E7%B1%BB%E5%85%83%E4%BB%B6"><span class="nav-text">探测类元件</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%A1%E5%88%92%E5%88%BB%E4%BA%8B%E4%BB%B6%E6%89%A7%E8%A1%8C-4"><span class="nav-text">计划刻事件执行</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%B6%E4%BB%96%E7%BA%A2%E7%9F%B3%E5%85%83%E4%BB%B6"><span class="nav-text">其他红石元件</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%A1%E5%88%92%E5%88%BB%E4%BA%8B%E4%BB%B6%E6%89%A7%E8%A1%8C-5"><span class="nav-text">计划刻事件执行</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%9D%9E%E7%BA%A2%E7%9F%B3%E5%85%83%E4%BB%B6"><span class="nav-text">非红石元件</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%A1%E5%88%92%E5%88%BB%E4%BA%8B%E4%BB%B6%E6%89%A7%E8%A1%8C-6"><span class="nav-text">计划刻事件执行</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B5%81%E4%BD%93"><span class="nav-text">流体</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%A1%E5%88%92%E5%88%BB%E4%BA%8B%E4%BB%B6%E6%89%A7%E8%A1%8C-7"><span class="nav-text">计划刻事件执行</span></a></li></ol></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -941,12 +970,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="站点总字数">24k</span>
+    <span title="站点总字数">25k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">44 分钟</span>
+    <span title="站点阅读时长">45 分钟</span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
   </div>
