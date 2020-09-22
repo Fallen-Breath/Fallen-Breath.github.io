@@ -3,7 +3,7 @@
 
 isStop = 0
 tracking = 0
-storetracking = 0
+storetracking = 1
 
 function o(w, v, i) {
   return w.getAttribute(v) || i
