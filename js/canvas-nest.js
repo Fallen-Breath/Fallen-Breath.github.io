@@ -15,66 +15,73 @@ function j(i) {
 
 function l() {
   var i = j("script"), w = i.length, v = i[w - 1];
-  return {l: w, z: o(v, "zIndex", -1), o: o(v, "opacity", 0.5), c: o(v, "color", "150,0,255"), n: o(v, "count", 100)}
+  return {l: w, z: o(v, "zIndex", -1), o: o(v, "opacity", 0.5), c: o(v, "color", "150,0,255"), n: o(v, "count", 64)}
 }
 
 var k = function () {
   r = u.width = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth
   n = u.height = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight
 }
+let maxFps = 60
+let fpsInterval = 1000 / maxFps
+let startTime = Date.now()
 
 function b() {
   if (isStop === 1) {
     return;
   }
+  currentTime = Date.now()
+  if (currentTime - startTime >= fpsInterval) {
+    startTime = currentTime
 
-  e.clearRect(0, 0, r, n);
-  var w = [f].concat(t)
-  var x, v, A, B, z, y
+    e.clearRect(0, 0, r, n);
+    var w = [f].concat(t)
+    var x, v, A, B, z, y
 
-  t.forEach(function (i) {
-    for (v = 0; v < w.length; v++) {
-      x = w[v]
-      savex = null
-      if (i !== x && null !== x.x && null !== x.y) {
-        B = i.x - x.x
-        z = i.y - x.y
-        prex = i.x + i.xa - x.x
-        prey = i.y + i.ya - x.y
-        y = B * B + z * z
-        if (x === f) {
+    t.forEach(function (i) {
+      for (v = 0; v < w.length; v++) {
+        x = w[v]
+        savex = null
+        if (i !== x && null !== x.x && null !== x.y) {
+          B = i.x - x.x
+          z = i.y - x.y
+          prex = i.x + i.xa - x.x
+          prey = i.y + i.ya - x.y
+          y = B * B + z * z
+          if (x === f) {
+            if (y < x.max) {
+              i.xd = (Math.abs(prex) > Math.abs(B) && Math.abs(prex) * Math.abs(B) > 0 ? -1 : 1) * y / x.max * 2 * i.xa
+              i.yd = (Math.abs(prey) > Math.abs(z) && Math.abs(prey) * Math.abs(z) > 0 ? -1 : 1) * y / x.max * 2 * i.ya
+            } else {
+              i.xd = 0
+              i.yd = 0
+            }
+          }
           if (y < x.max) {
-            i.xd = (Math.abs(prex) > Math.abs(B) && Math.abs(prex) * Math.abs(B) > 0 ? -1 : 1) * y / x.max * 2 * i.xa
-            i.yd = (Math.abs(prey) > Math.abs(z) && Math.abs(prey) * Math.abs(z) > 0 ? -1 : 1) * y / x.max * 2 * i.ya
-          } else {
-            i.xd = 0
-            i.yd = 0
+            A = (x.max - y) / x.max
+            e.beginPath()
+            e.lineWidth = A / 2
+            e.strokeStyle = "rgba(" + s.c + "," + (A + 0.2) + ")"
+            e.moveTo(i.x, i.y)
+            e.lineTo(x.x, x.y)
+            e.stroke()
           }
         }
-        if (y < x.max) {
-          A = (x.max - y) / x.max
-          e.beginPath()
-          e.lineWidth = A / 2
-          e.strokeStyle = "rgba(" + s.c + "," + (A + 0.2) + ")"
-          e.moveTo(i.x, i.y)
-          e.lineTo(x.x, x.y)
-          e.stroke()
-        }
       }
-    }
-    i.x += i.xa + i.xd
-    i.y += i.ya + i.yd
-    i.xa *= i.x > r || i.x < 0 ? -1 : 1
-    i.ya *= i.y > n || i.y < 0 ? -1 : 1
-    e.fillRect(i.x - 0.5, i.y - 0.5, 1, 1)
-    w.splice(w.indexOf(i), 1)
-  })
+      i.x += i.xa + i.xd
+      i.y += i.ya + i.yd
+      i.xa *= i.x > r || i.x < 0 ? -1 : 1
+      i.ya *= i.y > n || i.y < 0 ? -1 : 1
+      e.fillRect(i.x - 0.5, i.y - 0.5, 1, 1)
+      w.splice(w.indexOf(i), 1)
+    })
+  }
   m(b)
 }
 
 var u = document.createElement("canvas"), s = l(), c = "c_n" + s.l, e = u.getContext("2d"), r, n,
 m = window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame || function (i) {
-  window.setTimeout(i, 1000 / 45)
+  window.setTimeout(i, fpsInterval)
 }
 a = Math.random
 f = {x: null, y: null, max: 20000}
