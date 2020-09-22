@@ -217,7 +217,7 @@ h6 {
   font-size: 0.875em;
 }
 p {
-  margin: 0 0 20px 0;
+  margin: 0 0 10px 0;
 }
 .post-body > p {
   text-indent: 2em;
@@ -1246,7 +1246,7 @@ pre .javascript .function {
 }
 .links-of-author a::before,
 .links-of-author span.exturl::before {
-  background: #327dff;
+  background: #03ffff;
   border-radius: 50%;
   content: ' ';
   display: inline-block;
