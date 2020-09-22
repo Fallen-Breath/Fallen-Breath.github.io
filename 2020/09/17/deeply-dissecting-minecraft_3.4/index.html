@@ -48,7 +48,7 @@
 <meta property="og:image" content="https://fallen-breath.github.io/2020/09/17/deeply-dissecting-minecraft_3.4/instant_comparator_sideway_pulse.png">
 <meta property="og:image" content="https://fallen-breath.github.io/2020/09/17/deeply-dissecting-minecraft_3.4/instant_comparator_pulse_order.png">
 <meta property="og:image" content="https://fallen-breath.github.io/2020/09/17/deeply-dissecting-minecraft_3.4/real_instant_comparator.gif">
-<meta property="og:image" content="https://fallen-breath.github.io/2020/09/17/deeply-dissecting-minecraft_3.4/D:%5CCodes%5Chexo_blog%5Csource_posts%5Cdeeply-dissecting-minecraft_3.4%5Cinstant_comparator_inf.gif">
+<meta property="og:image" content="https://fallen-breath.github.io/2020/09/17/deeply-dissecting-minecraft_3.4/instant_comparator_inf.gif">
 <meta property="article:published_time" content="2020-09-17T06:50:29.000Z">
 <meta property="article:modified_time" content="2020-09-17T06:50:29.000Z">
 <meta property="article:author" content="Fallen_Breath">
@@ -681,12 +681,12 @@
 <p>类似的，如果我们每 2gt 都发出一次上述 0gt 脉冲的话，比较器就能一直保持常亮状态。下方是上述例子示意装置的一个简单扩展，如果有必要的话甚至可以让比较器的输出信号强度也保持不变</p>
 <p><img src="/2020/09/17/deeply-dissecting-minecraft_3.4/0t_clock_comparator.gif" alt="0gt脉冲常激活比较器"></p>
 <h4 id="无延迟比较器"><a href="#无延迟比较器" class="headerlink" title="无延迟比较器"></a>无延迟比较器</h4><p>在传统的使用比较器传输模拟信号的线路中，比较器逐个亮起，依次往前传递信号，传输速度较慢，如下图</p>
-<p><img src="/2020/09/17/deeply-dissecting-minecraft_3.4/not_instant_comparator.gif" alt="有无延迟比较器"></p>
+<p><img src="/2020/09/17/deeply-dissecting-minecraft_3.4/not_instant_comparator.gif" alt="有延迟比较器"></p>
 <p>让我们分析一下上图，为什么这个比较器链传输信号如此之慢。上图中，比较器 B 需要等待比较器 A 亮起后才可亮起；比较器 C 需要等待比较器 B 亮起后才可亮起；比较器 D 需要等待比较器 C 亮起后才可亮起……每次等待，都耗费了 2gt 的时间进行延迟</p>
 <p>这些一个个的 2gt 延迟真的有必要存在吗？答案是不。我们可以仅在一个 gt 的计划刻阶段中就完成所有比较器的点亮，这就是无延迟比较器</p>
 <p>下图是一个简单的无延迟比较器的例子</p>
 <p><img src="/2020/09/17/deeply-dissecting-minecraft_3.4/instant_comparator.gif" alt="无延迟比较器"></p>
-<p>无延迟比较器的基本思路是，通过使用额外的计划刻元件的短脉冲，主动使所有比较器在<strong>同一个 gt 依次</strong>执行自己用于亮起的计划刻事件，使得比较器链在瞬间同时点亮。这种诱导比较器在指定时刻添加计划刻事件的脉冲，我们称之为<strong>诱导脉冲</strong>。</p>
+<p>无延迟比较器的基本思路是，通过使用额外的计划刻元件生成的短脉冲，主动使所有比较器在<strong>同一个 gt 依次</strong>执行自己用于亮起的计划刻事件，使得比较器链在瞬间同时点亮。这种诱导比较器在指定时刻添加计划刻事件的脉冲，我们称之为<strong>诱导脉冲</strong>。</p>
 <p>上述操作将长距离传输信号的时间复杂度从 $\Theta(n)$ 降至了 $\Theta(1)$，从线性降为常数级，仿佛用于传输信号的比较器都是 0 延迟，因此我们称之为无延迟比较器</p>
 <p>下面是上图中的无延迟比较器的亮起操作的时序分析。熄灭/信号改变的时序分析同理：</p>
 <table>
@@ -784,7 +784,7 @@
 <li>比较器 F 的侧面输入端</li>
 </ol>
 <p>当然，在实际使用中，由于上述无延迟比较器设计都不能无限地延长。不过，如果配合无延迟信号线使用，即可实现可无限延伸的无延迟比较器链。下面是一个可行的例子</p>
-<p><img src="/2020/09/17/deeply-dissecting-minecraft_3.4/D:%5CCodes%5Chexo_blog%5Csource_posts%5Cdeeply-dissecting-minecraft_3.4%5Cinstant_comparator_inf.gif" alt="instant_comparator_inf"></p>
+<p><img src="/2020/09/17/deeply-dissecting-minecraft_3.4/instant_comparator_inf.gif" alt="无限延伸的无延迟比较器链"></p>
 <h4 id="比较器更新检测器"><a href="#比较器更新检测器" class="headerlink" title="比较器更新检测器"></a>比较器更新检测器</h4><h2 id="3-4-4-红石火把"><a href="#3-4-4-红石火把" class="headerlink" title="3.4.4 红石火把"></a>3.4.4 红石火把</h2><h3 id="计划刻事件执行"><a href="#计划刻事件执行" class="headerlink" title="计划刻事件执行"></a>计划刻事件执行</h3><p>blabla</p>
 <h2 id="3-4-5-侦测器"><a href="#3-4-5-侦测器" class="headerlink" title="3.4.5 侦测器"></a>3.4.5 侦测器</h2><h3 id="计划刻事件执行-1"><a href="#计划刻事件执行-1" class="headerlink" title="计划刻事件执行"></a>计划刻事件执行</h3><p>blabla</p>
 <h2 id="投掷器-发射器"><a href="#投掷器-发射器" class="headerlink" title="投掷器/发射器"></a>投掷器/发射器</h2><h3 id="计划刻事件执行-2"><a href="#计划刻事件执行-2" class="headerlink" title="计划刻事件执行"></a>计划刻事件执行</h3><p>blabla</p>
