@@ -183,7 +183,7 @@ body {
   color: var(--text-color);
   font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
   font-size: 1em;
-  line-height: 2;
+  line-height: 1.75;
   min-height: 100%;
   position: relative;
   transition: all 0.2s ease-in-out;
@@ -218,7 +218,7 @@ h6 {
   font-size: 0.875em;
 }
 p {
-  margin: 0 0 20px 0;
+  margin: 0 0 10px 0;
 }
 a,
 span.exturl {
@@ -258,6 +258,9 @@ blockquote {
 blockquote cite::before {
   content: '-';
   padding: 0 5px;
+}
+blockquote > p {
+  text-indent: 2em;
 }
 dt {
   font-weight: bold;
@@ -1669,7 +1672,7 @@ pre code {
 }
 .languages {
   display: inline-block;
-  font-size: 1.125em;
+  font-size: 1.075em;
   position: relative;
 }
 .languages .lang-select-label span {
@@ -1839,7 +1842,7 @@ pre code {
   }
 }
 .posts-collapse .post-content .collection-title {
-  font-size: 1.125em;
+  font-size: 1.075em;
   position: relative;
 }
 .posts-collapse .post-content .collection-title::before {
@@ -1936,7 +1939,7 @@ pre code {
 }
 @media (min-width: 1200px) {
   .post-body {
-    font-size: 1.125em;
+    font-size: 1.075em;
   }
 }
 @media (min-width: 992px) {
@@ -1948,6 +1951,9 @@ pre code {
   .post-body {
     text-align: justify;
   }
+}
+.post-body > p {
+  text-indent: 2em;
 }
 .post-body h1,
 .post-body h2,
@@ -2084,7 +2090,7 @@ pre code {
   margin: 15px 0;
 }
 .posts-expand .post-header {
-  font-size: 1.125em;
+  font-size: 1.075em;
   margin-bottom: 60px;
   text-align: center;
 }
