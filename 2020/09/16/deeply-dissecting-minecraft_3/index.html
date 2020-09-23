@@ -28,24 +28,24 @@
 <meta property="og:site_name" content="fallen&#39;s attic">
 <meta property="og:description" content="3 计划刻3.1 什么是计划刻计划刻，英文为 Tile Tick。国内社区曾用 Next Tick Entry (NTE) 进行描述 在 Minecraft 中，许多方块对变化的响应并不是瞬时，而是延迟一定时间后方才开始执行的，如下面几个常见的例子：  中继器响应信号输入 沙子检测下方方块以准备下落 流体进行流动 悬空脚手架的逐个掉落">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://fallenbreath.me/2020/09/16/deeply-dissecting-minecraft_3/deeply-dissecting-minecraft_3/single0.png">
-<meta property="og:image" content="https://fallenbreath.me/2020/09/16/deeply-dissecting-minecraft_3/deeply-dissecting-minecraft_3/single1.png">
-<meta property="og:image" content="https://fallenbreath.me/2020/09/16/deeply-dissecting-minecraft_3/deeply-dissecting-minecraft_3/single2.png">
-<meta property="og:image" content="https://fallenbreath.me/2020/09/16/deeply-dissecting-minecraft_3/deeply-dissecting-minecraft_3/multi0.png">
-<meta property="og:image" content="https://fallenbreath.me/2020/09/16/deeply-dissecting-minecraft_3/deeply-dissecting-minecraft_3/multi0.png">
-<meta property="og:image" content="https://fallenbreath.me/2020/09/16/deeply-dissecting-minecraft_3/deeply-dissecting-minecraft_3/multi1.png">
-<meta property="og:image" content="https://fallenbreath.me/2020/09/16/deeply-dissecting-minecraft_3/deeply-dissecting-minecraft_3/multi2.png">
-<meta property="og:image" content="https://fallenbreath.me/2020/09/16/deeply-dissecting-minecraft_3/deeply-dissecting-minecraft_3/emp-tower.png">
-<meta property="og:image" content="https://fallenbreath.me/2020/09/16/deeply-dissecting-minecraft_3/deeply-dissecting-minecraft_3/emp-detector.png">
-<meta property="og:image" content="https://fallenbreath.me/2020/09/16/deeply-dissecting-minecraft_3/deeply-dissecting-minecraft_3/cactus-broken.png">
-<meta property="og:image" content="https://fallenbreath.me/2020/09/16/deeply-dissecting-minecraft_3/deeply-dissecting-minecraft_3/force-growth.png">
+<meta property="og:image" content="https://fallenbreath.me/2020/09/16/deeply-dissecting-minecraft_3/single0.png">
+<meta property="og:image" content="https://fallenbreath.me/2020/09/16/deeply-dissecting-minecraft_3/single1.png">
+<meta property="og:image" content="https://fallenbreath.me/2020/09/16/deeply-dissecting-minecraft_3/single2.png">
+<meta property="og:image" content="https://fallenbreath.me/2020/09/16/deeply-dissecting-minecraft_3/multi0.png">
+<meta property="og:image" content="https://fallenbreath.me/2020/09/16/deeply-dissecting-minecraft_3/multi0.png">
+<meta property="og:image" content="https://fallenbreath.me/2020/09/16/deeply-dissecting-minecraft_3/multi1.png">
+<meta property="og:image" content="https://fallenbreath.me/2020/09/16/deeply-dissecting-minecraft_3/multi2.png">
+<meta property="og:image" content="https://fallenbreath.me/2020/09/16/deeply-dissecting-minecraft_3/emp-tower.png">
+<meta property="og:image" content="https://fallenbreath.me/2020/09/16/deeply-dissecting-minecraft_3/emp-detector.png">
+<meta property="og:image" content="https://fallenbreath.me/2020/09/16/deeply-dissecting-minecraft_3/cactus-broken.png">
+<meta property="og:image" content="https://fallenbreath.me/2020/09/16/deeply-dissecting-minecraft_3/force-growth.png">
 <meta property="article:published_time" content="2020-09-16T15:40:29.000Z">
 <meta property="article:modified_time" content="2020-09-16T15:40:29.000Z">
 <meta property="article:author" content="Fallen_Breath">
 <meta property="article:tag" content="Minecraft">
 <meta property="article:tag" content="深度剖析MC">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://fallenbreath.me/2020/09/16/deeply-dissecting-minecraft_3/deeply-dissecting-minecraft_3/single0.png">
+<meta name="twitter:image" content="https://fallenbreath.me/2020/09/16/deeply-dissecting-minecraft_3/single0.png">
 
 <link rel="canonical" href="https://fallenbreath.me/2020/09/16/deeply-dissecting-minecraft_3/">
 
@@ -387,21 +387,21 @@
 <p>观察 <code>事件 id</code> 的定义，这是一个递增的不重复的整数，因此，先创建的计划刻事件一定会有较小的 <code>事件 id</code> ，也就是在执行时刻与事件优先级相同的情况下，先创建的事件会优先于后创建的事件执行</p>
 <p>也就是<strong>先进先出</strong>！</p>
 <p>下面是一些例子：</p>
-<p><img data-src="deeply-dissecting-minecraft_3/single0.png" alt="single0"></p>
+<p><img data-src="deeply-dissecting-minecraft_3/single0.png" alt="single0" src="/2020/09/16/deeply-dissecting-minecraft_3/single0.png"></p>
 <p>执行时刻，A 先于 B，因此 A 先执行</p>
 <hr>
-<p><img data-src="deeply-dissecting-minecraft_3/single1.png" alt="single1"></p>
+<p><img data-src="deeply-dissecting-minecraft_3/single1.png" alt="single1" src="/2020/09/16/deeply-dissecting-minecraft_3/single1.png"></p>
 <p>执行时刻：A 与 B 相同</p>
 <p>优先级：A 大于B</p>
 <p>因此 A 先执行</p>
 <hr>
-<p><img data-src="deeply-dissecting-minecraft_3/single2.png" alt="single2"></p>
+<p><img data-src="deeply-dissecting-minecraft_3/single2.png" alt="single2" src="/2020/09/16/deeply-dissecting-minecraft_3/single2.png"></p>
 <p>执行时刻：相同</p>
 <p>优先级：相同</p>
 <p>创建顺序（事件 id）：A 先于 B</p>
 <p>因此 A 先执行</p>
 <h3 id="3-3-2-多元件组合"><a href="#3-3-2-多元件组合" class="headerlink" title="3.3.2 多元件组合"></a>3.3.2 多元件组合</h3><p>在<strong>总延迟相同</strong>的前提下，用不同档位凑出来的中继器/比较器/序列谁先输出信号，是一个老生常谈的问题，比如下图</p>
-<p><img data-src="deeply-dissecting-minecraft_3/multi0.png" alt="multi0"></p>
+<p><img data-src="deeply-dissecting-minecraft_3/multi0.png" alt="multi0" src="/2020/09/16/deeply-dissecting-minecraft_3/multi0.png"></p>
 <p>由于总延迟是相同的，并且最末端的元件具有相同的优先级，我们不能简单地观察最末端的元件来判断执行顺序，我们需要结合其余元件进行考虑，得出最末端元件创建事件的顺序间的先后关系，从而得到执行顺序</p>
 <p>由于在这些判断顺序的实例中，第 n 个元件的计划刻事件创建事件往往是与第 n - 1 个元件的点亮时刻是相同的，因此可以用低 n -1 个元件的点亮时刻来替代第 n 个元件的创建事件时刻</p>
 <p>令拉杆拉下的时刻为 gt0。由于序列 A 的第一个中继器是在 gt2 点亮，而序列 B 的第一个中继器是在 gt 8 点亮，晚于序列 A 的第一个中继器，因此序列 A 的第二个也就是末端的中继器先于序列 B 的末端中继器激活</p>
@@ -414,13 +414,13 @@
 <p>也就是，<strong>从尾到头依次比较元件的点亮顺序，直到比较出结果</strong></p>
 <p>若比较的两个序列的元件是同一个元件，这时比较更新顺序即可。如一个拉杆向两侧引出 1 挡中继器，这是就需要根据方块更新的顺序来判断哪一侧的中继器先被更新</p>
 <p>下面是一些例子：</p>
-<p><img data-src="deeply-dissecting-minecraft_3/multi0.png" alt="multi0"></p>
+<p><img data-src="deeply-dissecting-minecraft_3/multi0.png" alt="multi0" src="/2020/09/16/deeply-dissecting-minecraft_3/multi0.png"></p>
 <p>末端的中继器的优先级及点亮时间均相同，比较前端的中继器点亮时间：A 先，因此 A 序列比 B 序列先输出</p>
 <hr>
-<p><img data-src="deeply-dissecting-minecraft_3/multi1.png" alt="multi1"></p>
+<p><img data-src="deeply-dissecting-minecraft_3/multi1.png" alt="multi1" src="/2020/09/16/deeply-dissecting-minecraft_3/multi1.png"></p>
 <p>A, B 与 C, D, E 的比较与上图相同，对于 A, B，第一个元件点亮的优先级是 A 的中继器更高，因此 A 比 B 先输出。总输出顺序为 A, B, C, D, E</p>
 <hr>
-<p><img data-src="deeply-dissecting-minecraft_3/multi2.png" alt="multi2"></p>
+<p><img data-src="deeply-dissecting-minecraft_3/multi2.png" alt="multi2" src="/2020/09/16/deeply-dissecting-minecraft_3/multi2.png"></p>
 <p>根据最末端元件的优先级可立即得到 A, B, C 比 D, E 先输出。A 的中继器最先得到输入信号，因此 A 最先输出。剩余序列比较方法同上，比较第一个元件的优先级即可得出总输出顺序为 A, B, C, D, E</p>
 <h2 id="3-4-计划刻元件"><a href="#3-4-计划刻元件" class="headerlink" title="3.4 计划刻元件"></a>3.4 计划刻元件</h2><p>见《<a href="/2020/09/17/deeply-dissecting-minecraft_3.4/" title="深度剖析Minecraft #3.4 计划刻元件">深度剖析Minecraft #3.4 计划刻元件</a>》</p>
 <h2 id="3-5-时序描述"><a href="#3-5-时序描述" class="headerlink" title="3.5 时序描述"></a>3.5 时序描述</h2><p>在分析计划刻相关的时序的时候，计划刻事件的优先级以及计划刻事件的目标常常是我们关心的因素</p>
@@ -432,8 +432,8 @@
 <p>在分析计划刻阶段的流程时，细心的读者可能已经注意到了，每游戏刻可执行的计划刻事件数量有个 65536 的上限，超过上限的事件将会延迟到下一游戏刻尝试执行，这一点似乎是可以加以利用的</p>
 <p>如果我们认为的在某一游戏刻中添加了巨量的延迟相同的计划刻事件，使其数量超过了 65536，则可在游戏中制造一些正常情况下不可能发生的事情：某些计划刻事件被延后执行了。这可以用于无线红石信号传输、无限遥控飞行器，也可以用恶意破坏红石电路。该机制的作用范围是整个维度</p>
 <p>下面以该机制发现者 Xcom600 的《<a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV16t411s7qi">原版生存无线红石</a>》为例，分析下其时序</p>
-<p><img data-src="deeply-dissecting-minecraft_3/emp-tower.png" alt="emp-tower"></p>
-<p><img data-src="deeply-dissecting-minecraft_3/emp-detector.png" alt="emp-detector"></p>
+<p><img data-src="deeply-dissecting-minecraft_3/emp-tower.png" alt="emp-tower" src="/2020/09/16/deeply-dissecting-minecraft_3/emp-tower.png"></p>
+<p><img data-src="deeply-dissecting-minecraft_3/emp-detector.png" alt="emp-detector" src="/2020/09/16/deeply-dissecting-minecraft_3/emp-detector.png"></p>
 <table>
 <thead>
 <tr>
@@ -474,14 +474,14 @@
 
 <p>那些既可以响应随机刻，又可以响应计划刻的方块，在执行 <code>tick</code> 方法的时候，是怎么确认它该执行哪一部分的逻辑呢？Mojang 给出的答案是，在 <code>tick</code> 方法内即时判断</p>
 <p>以仙人掌为例。作为一种作物，仙人掌会在被随机刻选中时执行一次生长；作为一种对环境有依赖的植物，在发现其状态不适合生长时（沙子消失/水平毗邻 4 格方块存在可阻挡仙人掌生长的方块），会添加一个延迟为 1 的计划刻事件，用于变为空气并掉落物品，也用于使高耸入云的仙人掌柱能自底向上逐个破坏而减轻服务器的瞬时压力</p>
-<p><img data-src="deeply-dissecting-minecraft_3/cactus-broken.png" alt="cactus-broken"></p>
+<p><img data-src="deeply-dissecting-minecraft_3/cactus-broken.png" alt="仙人掌柱被破坏" src="/2020/09/16/deeply-dissecting-minecraft_3/cactus-broken.png"></p>
 <p>仙人掌 <code>tick</code> 方法内的逻辑如下所示（<code>net.minecraft.block.BlockCactus#tick</code>）</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">tick</span><span class="params">(IBlockState state, World worldIn, BlockPos pos, Random random)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (!state.isValidPosition(worldIn, pos))  <span class="comment">// 判断仙人掌所处位置是否合法</span></span><br><span class="line">    &#123;</span><br><span class="line">        worldIn.destroyBlock(pos, <span class="keyword">true</span>);  <span class="comment">// 破坏该仙人掌方块</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">/* 执行仙人掌生长逻辑 */</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>粗略一看，这个实现好像并没有问题，因为状态不合法而添加的计划刻事件在执行 <code>tick</code> 方法时就会在第一行的 if 判断中进入到破坏仙人掌方块分支</p>
 <p>不过仔细一想，并非如此。仙人掌在添加计划刻事件时所处位置不合法，<strong>并不意味</strong>着仙人掌在执行计划刻事件的时候所处位置仍不合法！如果我们通过某种手段，在仙人掌添加了用于破坏自身的计划刻事件后，在计划刻事件执行前，恢复仙人掌的生长环境，让仙人掌所处位置恢复到合法的适宜仙人掌生长的状态，则这个计划刻执行的时候将会执行随机刻的逻辑。这，就是随机刻伪造，也就算作物的强制催熟</p>
 <p>下面是一个仙人掌强制催熟装置的示意图。指向仙人掌的活塞每 0t 伸出一次，即可让仙人掌使用计划刻事件伪造一次随机刻事件，使其生长阶段 +1</p>
-<p><img data-src="deeply-dissecting-minecraft_3/force-growth.png" alt="force-growth"></p>
+<p><img data-src="deeply-dissecting-minecraft_3/force-growth.png" alt="强制催熟" src="/2020/09/16/deeply-dissecting-minecraft_3/force-growth.png"></p>
 <p>时序分析如下：</p>
 <table>
 <thead>
@@ -545,12 +545,12 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2020/09/16/deeply-dissecting-minecraft_2/" rel="prev" title="深度剖析Minecraft #2 方块更新">
-      <i class="fa fa-chevron-left"></i> 深度剖析Minecraft #2 方块更新
+    <a href="/2019/12/08/deeply-dissecting-minecraft_1/" rel="prev" title="深度剖析Minecraft #1 游戏流程">
+      <i class="fa fa-chevron-left"></i> 深度剖析Minecraft #1 游戏流程
     </a></div>
       <div class="post-nav-item">
-    <a href="/2020/09/17/deeply-dissecting-minecraft_3.4/" rel="next" title="深度剖析Minecraft #3.4 计划刻元件">
-      深度剖析Minecraft #3.4 计划刻元件 <i class="fa fa-chevron-right"></i>
+    <a href="/2020/09/17/discussion-about-13-blockupdate-types/" rel="next" title="对1.13后两种不同方块更新类型译名的探讨">
+      对1.13后两种不同方块更新类型译名的探讨 <i class="fa fa-chevron-right"></i>
     </a></div>
     </div>
       </footer>
@@ -627,7 +627,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">6</span>
+          <span class="site-state-item-count">7</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -680,7 +680,7 @@
 
 <div class="copyright">
   
-  &copy; 
+  &copy; 2019 – 
   <span itemprop="copyrightYear">2020</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
@@ -690,12 +690,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="站点总字数">25k</span>
+    <span title="站点总字数">26k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">45 分钟</span>
+    <span title="站点阅读时长">48 分钟</span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
   </div>

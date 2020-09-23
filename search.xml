@@ -2,7 +2,7 @@
 <search>
   <entry>
     <title>深度剖析Minecraft #0 绪论</title>
-    <url>/2020/09/16/deeply-dissecting-minecraft_0/</url>
+    <url>/2019/12/08/deeply-dissecting-minecraft_0/</url>
     <content><![CDATA[<h1 id="0-绪论"><a href="#0-绪论" class="headerlink" title="0 绪论"></a>0 绪论</h1><h2 id="0-1-owo"><a href="#0-1-owo" class="headerlink" title="0.1 owo"></a>0.1 owo</h2><p>嘛，填这个巨坑的目的，是想对啃了一段时间的源码做一些总结，并给出一些对现象的解释，如果可能的话还会给出一些易于分析的模型</p>
 <p>前人的理论虽已挺完善，已经有了不少的分析文章，但他们或多或少的都存在一些无法解释的现象，或者说以为版本迭代而过时</p>
 <p>强推 gp（Gamepiaynmo）的文章<a href="http://tieba.baidu.com/p/4078230299">《[理论分析]红石更新延迟理论》</a>，虽然这个是 1.8 的，但绝大部分内容在 1.13.2 仍适用</p>
@@ -38,7 +38,7 @@
 <li>TE 阶段</li>
 <li>TE 容器（TE 队列、TE 表）</li>
 </ul>
-<p><img data-src="deeply-dissecting-minecraft_0/banner.png" alt="banner"></p>
+<p><img data-src="deeply-dissecting-minecraft_0/banner.png" alt="banner" src="/2019/12/08/deeply-dissecting-minecraft_0/banner.png"></p>
 ]]></content>
       <categories>
         <category>Minecraft</category>
@@ -49,26 +49,118 @@
       </tags>
   </entry>
   <entry>
-    <title>Hello World</title>
-    <url>/2020/09/23/hello-world/</url>
-    <content><![CDATA[<p>Welcome to <a href="https://hexo.io/">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues">GitHub</a>.</p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo new <span class="string">&quot;My New Post&quot;</span></span><br></pre></td></tr></table></figure>
+    <title>对1.13后两种不同方块更新类型译名的探讨</title>
+    <url>/2020/09/17/discussion-about-13-blockupdate-types/</url>
+    <content><![CDATA[<p>先放结论，我打算将 NC 更新译为“方块更新”，与 1.12 及以前的方块更新接轨；将 1.13 新增的 “PP” 更新译为“状态更新”</p>
+<a id="more"></a>
 
-<p>More info: <a href="https://hexo.io/docs/writing.html">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/server.html">Server</a></p>
-<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/generating.html">Generating</a></p>
-<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/one-command-deployment.html">Deployment</a></p>
+<p><img data-src="https://i0.hdslb.com/bfs/article/0117cbba35e51b0bce5f8c2f6a838e8a087e8ee7.png" alt="img"></p>
+<p>1.13 后方块更新分为了两大类，在我的文章《<a href="/2019/08/10/deeply-dissecting-minecraft_2/" title="深度剖析Minecraft #2 方块更新">深度剖析Minecraft #2 方块更新</a>》中我是用了 1.13.2 mcp mapping 的 NeighbourChange （NC）以及 PostPlacement （PP）进行区分</p>
+<p>不过这两者并不是一个利于行文流畅及推广传播的名字，因此我想给他们一个恰当的译文</p>
+<p><strong>NeighborChanged</strong></p>
+<blockquote>
+<p>NeighborChanged 更新，指的是最基础的，最符合“方块更新”一词含义的更新。红石元件的状态变化、方块的放置与破坏、方块开始移动以及方块到位都可以产生 NC 更新。除此之外，各种杂七杂八地方块变化大多也都能产生 NC 更新 </p>
+<p>游戏里能产生 NC 更新的事件太多了，不便于一一列举。不过能响应 NC 更新的却不算多。所有能响应 NC 更新的事件有： 活板门、栅栏门、木门、铁门更新开关状态 霜冰检测融化 活塞检测移动 活塞头给予活塞底座 NC 更新 红石粉、中继器、比较器、红石火把、各类铁轨、命令方块、投掷器、发射器、音符盒、红石灯、TNT更新状态 水、岩浆检测状态 灵魂沙、岩浆块添加生成气泡柱的 TT 事件 海绵尝试吸水</p>
+<p>《深度剖析Minecraft #2 方块更新》</p>
+</blockquote>
+<p>NC 更新的译名应该较为容易解决，因为其于代码中的实现与 1.12 前的方块更新是一致的，也是游戏中最为常见且常用的一种更新。因此我打算继承最为通用的名称，方块更新，一词来表示 NC 更新</p>
+<p>各大 mapping 的名称：</p>
+<ul>
+<li>mcp：neighborChanged</li>
+<li>yarn：neighborUpdate</li>
+<li>mojang：neighborChanged</li>
+</ul>
+<p><strong>PostPlacement</strong></p>
+<blockquote>
+<p>PostPlacement，指的是方块发生变化后导致的临近方块与之交互情况发生变化的更新。 所有能响应 PP 更新的事件有： </p>
+<ul>
+<li>各类依附性方块（火把、雪片地毯蛋糕、各类花草作物、拉杆按钮、木门铁门、火焰等）判断依附的方块是否合法并决定是否掉落</li>
+<li>连接型方块（栅栏石墙玻璃板、楼梯、箱子、红石粉绊线、地狱门、高草紫颂植物等）更新当前与相邻方块连接状态</li>
+<li>中继器更新被锁状态</li>
+<li>音符盒更新乐器类型</li>
+<li>树叶更新离木距离</li>
+<li>……</li>
+</ul>
+<p><strong>《深度剖析Minecraft #2 方块更新》</strong></p>
+</blockquote>
+<p>这是一个 1.13 后才添加的新的方块类型，并不能直接通过旧时称法来分析，需要讨论其具体行为与作用</p>
+<p>先看看各大 mapping 的名称：</p>
+<ul>
+<li>mcp：updatePostPlacement</li>
+<li>yarn：getStateForNeighborUpdate</li>
+<li>mojang：updateShape</li>
+</ul>
+<p>因为 PP 更新被大量应用在依附性方块/连接性方块的状态（blockstate）的更新上，尤其是连接性的方块，在受到 PP 更新的时候它们将会依据临近方块的方块状态而更新自己的方块状态，并不改变自己的方块类型</p>
+<p>除此之外，作为 PP 更新最为典型的检测装置——侦测器而言，侦测器检测的一大特点是可以检测方块的状态是否发生变化</p>
+<p>结合 PP 更新与方块状态的种种关系，我打算将 PP 更新称为状态更新</p>
+<p>状态更新一词也符合（侦测器检测的是状态变化），也不会与方块更新的“方块”混淆</p>
+<p>除此之外，在国外社区中，常用 state change 一词来表示 PP 更新，该词的翻译也恰好为“状态更新”，因此该翻译也可无缝地与国外社区接轨</p>
+<p><img data-src="discussion-about-13-blockupdate-types/discord1.png" alt="网友讨论" src="/2020/09/17/discussion-about-13-blockupdate-types/discord1.png"></p>
+<p><img data-src="discussion-about-13-blockupdate-types/discord2.png" alt="网友讨论" src="/2020/09/17/discussion-about-13-blockupdate-types/discord2.png"></p>
+<hr>
+<p>如果你有更好的译名，或者你了解一些已经在其他领域中已广泛传播的译名，都可以在评论区中发表相关看法</p>
+<p>作者本人水平有限，如有错误欢迎指出</p>
 ]]></content>
+      <tags>
+        <tag>Minecraft</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>实体方块的判断——源码中调用isNormalCube()的位置总结</title>
+    <url>/2019/08/10/solidblock-summary-isNormalCube/</url>
+    <content><![CDATA[<blockquote>
+<p>游戏版本：Minecraft Java Edition 1.13.2<br>源码来源：mcp<br>不保证下列调用目的的表述正确性，仅均为个人猜想</p>
+</blockquote>
+<hr>
+<h1 id="isNormalCube"><a href="#isNormalCube" class="headerlink" title="isNormalCube"></a>isNormalCube</h1><p>实体方块，实心方块，整砖，普通方块，具体指什么？</p>
+<p>在我看来，绝大部分时间里，当我们提及“实体方块”一词的时候，指的都是能压线压箱发矿车的那一类实心完整方块。在源码中，这些，都是通过一个叫做isNormalCube()的函数进行判定的</p>
+<a id="more"></a>
+
+<p><img data-src="solidblock-summary-isNormalCube/base.png" alt="net/minecraft/block/Block.java:293" src="/2019/08/10/solidblock-summary-isNormalCube/base.png"></p>
+<blockquote>
+<p>我猜这个是<strong>实体方块</strong></p>
+</blockquote>
+<p>这个函数里的三个判据我先不细究，先来看看源码中所有调用isNormalCube()的位置，来看看这个实体方块判断，会用在什么地方</p>
+<h2 id="箱子压箱判定"><a href="#箱子压箱判定" class="headerlink" title="箱子压箱判定"></a>箱子压箱判定</h2><p><img data-src="solidblock-summary-isNormalCube/check.png" alt="net/minecraft/block/BlockChest.java:335" src="/2019/08/10/solidblock-summary-isNormalCube/check.png"></p>
+<p>箱子上面有实体方块时无法打开</p>
+<h2 id="末影箱压箱判定"><a href="#末影箱压箱判定" class="headerlink" title="末影箱压箱判定"></a>末影箱压箱判定</h2><p><img data-src="solidblock-summary-isNormalCube/echest.png" alt="net/minecraft/block/BlockEnderChest.java:97" src="/2019/08/10/solidblock-summary-isNormalCube/echest.png"></p>
+<p>末影箱上面有实体方块时无法打开</p>
+<h2 id="比较器隔方块检测容器的判定"><a href="#比较器隔方块检测容器的判定" class="headerlink" title="比较器隔方块检测容器的判定"></a>比较器隔方块检测容器的判定</h2><p><img data-src="solidblock-summary-isNormalCube/comparator.png" alt="net/minecraft/block/BlockRedstoneComparator.java:85" src="/2019/08/10/solidblock-summary-isNormalCube/comparator.png"></p>
+<h2 id="红石粉的各种判定"><a href="#红石粉的各种判定" class="headerlink" title="红石粉的各种判定"></a>红石粉的各种判定</h2><h3 id="压线判定"><a href="#压线判定" class="headerlink" title="压线判定"></a>压线判定</h3><p><img data-src="solidblock-summary-isNormalCube/dust_cut.png" alt="net/minecraft/block/BlockRedstoneWire.java:150" src="/2019/08/10/solidblock-summary-isNormalCube/dust_cut.png"></p>
+<h3 id="红石粉更新"><a href="#红石粉更新" class="headerlink" title="红石粉更新"></a>红石粉更新</h3><p>看看是沿实体方块的表面上传还是下传</p>
+<h4 id="红石粉信号更新"><a href="#红石粉信号更新" class="headerlink" title="红石粉信号更新"></a>红石粉信号更新</h4><p><img data-src="solidblock-summary-isNormalCube/dust_update.png" alt="net/minecraft/block/BlockRedstoneWire.java:222" src="/2019/08/10/solidblock-summary-isNormalCube/dust_update.png"></p>
+<h4 id="方块增加时"><a href="#方块增加时" class="headerlink" title="方块增加时"></a>方块增加时</h4><p><img data-src="solidblock-summary-isNormalCube/duts_blockadd.png" alt="net/minecraft/block/BlockRedstoneWire.java:305" src="/2019/08/10/solidblock-summary-isNormalCube/duts_blockadd.png"></p>
+<h4 id="方块替换时"><a href="#方块替换时" class="headerlink" title="方块替换时"></a>方块替换时</h4><p><img data-src="solidblock-summary-isNormalCube/dust_blockreplace.png" alt="net/minecraft/block/BlockRedstoneWire.java:341" src="/2019/08/10/solidblock-summary-isNormalCube/dust_blockreplace.png"></p>
+<h3 id="判断信号源"><a href="#判断信号源" class="headerlink" title="判断信号源"></a>判断信号源</h3><p><img data-src="solidblock-summary-isNormalCube/dust_signalsource.png" alt="net/minecraft/block/BlockRedstoneWire.java:438" src="/2019/08/10/solidblock-summary-isNormalCube/dust_signalsource.png"></p>
+<h2 id="地狱门方块刷新僵尸猪人"><a href="#地狱门方块刷新僵尸猪人" class="headerlink" title="地狱门方块刷新僵尸猪人"></a>地狱门方块刷新僵尸猪人</h2><p><img data-src="solidblock-summary-isNormalCube/portal_pigman.png" alt="net/minecraft/block/BlockPortal.java:70" src="/2019/08/10/solidblock-summary-isNormalCube/portal_pigman.png"></p>
+<p>只在实体方块上面刷猪人</p>
+<h2 id="获得红石信号强度时判断强弱充能"><a href="#获得红石信号强度时判断强弱充能" class="headerlink" title="获得红石信号强度时判断强弱充能"></a>获得红石信号强度时判断强弱充能</h2><p><img data-src="solidblock-summary-isNormalCube/powered.png" alt="net/minecraft/world/World.java:2548" src="/2019/08/10/solidblock-summary-isNormalCube/powered.png"></p>
+<h2 id="判断更新隔实体方块检测容器的比较器输出"><a href="#判断更新隔实体方块检测容器的比较器输出" class="headerlink" title="判断更新隔实体方块检测容器的比较器输出"></a>判断更新隔实体方块检测容器的比较器输出</h2><p><img data-src="solidblock-summary-isNormalCube/blockupdate_comparator.png" alt="net/minecraft/world/World.java:3071" src="/2019/08/10/solidblock-summary-isNormalCube/blockupdate_comparator.png"></p>
+<h2 id="刷怪循环"><a href="#刷怪循环" class="headerlink" title="刷怪循环"></a>刷怪循环</h2><h3 id="集群刷怪的开始判定"><a href="#集群刷怪的开始判定" class="headerlink" title="集群刷怪的开始判定"></a>集群刷怪的开始判定</h3><p><img data-src="solidblock-summary-isNormalCube/spawn_wander.png" alt="net/minecraft/world/WorldEntitySpawner.java:107" src="/2019/08/10/solidblock-summary-isNormalCube/spawn_wander.png"></p>
+<p>实体方块会在集群刷怪的开始打断集群刷怪</p>
+<h3 id="水生生物的刷新判定"><a href="#水生生物的刷新判定" class="headerlink" title="水生生物的刷新判定"></a>水生生物的刷新判定</h3><p><img data-src="solidblock-summary-isNormalCube/spawn_watercreature.png" alt="net/minecraft/world/WorldEntitySpawner.java" src="/2019/08/10/solidblock-summary-isNormalCube/spawn_watercreature.png"></p>
+<p>水生生物刷新方块的上方不能是实体方块</p>
+<h2 id="挤出卡入实体方块中的玩家"><a href="#挤出卡入实体方块中的玩家" class="headerlink" title="挤出卡入实体方块中的玩家"></a>挤出卡入实体方块中的玩家</h2><p><img data-src="solidblock-summary-isNormalCube/player_squeezedout1.png" alt="net/minecraft/client/entity/EntityPlayerSP.java:474" src="/2019/08/10/solidblock-summary-isNormalCube/player_squeezedout1.png"></p>
+<p><img data-src="solidblock-summary-isNormalCube/player_squeezedout2.png" alt="net/minecraft/client/entity/EntityPlayerSP.java:534" src="/2019/08/10/solidblock-summary-isNormalCube/player_squeezedout2.png"></p>
+<p><img data-src="solidblock-summary-isNormalCube/player_squeezedout3.png" alt="net/minecraft/entity/player/EntityPlayer.java:1826" src="/2019/08/10/solidblock-summary-isNormalCube/player_squeezedout3.png"></p>
+<h3 id="玩家类中所使用的isNormalCube"><a href="#玩家类中所使用的isNormalCube" class="headerlink" title="玩家类中所使用的isNormalCube()"></a>玩家类中所使用的isNormalCube()</h3><p>其实也只是一层套娃</p>
+<p><img data-src="solidblock-summary-isNormalCube/player_isNormalCube.png" alt="net/minecraft/entity/player/EntityPlayer.java:1830" src="/2019/08/10/solidblock-summary-isNormalCube/player_isNormalCube.png"></p>
+<h2 id="矿车在激活的充能铁轨上贴实体方块时的启动"><a href="#矿车在激活的充能铁轨上贴实体方块时的启动" class="headerlink" title="矿车在激活的充能铁轨上贴实体方块时的启动"></a>矿车在激活的充能铁轨上贴实体方块时的启动</h2><p><img data-src="solidblock-summary-isNormalCube/minecart.png" alt="net/minecraft/entity/item/EntityMinecart.java:615" src="/2019/08/10/solidblock-summary-isNormalCube/minecart.png"></p>
+<h2 id="蝙蝠倒挂睡觉"><a href="#蝙蝠倒挂睡觉" class="headerlink" title="蝙蝠倒挂睡觉"></a>蝙蝠倒挂睡觉</h2><p><img data-src="solidblock-summary-isNormalCube/bat.png" alt="net/minecraft/entity/passive/EntityBat.java:132" src="/2019/08/10/solidblock-summary-isNormalCube/bat.png"></p>
+<p><img data-src="solidblock-summary-isNormalCube/bat_startsleeping.png" alt="net/minecraft/entity/passive/EntityBat.java:174" src="/2019/08/10/solidblock-summary-isNormalCube/bat_startsleeping.png"></p>
+<p>得倒挂在实体方块下才可能睡觉</p>
+<hr>
+<h1 id="相关链接"><a href="#相关链接" class="headerlink" title="相关链接"></a>相关链接</h1><ul>
+<li><a href="https://docs.qq.com/sheet/BiUuo00cSH4d0U8TuR2ylQcD4PFkzU4eQPYL4IQmKC2Cjyb92AKgYJ2XrE0e12ppbu32HUty2?coord=E3A0A0&tab=BB08J2">禄存的方块属性一览</a> (<a href="https://h.bilibili.com/31502237">https://h.bilibili.com/31502237</a>)</li>
+</ul>
+]]></content>
+      <tags>
+        <tag>Minecraft</tag>
+      </tags>
   </entry>
   <entry>
     <title>深度剖析Minecraft #1 游戏流程</title>
-    <url>/2020/09/16/deeply-dissecting-minecraft_1/</url>
+    <url>/2019/12/08/deeply-dissecting-minecraft_1/</url>
     <content><![CDATA[<h1 id="1-游戏流程"><a href="#1-游戏流程" class="headerlink" title="1 游戏流程"></a>1 游戏流程</h1><h2 id="1-1-代码层面上的-GameTime-内游戏运算顺序"><a href="#1-1-代码层面上的-GameTime-内游戏运算顺序" class="headerlink" title="1.1 代码层面上的 GameTime 内游戏运算顺序"></a>1.1 代码层面上的 GameTime 内游戏运算顺序</h2><blockquote>
 <p>来吧顺着代码DFS</p>
 </blockquote>
@@ -260,7 +352,7 @@
 <h2 id="实例-自加载型区块加载器伪和平"><a href="#实例-自加载型区块加载器伪和平" class="headerlink" title="实例 自加载型区块加载器伪和平"></a>实例 自加载型区块加载器伪和平</h2><p>对于基于在卸载后能加载回自身的区块加载器的伪和平，在重加载时是否存在 1gt 的刷怪空档期是至关重要的，因为这直接与伪和平是否可用 100% 阻止生物刷新相关。完美的伪和平装置是不存在可刷怪空档期的</p>
 <p>让我们分析一下基于活塞区块加载器的伪和平：</p>
 <p>活塞区块加载器，利用了方块事件可以加载区块的原理，通过在每个gt利用活塞计划方块事件来确保自动保存后能加载回自身区块。</p>
-<p><img data-src="deeply-dissecting-minecraft_1/BELoader1.png" alt="活塞加载器伪和平1"><br>备注：此活塞加载器并非完美设计，但足以应用于本实例分析</p>
+<p><img data-src="deeply-dissecting-minecraft_1/BELoader1.png" alt="活塞加载器伪和平1" src="/2019/12/08/deeply-dissecting-minecraft_1/BELoader1.png"><br>备注：此活塞加载器并非完美设计，但足以应用于本实例分析</p>
 <p>这个方案是可以 100% 阻止生物刷新的，也就是不存在 1gt 的刷怪间隔。微观时序分析很简单。先列一下相关的阶段：</p>
 <table>
 <thead>
@@ -293,7 +385,7 @@
 <p>可看到，在自动保存等引发的区块卸载之后，下一次进行刷怪前，游戏执行了方块事件相关的运算，并在此处加载回了存怪的区块，让怪物容量超过上限，阻止下一次进行刷怪时的生物刷新。因此，这是一个完美的伪和平</p>
 <hr>
 <p>如果出于某些原因，活塞区块加载器与存怪装置不在同一个区块，需要使用漏斗加载存怪区块，如下图所示。这样的话这种伪和平装置是否还是完美的？</p>
-<p><img data-src="deeply-dissecting-minecraft_1/BELoader2.png" alt="活塞加载器伪和平2"></p>
+<p><img data-src="deeply-dissecting-minecraft_1/BELoader2.png" alt="活塞加载器伪和平2" src="/2019/12/08/deeply-dissecting-minecraft_1/BELoader2.png"></p>
 <p>相关的阶段：</p>
 <table>
 <thead>
@@ -367,7 +459,7 @@
 <p>因此，这个伪和平设计也能保证 100% 时刻不刷怪，是个完美的伪和平</p>
 <hr>
 <p>假如有个小天才嫌一个漏斗太少，非得多串几个漏斗才接到存怪装置区块，那会怎么样？</p>
-<p><img data-src="deeply-dissecting-minecraft_1/BELoader3.png" alt="活塞加载器伪和平3"></p>
+<p><img data-src="deeply-dissecting-minecraft_1/BELoader3.png" alt="活塞加载器伪和平3" src="/2019/12/08/deeply-dissecting-minecraft_1/BELoader3.png"></p>
 <p>区块卸载在 GameTick N，活塞加载器自加载在 GameTick N+1 的  BE，三个漏斗依次加载区块使存怪区域在 GameTick N+1 的 TE 被加载？并不是这样的</p>
 <p>TE 阶段有个性质：在 TE 阶段内新增的 TE 实体，并不会立即参与运算，而是会先加入一个临时的列表 <code>addedTileEntityList</code>，等到该 TE 阶段运算结束后再统一添加新 TE 实体至参与运算的 TE 列表 <code>loadedTileEntityList</code> 中，也就是说在 GameTick N 新增的 TE 实体要等到 GameTick N+1 的 TE 阶段才能进行运算</p>
 <p>因此，这个小天才活塞区块加载器伪和平的微观时序是这样的：</p>
@@ -436,523 +528,8 @@
       </tags>
   </entry>
   <entry>
-    <title>深度剖析Minecraft #3.4 计划刻元件</title>
-    <url>/2020/09/17/deeply-dissecting-minecraft_3.4/</url>
-    <content><![CDATA[<h1 id="3-4-计划刻元件"><a href="#3-4-计划刻元件" class="headerlink" title="3.4 计划刻元件"></a>3.4 计划刻元件</h1><p>阅前必读：</p>
-<p>《<a href="/2020/09/16/deeply-dissecting-minecraft_2/" title="深度剖析Minecraft #2 方块更新">深度剖析Minecraft #2 方块更新</a>》</p>
-<p>《<a href="/2020/09/16/deeply-dissecting-minecraft_3/" title="深度剖析Minecraft #3 计划刻">深度剖析Minecraft #3 计划刻</a>》</p>
-<h2 id="3-4-1-红石二极管"><a href="#3-4-1-红石二极管" class="headerlink" title="3.4.1 红石二极管"></a>3.4.1 红石二极管</h2><table>
-<thead>
-<tr>
-<th>名称</th>
-<th>信息</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>类</td>
-<td>net.minecraft.block.BlockRedstoneDiode</td>
-</tr>
-<tr>
-<td>基类</td>
-<td>net.minecraft.block.BlockHorizontal</td>
-</tr>
-<tr>
-<td>延迟</td>
-<td>非定值</td>
-</tr>
-<tr>
-<td>优先级</td>
-<td>非定值</td>
-</tr>
-<tr>
-<td>位置需求</td>
-<td>其下方依附着的方块上表面完整</td>
-</tr>
-<tr>
-<td>受方块更新时</td>
-<td>判断掉落，更新信号</td>
-</tr>
-<tr>
-<td>受状态更新时</td>
-<td>不响应</td>
-</tr>
-</tbody></table>
-<p>这是一个抽象类，是红石中继器以及红石比较器的基类，也就是说中继器跟比较器的本质是一个二极管，有许多的机制是完全相同的</p>
-<h3 id="3-4-1-1-方块状态"><a href="#3-4-1-1-方块状态" class="headerlink" title="3.4.1.1 方块状态"></a>3.4.1.1 方块状态</h3><p>作为一个可水平旋转的方块，二极管拥有一个 <code>facing</code> 标签表示其水平指向。除此之外二极管还具有以下标签：</p>
-<table>
-<thead>
-<tr>
-<th>标签名</th>
-<th>取值</th>
-<th>用途</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>powered</td>
-<td>false, true</td>
-<td>其当前的亮起状态。我们称该标签为假时二极管熄灭，该标签为真时二极管熄灭</td>
-</tr>
-</tbody></table>
-<h3 id="3-4-1-2-响应方块更新"><a href="#3-4-1-2-响应方块更新" class="headerlink" title="3.4.1.2 响应方块更新"></a>3.4.1.2 响应方块更新</h3><p>当二极管受到方块更新时，它会首先检测其所处位置是否满足位置需求，若不满足则掉落为物品，并先在所在位置发出方块更新，再在其毗邻 6 方块的位置发出方块更新（顺序：-y, +y, -z, +z, -x, +x <sup id="fnref:1"><a href="#fn:1" rel="footnote">1</a></sup>）；若合法，则开始检测信号变化 <sup id="fnref:2"><a href="#fn:2" rel="footnote">2</a></sup>。具体的检测信号变化的方法见 <a href="#3-4-1-红石二极管">红石中继器</a> 以及 <a href="#3-4-2-红石中继器">红石比较器</a></p>
-<h3 id="3-4-1-3-发出更新"><a href="#3-4-1-3-发出更新" class="headerlink" title="3.4.1.3 发出更新"></a>3.4.1.3 发出更新</h3><p>当二极管的状态发生变化的时候，它会先给其指向方块一个方块更新（下图黄色玻璃），再于其指向方块的位置处（下图黄色玻璃）发出一个除其指向方向反方向的方块更新。图中所有的染色玻璃也即是所有的<strong>受到</strong>方块更新的方块的位置</p>
-<p><img data-src="deeply-dissecting-minecraft_3.4/diode_update_range.png" alt="二极管更新范围示意"></p>
-<p>具体的方法为 <code>net.minecraft.block.BlockRedstoneDiode#notifyNeighbors</code></p>
-<p>这一部分的调用之处是在 <code>onBlockAdded</code> 以及 <code>onReplaced</code> 中，因此只要涉及到二极管的方块状态的变化，均可以让这个二极管发出上述更新</p>
-<h2 id="3-4-2-红石中继器"><a href="#3-4-2-红石中继器" class="headerlink" title="3.4.2 红石中继器"></a>3.4.2 红石中继器</h2><table>
-<thead>
-<tr>
-<th>名称</th>
-<th>信息</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>类</td>
-<td>net.minecraft.block.BlockRedstoneRepeater</td>
-</tr>
-<tr>
-<td>基类</td>
-<td>net.minecraft.block.BlockRedstoneDiode</td>
-</tr>
-<tr>
-<td>延迟</td>
-<td>非定值</td>
-</tr>
-<tr>
-<td>优先级</td>
-<td>非定值</td>
-</tr>
-<tr>
-<td>位置需求</td>
-<td>同 <a href="#3-4-1-红石二极管">红石二极管</a></td>
-</tr>
-<tr>
-<td>受方块更新时</td>
-<td>同 <a href="#3-4-1-红石二极管">红石二极管</a></td>
-</tr>
-<tr>
-<td>受状态更新时</td>
-<td>更新自身被锁的状态</td>
-</tr>
-</tbody></table>
-<h3 id="3-4-2-1-方块状态"><a href="#3-4-2-1-方块状态" class="headerlink" title="3.4.2.1 方块状态"></a>3.4.2.1 方块状态</h3><p>红石中继器（简称中继器）在红石二极管的基础上，新增了两个方块标签：</p>
-<table>
-<thead>
-<tr>
-<th>标签名</th>
-<th>取值</th>
-<th>用途</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>delay</td>
-<td>1, 2, 3, 4</td>
-<td>储存中继器的延迟。计划刻事件的延迟将为 <code>delay</code> * 2</td>
-</tr>
-<tr>
-<td>locked</td>
-<td>false, true</td>
-<td>储存中继器是否被锁</td>
-</tr>
-</tbody></table>
-<h3 id="3-4-2-2-检测信号变化"><a href="#3-4-2-2-检测信号变化" class="headerlink" title="3.4.2.2 检测信号变化"></a>3.4.2.2 检测信号变化</h3><p>中继器接受来自其输入端方块的弱充能信号，与其当前的 <code>powered</code> 标签进行对比，若发现其状态需要改变，则添加一个计划刻事件用于延迟更新状态。计划刻事件的延迟如上所述，优先级如下：</p>
-<ul>
-<li>若其指向方块为红石二极管，且红石二极管的朝向非反向，则优先级为 -3</li>
-<li>若中继器的原 <code>powered</code> 标签为假，也即中继器准备熄灭，则优先级为 -2</li>
-<li>否则优先级为 -1</li>
-</ul>
-<h3 id="3-4-2-3-计划刻事件执行"><a href="#3-4-2-3-计划刻事件执行" class="headerlink" title="3.4.2.3 计划刻事件执行"></a>3.4.2.3 计划刻事件执行</h3><p>如果中继器目前被锁住，则跳过该计划刻事件的执行。由于计划刻事件并不储存该事件的实际功能，中继器需要再次计算其输入端方块的弱充能信号，并与其当前的 <code>powered</code> 标签作比较：</p>
-<ul>
-<li>若当前状态为亮起且输入端无信号，则改为熄灭状态</li>
-<li>若的前状态为熄灭，则改为亮起状态，再判断输入端是否有信号，若无信号则添加一个延迟为其自身的延迟，优先级为 -1 <sup id="fnref:3"><a href="#fn:3" rel="footnote">3</a></sup> 的计划刻事件用于熄灭。也就是说，即便在执行计划刻事件的时候输入信号已经消失，中继器也依然会亮起，这也是中继器可响应并输出任意短的正脉冲的原理</li>
-</ul>
-<p>上述过程中，改变其亮起状态时，在其所在位置发出的更新仅含状态更新。中继器在其前方发出的大范围方块更新见 <a href="#3-4-1-红石二极管">红石二极管</a> 的发出更新小节</p>
-<h3 id="3-4-2-4-受状态更新时"><a href="#3-4-2-4-受状态更新时" class="headerlink" title="3.4.2.4 受状态更新时"></a>3.4.2.4 受状态更新时</h3><p>当中继器受到状态更新时，若更新方向为水平方向，且方向为垂直于中继器的指向方向，则更新自身的被锁状态。中继器当且仅当被一个二极管指向侧面的时候会被锁住</p>
-<p><img data-src="deeply-dissecting-minecraft_3.4/repeater_lock.gif" alt="中继器响应状态更新"></p>
-<h3 id="实例"><a href="#实例" class="headerlink" title="实例"></a>实例</h3><h4 id="与-4gt-时钟交互"><a href="#与-4gt-时钟交互" class="headerlink" title="与 4gt 时钟交互"></a>与 4gt 时钟交互</h4><p><img data-src="deeply-dissecting-minecraft_3.4/4gtrepeater1.gif" alt="与 4gt 时钟交互"></p>
-<p><img data-src="deeply-dissecting-minecraft_3.4/4gtrepeater2.gif" alt="4gtrepeater2"></p>
-<p><img data-src="deeply-dissecting-minecraft_3.4/4gtrepeater3.gif" alt="4gtrepeater3"></p>
-<h2 id="3-4-3-红石比较器"><a href="#3-4-3-红石比较器" class="headerlink" title="3.4.3 红石比较器"></a>3.4.3 红石比较器</h2><table>
-<thead>
-<tr>
-<th>名称</th>
-<th>信息</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>类</td>
-<td>net.minecraft.block.BlockRedstoneComparator</td>
-</tr>
-<tr>
-<td>基类</td>
-<td>net.minecraft.block.BlockRedstoneDiode</td>
-</tr>
-<tr>
-<td>延迟</td>
-<td>2</td>
-</tr>
-<tr>
-<td>优先级</td>
-<td>非定值</td>
-</tr>
-<tr>
-<td>位置需求</td>
-<td>同 <a href="#3-4-1-红石二极管">红石二极管</a></td>
-</tr>
-<tr>
-<td>受方块更新时</td>
-<td>同 <a href="#3-4-1-红石二极管">红石二极管</a></td>
-</tr>
-<tr>
-<td>受状态更新时</td>
-<td>不响应</td>
-</tr>
-</tbody></table>
-<h3 id="3-4-3-1-方块状态"><a href="#3-4-3-1-方块状态" class="headerlink" title="3.4.3.1 方块状态"></a>3.4.3.1 方块状态</h3><p>红石比较器（简称比较器）在红石二极管的基础上，新增了一个方块标签：</p>
-<table>
-<thead>
-<tr>
-<th>标签名</th>
-<th>取值</th>
-<th>用途</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>mode</td>
-<td>compare, subtract</td>
-<td>储存着比较器当前的模式（比较模式、减法模式）</td>
-</tr>
-</tbody></table>
-<p>对于当前比较器的输出信号的储存，可能是因为一些历史遗留问题（1.13 以前的方块附加值储存能力不足），是储存于比较器方块实体之中的。也就是说，比较器其实是一个含有方块实体的方块。不过由于该方块实体并不是常运算的方块实体 <sup id="fnref:4"><a href="#fn:4" rel="footnote">4</a></sup>，因此并不会带来额外的卡顿</p>
-<h3 id="3-4-3-2-信号强度计算"><a href="#3-4-3-2-信号强度计算" class="headerlink" title="3.4.3.2 信号强度计算"></a>3.4.3.2 信号强度计算</h3><blockquote>
-<p>net.minecraft.block.BlockRedstoneComparator#calculateInputStrength</p>
-</blockquote>
-<p>首先，需要计算输入端的信号强度</p>
-<p>令输入端，即比较器后方一格处的方块为 A，比较器后方二格处的方块为 B</p>
-<p><img data-src="deeply-dissecting-minecraft_3.4/comparetor_input.png" alt="比较器输入信号"></p>
-<ol>
-<li>维护一个取值为 0 ~ 15 的整数 $n$ 作为比较器待确定的输入的信号强度</li>
-<li>计算方块 A 的弱充能信号强度（与中继器相同），将 $n$ 设为该信号强度</li>
-<li>判断方块 A 是否可输出比较器信号<ul>
-<li>如果是，则将 $n$ 设为 A 的比较器输出值。如比较器直接读取毗邻容器</li>
-<li>如果不是，若 $n &lt; 15$ 且方块 A 为实体方块 <sup id="fnref:5"><a href="#fn:5" rel="footnote">5</a></sup>，则进行尝试使用 B 处可能的容器输出来覆盖当前的输入强度：<ol>
-<li>如果方块 B 可输出比较器信号，则将 $n$ 设方块 B 的比较器输出值</li>
-<li>如果方块 B 为空气，则查找位于方块 B 处的可能依附于方块 A 的一个物品展示框实体，若找到，则将 $n$ 设置为物品展示架的角度</li>
-</ol>
-</li>
-</ul>
-</li>
-<li>$n$ 即为比较器的输入信号强度</li>
-</ol>
-<p>随后，比较器会计算其来自侧面的输入的最大值。比较器<strong>仅</strong>会接受以下三种形式的输入：</p>
-<ul>
-<li><p>毗邻的红石块</p>
-</li>
-<li><p>毗邻的红石粉</p>
-</li>
-<li><p>毗邻的指向比较器的强充能元件</p>
-<p>  下图是一些常见的给予比较器侧面输入信号的方法</p>
-</li>
-</ul>
-<p><img data-src="deeply-dissecting-minecraft_3.4/comparetor_side_input.png" alt="比较器侧面输入"></p>
-<p>不过，强充能元件并非只有中继器、比较器。当比较器前方有二极管时，比较器可响应侦测器的侧方输入。如果使用指令等方式得到了浮空方块，你甚至可以使用拉杆、按钮等元件进行输入：</p>
-<p><img data-src="deeply-dissecting-minecraft_3.4/comparetor_side_input_sp.png" alt="comparetor_side_input_sp"></p>
-<p>现在，我们已经知道比较器的后方输入以及侧面输入的信号强度了，现在只需要根据其所处模式（比较模式/减法模式）再次计算，即可得出比较器的输出信号了：</p>
-<ul>
-<li>比较模式：输出信号 = 后方输入（大小比较的相关逻辑并不在此处）</li>
-<li>减法模式：输出信号 = max(0, 后方输入 - 侧面输入)</li>
-</ul>
-<p>之后，比较器就可以判断是否应该输出信号了。这部分的实现很简单，直接结合代码说明：</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">boolean</span> <span class="title">shouldBePowered</span><span class="params">(World worldIn, BlockPos pos, IBlockState state)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> i = <span class="keyword">this</span>.calculateInputStrength(worldIn, pos, state);</span><br><span class="line">    <span class="keyword">if</span> (i &gt;= <span class="number">15</span>)  <span class="comment">// 输入信号强度大于15</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span> (i == <span class="number">0</span>)  <span class="comment">// 输入信号强度为0</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span> i &gt;= <span class="keyword">this</span>.getPowerOnSides(worldIn, pos, state);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>这里也是比较模式大小相关逻辑的实现之处</p>
-<h3 id="3-4-3-3-检测信号变化"><a href="#3-4-3-3-检测信号变化" class="headerlink" title="3.4.3.3 检测信号变化"></a>3.4.3.3 检测信号变化</h3><p>与中继器类似，比较器会计算其当前应该输出的信号强度，并与当前自身储存着的信号强度作对比。如果输出的信号强度有改变，或者其亮起状态有变化，则添加一个计划刻事件，优先级如下：</p>
-<ul>
-<li>若其指向方块为红石二极管，且红石二极管的朝向非反向，则优先级为 -1</li>
-<li>其他情况，优先级为 0</li>
-</ul>
-<h3 id="3-4-3-4-计划刻事件执行"><a href="#3-4-3-4-计划刻事件执行" class="headerlink" title="3.4.3.4 计划刻事件执行"></a>3.4.3.4 计划刻事件执行</h3><p>与中继器类似，由于计划刻事件并不储存该事件的实际功能，比较器需要再次计算其当前应该输出的信号强度，并与当前自身储存着的信号强度作对比。若两者不同，或者其亮起状态有变化，则更新当前的亮起状态，并<a href="#3-4-1-3-发出更新">发出更新</a>。可以注意到，比较器并非同中继器一样，当原状态是熄灭的时候，无论如何都会点亮。<strong>如果比较器的计划刻执行时输入信号已消失，比较器是不会输出的</strong></p>
-<p>注意到对于任意一个红石二极管，当其方块状态发生变化时也会发出一次更新，因此若比较器在上述步骤中改变了亮起状态时，它会发出更新两次 <del>&lt;3 mojang</del></p>
-<h3 id="实例-1"><a href="#实例-1" class="headerlink" title="实例"></a>实例</h3><h4 id="响应计划刻元件的-2gt-脉冲"><a href="#响应计划刻元件的-2gt-脉冲" class="headerlink" title="响应计划刻元件的 2gt 脉冲"></a>响应计划刻元件的 2gt 脉冲</h4><p>下面以典型的侦测器为例。正常情况下，侦测器脉冲是无法激活比较器的，如下面这个例子</p>
-<p><img data-src="deeply-dissecting-minecraft_3.4/observer_comparator1.gif" alt="侦测器尝试激活比较器"></p>
-<p>时序分析：</p>
-<table>
-<thead>
-<tr>
-<th>游戏刻</th>
-<th>游戏阶段</th>
-<th>事件</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>0</td>
-<td>TT.0.侦测器</td>
-<td>侦测器点亮。侦测器添加位于 gt 2 的计划刻事件用于熄灭，优先级为 0（关于侦测器的执行计划刻事件时的逻辑，见 <a href="#3-4-5-侦测器">侦测器</a>）</td>
-</tr>
-<tr>
-<td>0</td>
-<td>TT.0.侦测器</td>
-<td>侦测器发出方块更新。比较器受到方块更新，发现可输出信号，添加位于 gt 2 的计划刻事件，优先级为 0</td>
-</tr>
-<tr>
-<td>2</td>
-<td>TT.0.侦测器</td>
-<td>侦测器熄灭</td>
-</tr>
-<tr>
-<td>2</td>
-<td>TT.0.比较器</td>
-<td>比较器判断目前输出信号强度（0）与应当输出的信号强度（0），无变化，不执行任何操作</td>
-</tr>
-</tbody></table>
-<p>可见，比较器的计划刻事件执行的时候输入端信号已经消失，这导致了比较器不响应侦测器的脉冲</p>
-<hr>
-<p>若想要使用侦测器来激活比较器，有两种方法</p>
-<p><strong>1. 提升比较器的优先级</strong></p>
-<p>观察时序分析表，容易发现如果让 gt 2 中比较器的事件先于侦测器执行，则可以让侦测器执行计划刻事件时侦测器仍处于激活状态。一种可行的方法就是提升比较器的优先级，更准确地说，提升比较器添加用于亮起的计划刻事件的优先级。我们可以通过在比较器前方添加中继器来实现</p>
-<p><img data-src="deeply-dissecting-minecraft_3.4/observer_comparator2.gif" alt="侦测器尝试激活比较器"></p>
-<p>时序分析：</p>
-<table>
-<thead>
-<tr>
-<th>游戏刻</th>
-<th>游戏阶段</th>
-<th>事件</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>0</td>
-<td>TT.0.侦测器</td>
-<td>侦测器 A 点亮，添加位于 gt 2 的计划刻事件。侦测器更新比较器，比较器发现自身可亮起，添加位于 gt 2 的计划事件</td>
-</tr>
-<tr>
-<td>2</td>
-<td>TT.<strong>-1</strong>.比较器</td>
-<td>比较器判断目前输出信号强度（0）与应当输出的信号强度（15），不相等。<strong>比较器亮起</strong></td>
-</tr>
-<tr>
-<td>2</td>
-<td>TT.0.侦测器</td>
-<td>侦测器熄灭</td>
-</tr>
-</tbody></table>
-<p><strong>2. 延长等优先级的 2gt 脉冲</strong></p>
-<p>为了让比较器在执行其计划刻事件的时候输入端仍有信号，除了提升比较器的计划刻事件的优先级外，是否还有方法？更新比较器，让比较器添加计划刻事件的那个侦测器肯定不能起到作用了，那么是否可以额外添加一个侦测器，让第二个侦测器在比较器事件执行完毕之后再熄灭？答案是可以，方案如下：</p>
-<p><img data-src="deeply-dissecting-minecraft_3.4/double_observer_comparator.gif" alt="双侦测器激活比较器"></p>
-<p>时序分析如下：</p>
-<table>
-<thead>
-<tr>
-<th>游戏刻</th>
-<th>游戏阶段</th>
-<th>事件</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>0</td>
-<td>TT.0.侦测器 A</td>
-<td>侦测器 A 点亮，添加位于 gt 2 的计划刻事件。侦测器更新比较器，比较器发现自身可亮起，添加位于 gt 2 的计划事件</td>
-</tr>
-<tr>
-<td>0</td>
-<td>TT.0.侦测器 B</td>
-<td>侦测器 A 点亮，添加位于 gt 2 的计划刻事件。侦测器更新比较器，比较器尝试添加位于 gt 2 的计划事件，不过由于计划刻队列中已有该事件，忽略操作</td>
-</tr>
-<tr>
-<td>2</td>
-<td>TT.0.侦测器 A</td>
-<td>侦测器 A 熄灭</td>
-</tr>
-<tr>
-<td>2</td>
-<td>TT.0.比较器</td>
-<td>虽然侦测器 A 熄灭了，但是侦测器 B 仍处于亮起状态。比较器判断目前输出信号强度（0）与应当输出的信号强度（15），不相等。<strong>比较器亮起</strong></td>
-</tr>
-<tr>
-<td>2</td>
-<td>TT.0.侦测器 B</td>
-<td>侦测器 B 熄灭</td>
-</tr>
-</tbody></table>
-<p>值得注意的是，该方案的铁轨不可用 2gt 的计划刻元件脉冲去激活，具体原因与侦测器的实现有关</p>
-<h4 id="使用-0gt-信号激活比较器"><a href="#使用-0gt-信号激活比较器" class="headerlink" title="使用 0gt 信号激活比较器"></a>使用 0gt 信号激活比较器</h4><p>通过上述例子我们可发现，若想要激活一个比较器，仅需要在比较器检查输入端是否有信号的时候，也就是以下两个时刻：</p>
-<ul>
-<li>添加计划刻事件时</li>
-<li>执行计划刻事件时</li>
-</ul>
-<p>让输入端存在信号就行了。这意味着，激活比较器的信号并不需要是一个连续的信号，我们只需要用两次脉冲分别覆盖上述两个时刻，就能让比较器点亮。这两个脉冲的时长可以任意短，可以短到 0gt 时长，只要覆盖到了上述两个时刻就行了</p>
-<p>对于上述的第一个时刻“添加计划刻事件时”，可在任意时刻实现；对于第二个时刻“执行计划刻事件时”，需理清楚比较器的计划刻事件的执行时间点</p>
-<p>下图是一个使用两次 0gt 信号激活比较器的例子</p>
-<p><img data-src="deeply-dissecting-minecraft_3.4/0t_x_comparator.gif" alt="0gt脉冲激活比较器"></p>
-<p>时序分析：</p>
-<p>该装置中含有两个 0gt 脉冲发生器，脉冲的持续时间为 TT.-1 ~ BE，可覆盖正常优先级的比较器的计划刻事件时刻 TT.0</p>
-<table>
-<thead>
-<tr>
-<th>游戏刻</th>
-<th>游戏阶段</th>
-<th>事件</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>0</td>
-<td>TT.-1.上中继器 A</td>
-<td>中继器 A 亮起，充能铁块激活红石粉，更新比较器。比较器添加位于 gt 2 的计划刻事件</td>
-</tr>
-<tr>
-<td>0</td>
-<td>BE</td>
-<td>活塞 A 推出，红石粉熄灭</td>
-</tr>
-<tr>
-<td>2</td>
-<td>TT.-1.上中继器 B</td>
-<td>中继器 B 亮起，充能铁块激活红石粉</td>
-</tr>
-<tr>
-<td>2</td>
-<td>TT.0.比较器</td>
-<td>比较器亮起，信号强度为 14（信号强度源自中继器 B）</td>
-</tr>
-<tr>
-<td>2</td>
-<td>BE</td>
-<td>活塞 B 推出，红石粉熄灭。红石粉更新比较器，比较器添加位于 gt 4 的计划刻事件</td>
-</tr>
-<tr>
-<td>4</td>
-<td>TT</td>
-<td>比较器熄灭</td>
-</tr>
-</tbody></table>
-<p>如果将比较器输入信号是否存在视作 0 1，画出波形图的话，是这样子的</p>
-<p><img data-src="deeply-dissecting-minecraft_3.4/comparetor_0t_wave.png" alt="波形图"></p>
-<p>类似的，如果我们每 2gt 都发出一次上述 0gt 脉冲的话，比较器就能一直保持常亮状态。下方是上述例子示意装置的一个简单扩展，如果有必要的话甚至可以让比较器的输出信号强度也保持不变</p>
-<p><img data-src="deeply-dissecting-minecraft_3.4/0t_clock_comparator.gif" alt="0gt脉冲常激活比较器"></p>
-<h4 id="无延迟比较器"><a href="#无延迟比较器" class="headerlink" title="无延迟比较器"></a>无延迟比较器</h4><p>在传统的使用比较器传输模拟信号的线路中，比较器逐个亮起，依次往前传递信号，传输速度较慢，如下图</p>
-<p><img data-src="deeply-dissecting-minecraft_3.4/not_instant_comparator.gif" alt="有延迟比较器"></p>
-<p>让我们分析一下上图，为什么这个比较器链传输信号如此之慢。上图中，比较器 B 需要等待比较器 A 亮起后才可亮起；比较器 C 需要等待比较器 B 亮起后才可亮起；比较器 D 需要等待比较器 C 亮起后才可亮起……每次等待，都耗费了 2gt 的时间进行延迟</p>
-<p>这些一个个的 2gt 延迟真的有必要存在吗？答案是不。我们可以仅在一个 gt 的计划刻阶段中就完成所有比较器的点亮，这就是无延迟比较器</p>
-<p>下图是一个简单的无延迟比较器的例子</p>
-<p><img data-src="deeply-dissecting-minecraft_3.4/instant_comparator.gif" alt="无延迟比较器"></p>
-<p>无延迟比较器的基本思路是，通过使用额外的计划刻元件生成的短脉冲，主动使所有比较器在<strong>同一个 gt 依次</strong>执行自己用于亮起的计划刻事件，使得比较器链在瞬间同时点亮。这种诱导比较器在指定时刻添加计划刻事件的脉冲，我们称之为<strong>诱导脉冲</strong>。</p>
-<p>上述操作将长距离传输信号的时间复杂度从 $\Theta(n)$ 降至了 $\Theta(1)$，从线性降为常数级，仿佛用于传输信号的比较器都是 0 延迟，因此我们称之为无延迟比较器</p>
-<p>下面是上图中的无延迟比较器的亮起操作的时序分析。熄灭/信号改变的时序分析同理：</p>
-<table>
-<thead>
-<tr>
-<th>游戏刻</th>
-<th>游戏阶段</th>
-<th>事件</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>0</td>
-<td>NU</td>
-<td>拉杆拉下</td>
-</tr>
-<tr>
-<td>2</td>
-<td>TT</td>
-<td>比较器 1 亮起。侦测器亮起，中继器<strong>从近到远依次</strong>添加位于 gt 4 的计划刻事件</td>
-</tr>
-<tr>
-<td>4</td>
-<td>TT.-1.中继器 A</td>
-<td>亮起，更新比较器 A，比较器 A 添加位于 gt 6 的计划刻事件</td>
-</tr>
-<tr>
-<td>4</td>
-<td>TT.-1.中继器 B</td>
-<td>亮起，更新比较器 B，比较器 B 添加位于 gt 6 的计划刻事件</td>
-</tr>
-<tr>
-<td>……</td>
-<td>……</td>
-<td>……</td>
-</tr>
-<tr>
-<td>4</td>
-<td>TT.-1.中继器 F</td>
-<td>亮起，更新比较器 F，比较器 F 添加位于 gt 6 的计划刻事件</td>
-</tr>
-<tr>
-<td>4</td>
-<td>TT.0</td>
-<td>比较器 2 亮起。侦测器熄灭</td>
-</tr>
-<tr>
-<td>6</td>
-<td>TT.-1</td>
-<td>中继器 A ~ F 依次熄灭</td>
-</tr>
-<tr>
-<td>6</td>
-<td>TT.0.比较器 A</td>
-<td>比较器 A 发现其输入端有来自比较器 2 的信号，亮起</td>
-</tr>
-<tr>
-<td>6</td>
-<td>TT.0.比较器 B</td>
-<td>比较器 B 发现其输入端有来自比较器 A 的信号，亮起</td>
-</tr>
-<tr>
-<td>……</td>
-<td>……</td>
-<td>……</td>
-</tr>
-<tr>
-<td>6</td>
-<td>TT.0.比较器 F</td>
-<td>比较器 F 发现其输入端有来自比较器 E 的信号，亮起</td>
-</tr>
-</tbody></table>
-<p>不过，上述无延迟比较器有一个缺点，就是在输入信号强度为 15 的情况下改变信号强度时不能维持无延迟。这是因为当输入的信号强度是 15 时，比较器链中都储存着强度为 15 的信号，而侧方位中继器发出的脉冲信号强度也是 15，两者大小相等，导致了诱导脉冲无法诱使比较器添加计划刻事件。如下图所示：</p>
-<p><img data-src="deeply-dissecting-minecraft_3.4/half_instant_comparator.gif" alt="于输入15信号的下降沿失效"></p>
-<p>对此的解决方法也并不困难。我们需要的是诱使比较器添加计划刻事件，只要按顺序添加了就可以，至于比较器是因为什么原因而添加计划刻事件，我们并不关心</p>
-<p>当比较器输出信号是 15 的时候，还有什么方法能诱使比较器添加计划刻事件呢？在减法模式下向比较器侧面输入脉冲！这样子，比较器会发现其输出信号需要减去其侧面输入，从而添加计划刻事件</p>
-<p>在向其侧面输入脉冲的条件下，向其背面输入端的脉冲也不可去掉，如下图所示</p>
-<p><img data-src="deeply-dissecting-minecraft_3.4/instant_comparator_sideway_pulse.png" alt="侧面输入脉冲"></p>
-<p>设比较器的原信号强度为 $n$</p>
-<ul>
-<li>若 $n &gt; 0$，则来自比较器侧面的脉冲可让比较器输出的信号强度减小，从而诱使比较器添加计划刻事件</li>
-<li>若 $n &lt; 15$，则来自比较器后方的脉冲可让比较器输出的信号强度变为 15，从而诱使比较器添加计划刻事件</li>
-</ul>
-<p>当侧面输入与后方输入的信号强度相等时，比如使用中继器或侦测器这类输出 15 强度信号的元件时，这两个脉冲的顺序也是有讲究的。对于无延迟链上的每一个比较器，我们需要首先向其后端输入脉冲，再向其侧面输入脉冲，才可在所有情况下无延迟地传递信号。如果顺序相反，则当后端输入脉冲时，由于比较器侧面已存在信号强度 15 的输入，比较器将会输出 0 强度信号。若比较器储存着的信号已经是 0 强度了，那么这次脉冲输入就无法诱使比较器添加计划刻事件，从而使无延迟比较器失效</p>
-<p><img data-src="deeply-dissecting-minecraft_3.4/instant_comparator_pulse_order.png" alt="脉冲顺序"></p>
-<p>下面图这类兼容所有情况的信号变化的无延迟比较器的一个实现</p>
-<p><img data-src="deeply-dissecting-minecraft_3.4/real_instant_comparator.gif" alt="全情况可用的无延迟比较器"></p>
-<p>以上图为例，在使用中继器或中继器时，所有需要以以下的顺序向比较器输入诱导脉冲：</p>
-<ol>
-<li>比较器 A 的后方输入端</li>
-<li>比较器 A 的侧面输入端</li>
-<li>比较器 B 的后方输入端</li>
-<li>比较器 B 的侧面输入端</li>
-<li>……</li>
-<li>比较器 F 的后方输入端</li>
-<li>比较器 F 的侧面输入端</li>
-</ol>
-<p>当然，在实际使用中，由于上述无延迟比较器设计都不能无限地延长。不过，如果配合无延迟信号线使用，即可实现可无限延伸的无延迟比较器链。下面是一个可行的例子</p>
-<p><img data-src="deeply-dissecting-minecraft_3.4/instant_comparator_inf.gif" alt="无限延伸的无延迟比较器链"></p>
-<h4 id="比较器更新检测器"><a href="#比较器更新检测器" class="headerlink" title="比较器更新检测器"></a>比较器更新检测器</h4><h2 id="3-4-4-红石火把"><a href="#3-4-4-红石火把" class="headerlink" title="3.4.4 红石火把"></a>3.4.4 红石火把</h2><h3 id="计划刻事件执行"><a href="#计划刻事件执行" class="headerlink" title="计划刻事件执行"></a>计划刻事件执行</h3><p>blabla</p>
-<h2 id="3-4-5-侦测器"><a href="#3-4-5-侦测器" class="headerlink" title="3.4.5 侦测器"></a>3.4.5 侦测器</h2><h3 id="计划刻事件执行-1"><a href="#计划刻事件执行-1" class="headerlink" title="计划刻事件执行"></a>计划刻事件执行</h3><p>blabla</p>
-<h2 id="投掷器-发射器"><a href="#投掷器-发射器" class="headerlink" title="投掷器/发射器"></a>投掷器/发射器</h2><h3 id="计划刻事件执行-2"><a href="#计划刻事件执行-2" class="headerlink" title="计划刻事件执行"></a>计划刻事件执行</h3><p>blabla</p>
-<h2 id="红石灯"><a href="#红石灯" class="headerlink" title="红石灯"></a>红石灯</h2><h3 id="计划刻事件执行-3"><a href="#计划刻事件执行-3" class="headerlink" title="计划刻事件执行"></a>计划刻事件执行</h3><p>blabla</p>
-<h2 id="探测类元件"><a href="#探测类元件" class="headerlink" title="探测类元件"></a>探测类元件</h2><h3 id="计划刻事件执行-4"><a href="#计划刻事件执行-4" class="headerlink" title="计划刻事件执行"></a>计划刻事件执行</h3><p>blabla</p>
-<h2 id="其他红石元件"><a href="#其他红石元件" class="headerlink" title="其他红石元件"></a>其他红石元件</h2><h3 id="计划刻事件执行-5"><a href="#计划刻事件执行-5" class="headerlink" title="计划刻事件执行"></a>计划刻事件执行</h3><p>blabla</p>
-<h2 id="非红石元件"><a href="#非红石元件" class="headerlink" title="非红石元件"></a>非红石元件</h2><h3 id="计划刻事件执行-6"><a href="#计划刻事件执行-6" class="headerlink" title="计划刻事件执行"></a>计划刻事件执行</h3><p>blabla</p>
-<h2 id="流体"><a href="#流体" class="headerlink" title="流体"></a>流体</h2><h3 id="计划刻事件执行-7"><a href="#计划刻事件执行-7" class="headerlink" title="计划刻事件执行"></a>计划刻事件执行</h3><p>blabla<div id="footnotes"><hr><div id="footnotelist"><ol style="list-style:none; padding-left: 0;"><li id="fn:1"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">1.</span><span style="display: inline-block; vertical-align: top;">net.minecraft.util.EnumFacing#values</span><a href="#fnref:1" rev="footnote"> ↩</a></li><li id="fn:2"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">2.</span><span style="display: inline-block; vertical-align: top;">net.minecraft.block.BlockRedstoneDiode#updateState</span><a href="#fnref:2" rev="footnote"> ↩</a></li><li id="fn:3"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">3.</span><span style="display: inline-block; vertical-align: top;">在 1.15 及以后，该事件的优先级改为 -2</span><a href="#fnref:3" rev="footnote"> ↩</a></li><li id="fn:4"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">4.</span><span style="display: inline-block; vertical-align: top;">也就是比较器方块实体并未实现 <code>net.minecraft.util.ITickable</code> 这个接口</span><a href="#fnref:4" rev="footnote"> ↩</a></li><li id="fn:5"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">5.</span><span style="display: inline-block; vertical-align: top;">net.minecraft.block.Block#isNormalCube</span><a href="#fnref:5" rev="footnote"> ↩</a></li></ol></div></div></p>
-]]></content>
-      <categories>
-        <category>Minecraft</category>
-      </categories>
-      <tags>
-        <tag>Minecraft</tag>
-        <tag>深度剖析MC</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>深度剖析Minecraft #2 方块更新</title>
-    <url>/2020/09/16/deeply-dissecting-minecraft_2/</url>
+    <url>/2019/08/10/deeply-dissecting-minecraft_2/</url>
     <content><![CDATA[<h1 id="2-方块更新"><a href="#2-方块更新" class="headerlink" title="2 方块更新"></a>2 方块更新</h1><p>感谢 <a href="https://space.bilibili.com/112998430">迟昫123</a> 与 <a href="https://space.bilibili.com/397105271">qwrrdshfsghv</a> 的捉虫</p>
 <h2 id="2-1-方块更新性质"><a href="#2-1-方块更新性质" class="headerlink" title="2.1 方块更新性质"></a>2.1 方块更新性质</h2><h3 id="2-1-1-方块更新的种类"><a href="#2-1-1-方块更新的种类" class="headerlink" title="2.1.1 方块更新的种类"></a>2.1.1 方块更新的种类</h3><p>1.13 之后，方块更新分为了两种类型，分别是 <code>NeighborChanged</code> 与 <code>PostPlacement</code>，简称 NC 与 PP 更新。若要与 1.13 之前相比，可将 1.13 之前的所有方块更新都视为 NC 更新。下文将用<strong>方块更新</strong>一词指代 NC 更新，用<strong>状态更新</strong>一词指代 PP 更新</p>
 <p>这两种方块更新的类型在官方的反混淆表（来自 1.14.4）中的名称分别为 neighborChanged 与 updateShape，其命名也能有助于理解上述对两类方块更新具体含义</p>
@@ -970,7 +547,7 @@
 <li>灵魂沙、岩浆块添加生成气泡柱的 TT 事件</li>
 <li>海绵尝试吸水</li>
 </ul>
-<p><img data-src="deeply-dissecting-minecraft_2/NC%E6%9B%B4%E6%96%B0%E6%96%B9%E5%9D%97.png" alt="NC更新方块"></p>
+<p><img data-src="deeply-dissecting-minecraft_2/NC%E6%9B%B4%E6%96%B0%E6%96%B9%E5%9D%97.png" alt="NC更新方块" src="/2019/08/10/deeply-dissecting-minecraft_2/NC%E6%9B%B4%E6%96%B0%E6%96%B9%E5%9D%97.png"></p>
 <p>对，就这些。不过，根据日常经验来看，有不少需要方块更新的事件却不在这。不要着急，他们在 PostPlacement 更新中</p>
 <p>有此可见，各类红石元件处于 bud 态时，如无信号源的伸出活塞，不点燃的 TNT 等，需要的是方块更新，才能让它们意识到状态改变而恢复到正常的状态</p>
 <h4 id="2-1-1-2-PostPlacement"><a href="#2-1-1-2-PostPlacement" class="headerlink" title="2.1.1.2 PostPlacement"></a>2.1.1.2 PostPlacement</h4><p>PostPlacement，也即状态更新，指的是方块发生变化后导致的临近方块与之交互情况发生变化的更新。</p>
@@ -989,7 +566,7 @@
 <li><strong>仙人掌添加状态是否合法的 TT 事件</strong></li>
 <li>活珊瑚添加检测是否离水的 TT 事件</li>
 </ul>
-<p><img data-src="deeply-dissecting-minecraft_2/PP%E6%9B%B4%E6%96%B0%E6%96%B9%E5%9D%97.png" alt="PP更新方块"></p>
+<p><img data-src="deeply-dissecting-minecraft_2/PP%E6%9B%B4%E6%96%B0%E6%96%B9%E5%9D%97.png" alt="PP更新方块" src="/2019/08/10/deeply-dissecting-minecraft_2/PP%E6%9B%B4%E6%96%B0%E6%96%B9%E5%9D%97.png"></p>
 <p>有一点值得注意，调用状态更新时是带有一个方向参数的，也就是状态更新是有着方向区别的，方向不对的状态更新在某些代码中存在特判情况下并不能影响方块的状态。比如，对于一个依附于西面方块上的浮空火把，从东南北上下放置破坏方块触发状态更新是无法让它掉落的。这一点也是 1.13+ 与 1.12- 的一个重要的区别。</p>
 <h2 id="2-2-方块更新的实现"><a href="#2-2-方块更新的实现" class="headerlink" title="2.2 方块更新的实现"></a>2.2 方块更新的实现</h2><p>先把会出现的名词列一遍：</p>
 <ul>
@@ -1003,7 +580,7 @@
 <p>注2：一个方块发出方块更新，也就是一个方块于其所在位置发出方块更新，或者说是一个位置发出了方块更新，由于指的都是一种事件并无歧义，都是可行的表述，可视上下文语境挑选合适者</p>
 <h3 id="2-2-1-一个方块受到了方块更新"><a href="#2-2-1-一个方块受到了方块更新" class="headerlink" title="2.2.1 一个方块受到了方块更新"></a>2.2.1 一个方块受到了方块更新</h3><p>一个方块受到了方块更新，将会调用位于这个方块的 <code>neighborChanged</code> 方法，并处理受到更新后的改变（见2.1.1.1 NeighborChanged）</p>
 <p>具体代码见下 World 类中的 <code>neighborChanged</code> 方法</p>
-<h3 id="2-2-2-一个方块发出了方块更新"><a href="#2-2-2-一个方块发出了方块更新" class="headerlink" title="2.2.2 一个方块发出了方块更新"></a>2.2.2 一个方块发出了方块更新</h3><p><img data-src="deeply-dissecting-minecraft_2/%E5%85%AD%E6%AF%97%E9%82%BB%E6%96%B9%E5%9D%97.png" alt="六毗邻方块"></p>
+<h3 id="2-2-2-一个方块发出了方块更新"><a href="#2-2-2-一个方块发出了方块更新" class="headerlink" title="2.2.2 一个方块发出了方块更新"></a>2.2.2 一个方块发出了方块更新</h3><p><img data-src="deeply-dissecting-minecraft_2/%E5%85%AD%E6%AF%97%E9%82%BB%E6%96%B9%E5%9D%97.png" alt="六毗邻方块" src="/2019/08/10/deeply-dissecting-minecraft_2/%E5%85%AD%E6%AF%97%E9%82%BB%E6%96%B9%E5%9D%97.png"></p>
 <p>当一个方块发出方块更新时，这个方块将会使其毗邻的六个方块依次受到方块更新。这里的“依次受到”的顺序为：</p>
 <ol>
 <li>西 -x</li>
@@ -1017,11 +594,11 @@
 <h3 id="2-2-3-一个方块发出了除-lt-方向-gt-外的方块更新"><a href="#2-2-3-一个方块发出了除-lt-方向-gt-外的方块更新" class="headerlink" title="2.2.3 一个方块发出了除 &lt;方向&gt; 外的方块更新"></a>2.2.3 一个方块发出了除 &lt;方向&gt; 外的方块更新</h3><p>注：<code>&lt;方向&gt;</code> 为 <code>东</code> <code>南</code> <code>西</code> <code>北</code> <code>上</code> <code>下</code> 中的任意一者</p>
 <p>一个方块发出了除 <code>&lt;方向&gt;</code> 外的方块更新的表现，与上 2.2.2 并无太大区别区别仅为这次发出的方块更新将会跳过指定的一个方向，也就是只更新 5 个毗邻的方块</p>
 <p>这种特殊的方块更新<strong>仅</strong>于中继器/比较器/侦测器在其指向方块发出更新时使用</p>
-<p><img data-src="deeply-dissecting-minecraft_2/%E4%BA%94%E6%AF%97%E9%82%BB%E6%96%B9%E5%9D%97.png" alt="五毗邻方块"></p>
+<p><img data-src="deeply-dissecting-minecraft_2/%E4%BA%94%E6%AF%97%E9%82%BB%E6%96%B9%E5%9D%97.png" alt="五毗邻方块" src="/2019/08/10/deeply-dissecting-minecraft_2/%E4%BA%94%E6%AF%97%E9%82%BB%E6%96%B9%E5%9D%97.png"></p>
 <p>具体代码见下 World 类中的 <code>notifyNeighborsOfStateExcept</code> 方法</p>
 <h3 id="2-2-4-一个方块受到了状态更新"><a href="#2-2-4-一个方块受到了状态更新" class="headerlink" title="2.2.4 一个方块受到了状态更新"></a>2.2.4 一个方块受到了状态更新</h3><p>一个方块受到了状态更新，将会调用位于这个方块的 <code>updatePostPlacement</code> 方法，并处理受到更新后的改变</p>
 <p>具体代码见下 IBlockState 类中的 <code>updatePostPlacement</code> 方法（见 <a href="#2-1-1-2-PostPlacement">PostPlacement</a> 小节）</p>
-<h3 id="2-2-5-一个方块发出了状态更新"><a href="#2-2-5-一个方块发出了状态更新" class="headerlink" title="2.2.5 一个方块发出了状态更新"></a>2.2.5 一个方块发出了状态更新</h3><p><img data-src="deeply-dissecting-minecraft_2/%E5%85%AD%E6%AF%97%E9%82%BB%E6%96%B9%E5%9D%97.png" alt="六毗邻方块"></p>
+<h3 id="2-2-5-一个方块发出了状态更新"><a href="#2-2-5-一个方块发出了状态更新" class="headerlink" title="2.2.5 一个方块发出了状态更新"></a>2.2.5 一个方块发出了状态更新</h3><p><img data-src="deeply-dissecting-minecraft_2/%E5%85%AD%E6%AF%97%E9%82%BB%E6%96%B9%E5%9D%97.png" alt="六毗邻方块" src="/2019/08/10/deeply-dissecting-minecraft_2/%E5%85%AD%E6%AF%97%E9%82%BB%E6%96%B9%E5%9D%97.png"></p>
 <p>当一个方块发出状态更新时，这个方块将会使其毗邻的六个方块依次受到状态更新。这里的“依次受到”的顺序为：</p>
 <ol>
 <li>西 -x</li>
@@ -1065,18 +642,18 @@
 <li>等等</li>
 </ul>
 <h2 id="2-5-方块更新检测器-发生器"><a href="#2-5-方块更新检测器-发生器" class="headerlink" title="2.5 方块更新检测器 / 发生器"></a>2.5 方块更新检测器 / 发生器</h2><p>一个被 QC 激活的 bud 态活塞，即为一个方块更新检测器，这也是最常用的方块更新检测器。当活塞底座受到方块更新时，活塞将在下一个 BE 阶段开始伸缩一次</p>
-<p><img data-src="deeply-dissecting-minecraft_2/bud%E6%B4%BB%E5%A1%9E.png" alt="bud活塞"></p>
+<p><img data-src="deeply-dissecting-minecraft_2/bud%E6%B4%BB%E5%A1%9E.png" alt="bud活塞" src="/2019/08/10/deeply-dissecting-minecraft_2/bud%E6%B4%BB%E5%A1%9E.png"></p>
 <p>能响应状态更新并能多次使用的方块寥寥无几，做常用的就是侦测器了。当侦测器脸朝着的方块发出一个状态更新时，侦测器将会立即添加一个 TT 事件并在对应的 TT 阶段输出脉冲，因此侦测器是一个很棒的状态更新检测器。图里则是侦测器检测栅栏门开关的一个例子</p>
-<p><img data-src="deeply-dissecting-minecraft_2/%E4%BE%A6%E6%B5%8B%E5%99%A8.png" alt="侦测器"></p>
+<p><img data-src="deeply-dissecting-minecraft_2/%E4%BE%A6%E6%B5%8B%E5%99%A8.png" alt="侦测器" src="/2019/08/10/deeply-dissecting-minecraft_2/%E4%BE%A6%E6%B5%8B%E5%99%A8.png"></p>
 <p>上面就是两种十分常用的方块更新检测器，当然能检测方块更新或状态更新的方式还有很多，这里就不一一叙述了。</p>
 <p>至于方块更新发生器，能同时发出方块更新+状态更新的事件有很多，如方块的放置、音符盒的点击。他们都能同时使方块更新检测器与状态更新检测器响应</p>
-<p><img data-src="deeply-dissecting-minecraft_2/%E6%94%BE%E7%BD%AE%E6%96%B9%E5%9D%97.png" alt="放置方块"></p>
+<p><img data-src="deeply-dissecting-minecraft_2/%E6%94%BE%E7%BD%AE%E6%96%B9%E5%9D%97.png" alt="放置方块" src="/2019/08/10/deeply-dissecting-minecraft_2/%E6%94%BE%E7%BD%AE%E6%96%B9%E5%9D%97.png"></p>
 <p>如果要只发出方块更新，可以使用红石元件，如中继器。中继器在调节档位时会在其指向的方块的位置发出一个方块更新</p>
-<p><img data-src="deeply-dissecting-minecraft_2/%E4%B8%AD%E7%BB%A7%E5%99%A8%E6%9B%B4%E6%96%B0.png" alt="中继器更新"></p>
+<p><img data-src="deeply-dissecting-minecraft_2/%E4%B8%AD%E7%BB%A7%E5%99%A8%E6%9B%B4%E6%96%B0.png" alt="中继器更新" src="/2019/08/10/deeply-dissecting-minecraft_2/%E4%B8%AD%E7%BB%A7%E5%99%A8%E6%9B%B4%E6%96%B0.png"></p>
 <p>还有一种可行的方法是打开箱子。对于一个箱子，当玩家打开它时它会发出一个方块更新</p>
-<p><img data-src="deeply-dissecting-minecraft_2/%E6%89%93%E5%BC%80%E7%AE%B1%E5%AD%90.png" alt="打开箱子"></p>
+<p><img data-src="deeply-dissecting-minecraft_2/%E6%89%93%E5%BC%80%E7%AE%B1%E5%AD%90.png" alt="打开箱子" src="/2019/08/10/deeply-dissecting-minecraft_2/%E6%89%93%E5%BC%80%E7%AE%B1%E5%AD%90.png"></p>
 <p>如果仅需发出状态更新，常用的方法则是开关栅栏门/活板门。当栅栏门/活板门开关时，它们仅会发出一个状态更新而无方块更新</p>
-<p><img data-src="deeply-dissecting-minecraft_2/%E6%89%93%E5%BC%80%E6%A0%85%E6%A0%8F%E9%97%A8.png" alt="打开栅栏门"></p>
+<p><img data-src="deeply-dissecting-minecraft_2/%E6%89%93%E5%BC%80%E6%A0%85%E6%A0%8F%E9%97%A8.png" alt="打开栅栏门" src="/2019/08/10/deeply-dissecting-minecraft_2/%E6%89%93%E5%BC%80%E6%A0%85%E6%A0%8F%E9%97%A8.png"></p>
 <h2 id="2-6-即时更新元件"><a href="#2-6-即时更新元件" class="headerlink" title="2.6 即时更新元件"></a>2.6 即时更新元件</h2><p>即时更新元件，指的是那些收到方块更新后立即在当前阶段改变其状态，并发出指定类型的更新（可能没有）的元件。它们被广泛地用于信号传递以及方块更新的传导</p>
 <h3 id="2-6-1-充能-激活铁轨"><a href="#2-6-1-充能-激活铁轨" class="headerlink" title="2.6.1 充能 / 激活铁轨"></a>2.6.1 充能 / 激活铁轨</h3><p>当充能 / 激活铁轨（以下以充能铁轨为例）受到方块更新时，它会先检测当前位置是否合法。若不合法，则掉落，否则执行铁轨的更新</p>
 <p>在铁轨的更新中，首先铁轨会通过计算临近铁轨状态来判断当前的状态是否需要改变，具体怎么判断的这里就不多解释了。如果需要更新，铁轨会依次执行位于 BlockRailPowered 类的 <code>updateState</code> 方法中的以下内容：</p>
@@ -1125,13 +702,13 @@
 <li>红石灯</li>
 </ul>
 <h2 id="2-7-更新抑制"><a href="#2-7-更新抑制" class="headerlink" title="2.7 更新抑制"></a>2.7 更新抑制</h2><p>一个方块发出方块的更新可以导致了另一个方块的更新，如果此时另一个方块也发出了方块更新，那么说不定可以再更新一个新的方块。如果有无限的方块排一排等着更新，如果给一它们一个方块更新，它们能一口气全部更新完吗？虽然实际上应该是可以的，但是基于 MC 的实现机制，答案是：不行</p>
-<p><img data-src="deeply-dissecting-minecraft_2/%E5%A4%A7%E9%9D%A2%E7%A7%AF%E7%9A%84bud%E9%93%81%E8%BD%A8.png" alt="大面积的bud铁轨"></p>
+<p><img data-src="deeply-dissecting-minecraft_2/%E5%A4%A7%E9%9D%A2%E7%A7%AF%E7%9A%84bud%E9%93%81%E8%BD%A8.png" alt="大面积的bud铁轨" src="/2019/08/10/deeply-dissecting-minecraft_2/%E5%A4%A7%E9%9D%A2%E7%A7%AF%E7%9A%84bud%E9%93%81%E8%BD%A8.png"></p>
 <p>在处理方块更新时，游戏内是简单地通过递归处理的，而最大的递归次数，是由 java 虚拟机的栈空间所决定的。栈空间不像堆空间，在默认条件下容量不大，这导致了当出现递归更新过量方块时栈空间将会耗尽，导致 java 抛出了栈溢出的异常（实际上栈溢出后可能抛出的是其他类型的异常，这里为了方便表述称其为栈溢出异常）</p>
 <p>异常可是个很危险的东西。出现异常时，程序将会一直忽略之后的操作，一直往外跳出，直到异常被捕获。在大部分 MC 流程中，异常将会在最底层的 MinecraftServer 类的 <code>run</code> 方法中被捕获，随后游戏将生成崩溃报告并强行关闭服务器，也就是崩服，服务器崩溃了</p>
 <p>不过，如果一个异常是在玩家操作阶段被玩家的动作触发，则这个异常将会在 Util 类的 <code>runTask</code> 方法中被捕获并作为一个 Fatal 输出，而非被 MinecraftServer 捕获，也就是说玩家动作引发的异常是不会引起服务端崩溃的。作为异常之一的栈溢出，如果是由玩家操作引起的，比如玩家打掉了一个接连插了几千个旗子的方块，或者玩家在大面积的 bud 态充能铁轨旁边放置了方块，虽会导致栈溢出，但都<strong>不会</strong>导致游戏崩溃</p>
-<p><img data-src="deeply-dissecting-minecraft_2/%E6%89%8B%E6%94%BE%E6%96%B9%E5%9D%97.png" alt="手放方块"></p>
+<p><img data-src="deeply-dissecting-minecraft_2/%E6%89%8B%E6%94%BE%E6%96%B9%E5%9D%97.png" alt="手放方块" src="/2019/08/10/deeply-dissecting-minecraft_2/%E6%89%8B%E6%94%BE%E6%96%B9%E5%9D%97.png"></p>
 <p>由于栈溢出可以跳过在异常捕获前的所有运算，因此可以用此来跳过一些运算以实现普通游戏里不可能的操作，如跳过对特定方块的更新，从而制造各种悬空木门、贴在告示牌背面的告示牌、切片的地狱门；也可以跳过对玩家物品栏物品的操作，在不消耗工具耐久或者不消耗手中物品的情况下破坏/放置方块。这一类操作，我们统称为为<strong>更新抑制</strong></p>
-<p><img data-src="deeply-dissecting-minecraft_2/%E6%9B%B4%E6%96%B0%E6%8A%91%E5%88%B6.png" alt="更新抑制"></p>
+<p><img data-src="deeply-dissecting-minecraft_2/%E6%9B%B4%E6%96%B0%E6%8A%91%E5%88%B6.png" alt="更新抑制" src="/2019/08/10/deeply-dissecting-minecraft_2/%E6%9B%B4%E6%96%B0%E6%8A%91%E5%88%B6.png"></p>
 <p>关于更新抑制与可协助产生更新抑制的更新抑制器，Xcom6000 制作过一个非常详细的讲解视频，红石科技搬运组已在 bilibili 将其翻译成熟肉。推荐大家去观看学习。<a href="https://www.bilibili.com/video/av83979198">传送门</a></p>
 <h3 id="2-7-1-方块更新与深度优先搜索"><a href="#2-7-1-方块更新与深度优先搜索" class="headerlink" title="2.7.1 方块更新与深度优先搜索"></a>2.7.1 方块更新与深度优先搜索</h3><p>方块受到更新，方块改变状态，方块发出更新，依次更新毗邻方块，新方块受到更新……这一层层递归的过程，本质上正是一个深度优先搜索，也就是 DFS（Depth First Search）。每当一个 bud 充能铁轨受到更新了，将会按照其发出方块更新的顺序，以及方块更新的更新顺序，往新的 bud 铁轨方块递归下去</p>
 <p>关于深度优先搜索，或者 DFS，网络上相关的资料一搜一大把，这里就不再重复阐述了</p>
@@ -1256,21 +833,21 @@
 <p>观察 <code>事件 id</code> 的定义，这是一个递增的不重复的整数，因此，先创建的计划刻事件一定会有较小的 <code>事件 id</code> ，也就是在执行时刻与事件优先级相同的情况下，先创建的事件会优先于后创建的事件执行</p>
 <p>也就是<strong>先进先出</strong>！</p>
 <p>下面是一些例子：</p>
-<p><img data-src="deeply-dissecting-minecraft_3/single0.png" alt="single0"></p>
+<p><img data-src="deeply-dissecting-minecraft_3/single0.png" alt="single0" src="/2020/09/16/deeply-dissecting-minecraft_3/single0.png"></p>
 <p>执行时刻，A 先于 B，因此 A 先执行</p>
 <hr>
-<p><img data-src="deeply-dissecting-minecraft_3/single1.png" alt="single1"></p>
+<p><img data-src="deeply-dissecting-minecraft_3/single1.png" alt="single1" src="/2020/09/16/deeply-dissecting-minecraft_3/single1.png"></p>
 <p>执行时刻：A 与 B 相同</p>
 <p>优先级：A 大于B</p>
 <p>因此 A 先执行</p>
 <hr>
-<p><img data-src="deeply-dissecting-minecraft_3/single2.png" alt="single2"></p>
+<p><img data-src="deeply-dissecting-minecraft_3/single2.png" alt="single2" src="/2020/09/16/deeply-dissecting-minecraft_3/single2.png"></p>
 <p>执行时刻：相同</p>
 <p>优先级：相同</p>
 <p>创建顺序（事件 id）：A 先于 B</p>
 <p>因此 A 先执行</p>
 <h3 id="3-3-2-多元件组合"><a href="#3-3-2-多元件组合" class="headerlink" title="3.3.2 多元件组合"></a>3.3.2 多元件组合</h3><p>在<strong>总延迟相同</strong>的前提下，用不同档位凑出来的中继器/比较器/序列谁先输出信号，是一个老生常谈的问题，比如下图</p>
-<p><img data-src="deeply-dissecting-minecraft_3/multi0.png" alt="multi0"></p>
+<p><img data-src="deeply-dissecting-minecraft_3/multi0.png" alt="multi0" src="/2020/09/16/deeply-dissecting-minecraft_3/multi0.png"></p>
 <p>由于总延迟是相同的，并且最末端的元件具有相同的优先级，我们不能简单地观察最末端的元件来判断执行顺序，我们需要结合其余元件进行考虑，得出最末端元件创建事件的顺序间的先后关系，从而得到执行顺序</p>
 <p>由于在这些判断顺序的实例中，第 n 个元件的计划刻事件创建事件往往是与第 n - 1 个元件的点亮时刻是相同的，因此可以用低 n -1 个元件的点亮时刻来替代第 n 个元件的创建事件时刻</p>
 <p>令拉杆拉下的时刻为 gt0。由于序列 A 的第一个中继器是在 gt2 点亮，而序列 B 的第一个中继器是在 gt 8 点亮，晚于序列 A 的第一个中继器，因此序列 A 的第二个也就是末端的中继器先于序列 B 的末端中继器激活</p>
@@ -1283,13 +860,13 @@
 <p>也就是，<strong>从尾到头依次比较元件的点亮顺序，直到比较出结果</strong></p>
 <p>若比较的两个序列的元件是同一个元件，这时比较更新顺序即可。如一个拉杆向两侧引出 1 挡中继器，这是就需要根据方块更新的顺序来判断哪一侧的中继器先被更新</p>
 <p>下面是一些例子：</p>
-<p><img data-src="deeply-dissecting-minecraft_3/multi0.png" alt="multi0"></p>
+<p><img data-src="deeply-dissecting-minecraft_3/multi0.png" alt="multi0" src="/2020/09/16/deeply-dissecting-minecraft_3/multi0.png"></p>
 <p>末端的中继器的优先级及点亮时间均相同，比较前端的中继器点亮时间：A 先，因此 A 序列比 B 序列先输出</p>
 <hr>
-<p><img data-src="deeply-dissecting-minecraft_3/multi1.png" alt="multi1"></p>
+<p><img data-src="deeply-dissecting-minecraft_3/multi1.png" alt="multi1" src="/2020/09/16/deeply-dissecting-minecraft_3/multi1.png"></p>
 <p>A, B 与 C, D, E 的比较与上图相同，对于 A, B，第一个元件点亮的优先级是 A 的中继器更高，因此 A 比 B 先输出。总输出顺序为 A, B, C, D, E</p>
 <hr>
-<p><img data-src="deeply-dissecting-minecraft_3/multi2.png" alt="multi2"></p>
+<p><img data-src="deeply-dissecting-minecraft_3/multi2.png" alt="multi2" src="/2020/09/16/deeply-dissecting-minecraft_3/multi2.png"></p>
 <p>根据最末端元件的优先级可立即得到 A, B, C 比 D, E 先输出。A 的中继器最先得到输入信号，因此 A 最先输出。剩余序列比较方法同上，比较第一个元件的优先级即可得出总输出顺序为 A, B, C, D, E</p>
 <h2 id="3-4-计划刻元件"><a href="#3-4-计划刻元件" class="headerlink" title="3.4 计划刻元件"></a>3.4 计划刻元件</h2><p>见《<a href="/2020/09/17/deeply-dissecting-minecraft_3.4/" title="深度剖析Minecraft #3.4 计划刻元件">深度剖析Minecraft #3.4 计划刻元件</a>》</p>
 <h2 id="3-5-时序描述"><a href="#3-5-时序描述" class="headerlink" title="3.5 时序描述"></a>3.5 时序描述</h2><p>在分析计划刻相关的时序的时候，计划刻事件的优先级以及计划刻事件的目标常常是我们关心的因素</p>
@@ -1301,8 +878,8 @@
 <p>在分析计划刻阶段的流程时，细心的读者可能已经注意到了，每游戏刻可执行的计划刻事件数量有个 65536 的上限，超过上限的事件将会延迟到下一游戏刻尝试执行，这一点似乎是可以加以利用的</p>
 <p>如果我们认为的在某一游戏刻中添加了巨量的延迟相同的计划刻事件，使其数量超过了 65536，则可在游戏中制造一些正常情况下不可能发生的事情：某些计划刻事件被延后执行了。这可以用于无线红石信号传输、无限遥控飞行器，也可以用恶意破坏红石电路。该机制的作用范围是整个维度</p>
 <p>下面以该机制发现者 Xcom600 的《<a href="https://www.bilibili.com/video/BV16t411s7qi">原版生存无线红石</a>》为例，分析下其时序</p>
-<p><img data-src="deeply-dissecting-minecraft_3/emp-tower.png" alt="emp-tower"></p>
-<p><img data-src="deeply-dissecting-minecraft_3/emp-detector.png" alt="emp-detector"></p>
+<p><img data-src="deeply-dissecting-minecraft_3/emp-tower.png" alt="emp-tower" src="/2020/09/16/deeply-dissecting-minecraft_3/emp-tower.png"></p>
+<p><img data-src="deeply-dissecting-minecraft_3/emp-detector.png" alt="emp-detector" src="/2020/09/16/deeply-dissecting-minecraft_3/emp-detector.png"></p>
 <table>
 <thead>
 <tr>
@@ -1343,14 +920,14 @@
 
 <p>那些既可以响应随机刻，又可以响应计划刻的方块，在执行 <code>tick</code> 方法的时候，是怎么确认它该执行哪一部分的逻辑呢？Mojang 给出的答案是，在 <code>tick</code> 方法内即时判断</p>
 <p>以仙人掌为例。作为一种作物，仙人掌会在被随机刻选中时执行一次生长；作为一种对环境有依赖的植物，在发现其状态不适合生长时（沙子消失/水平毗邻 4 格方块存在可阻挡仙人掌生长的方块），会添加一个延迟为 1 的计划刻事件，用于变为空气并掉落物品，也用于使高耸入云的仙人掌柱能自底向上逐个破坏而减轻服务器的瞬时压力</p>
-<p><img data-src="deeply-dissecting-minecraft_3/cactus-broken.png" alt="cactus-broken"></p>
+<p><img data-src="deeply-dissecting-minecraft_3/cactus-broken.png" alt="仙人掌柱被破坏" src="/2020/09/16/deeply-dissecting-minecraft_3/cactus-broken.png"></p>
 <p>仙人掌 <code>tick</code> 方法内的逻辑如下所示（<code>net.minecraft.block.BlockCactus#tick</code>）</p>
 <figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">tick</span><span class="params">(IBlockState state, World worldIn, BlockPos pos, Random random)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (!state.isValidPosition(worldIn, pos))  <span class="comment">// 判断仙人掌所处位置是否合法</span></span><br><span class="line">    &#123;</span><br><span class="line">        worldIn.destroyBlock(pos, <span class="keyword">true</span>);  <span class="comment">// 破坏该仙人掌方块</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">/* 执行仙人掌生长逻辑 */</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>粗略一看，这个实现好像并没有问题，因为状态不合法而添加的计划刻事件在执行 <code>tick</code> 方法时就会在第一行的 if 判断中进入到破坏仙人掌方块分支</p>
 <p>不过仔细一想，并非如此。仙人掌在添加计划刻事件时所处位置不合法，<strong>并不意味</strong>着仙人掌在执行计划刻事件的时候所处位置仍不合法！如果我们通过某种手段，在仙人掌添加了用于破坏自身的计划刻事件后，在计划刻事件执行前，恢复仙人掌的生长环境，让仙人掌所处位置恢复到合法的适宜仙人掌生长的状态，则这个计划刻执行的时候将会执行随机刻的逻辑。这，就是随机刻伪造，也就算作物的强制催熟</p>
 <p>下面是一个仙人掌强制催熟装置的示意图。指向仙人掌的活塞每 0t 伸出一次，即可让仙人掌使用计划刻事件伪造一次随机刻事件，使其生长阶段 +1</p>
-<p><img data-src="deeply-dissecting-minecraft_3/force-growth.png" alt="force-growth"></p>
+<p><img data-src="deeply-dissecting-minecraft_3/force-growth.png" alt="强制催熟" src="/2020/09/16/deeply-dissecting-minecraft_3/force-growth.png"></p>
 <p>时序分析如下：</p>
 <table>
 <thead>
@@ -1379,6 +956,521 @@
 <p>这就是强制催熟仙人掌的时序分析。由于仙人掌的计划刻延迟为 1gt，我们最快每秒可进行 $20 / 1 = 20$ 次强制催熟，也就是在忽略随机刻作用的前提下，需要 16 次生长才可增高的仙人掌一小时即可长高 $3600 * 20 / 16 = 4500$ 次，效率远超传统的自然生长仙人掌农田</p>
 <p>随机刻伪造在1.16中被修复，各种对随机刻有响应的方块执行随机刻相关逻辑的代码被移至了 <code>randomTick</code> 方法中</p>
 <div id="footnotes"><hr><div id="footnotelist"><ol style="list-style:none; padding-left: 0;"><li id="fn:1"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">1.</span><span style="display: inline-block; vertical-align: top;">在实际的代码实现中，65536 这个限制是在循环开始前就应用了</span><a href="#fnref:1" rev="footnote"> ↩</a></li><li id="fn:2"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">2.</span><span style="display: inline-block; vertical-align: top;">在具体代码实现中，计划刻事件在检查的第三步已经创建，以便于判断计划刻队列中是否存在相同的事件</span><a href="#fnref:2" rev="footnote"> ↩</a></li><li id="fn:3"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">3.</span><span style="display: inline-block; vertical-align: top;">BE.x 表示方块事件阶段中，深度 = x 的方块事件执行时的阶段，将在第四章方块事件中作进一步的解释</span><a href="#fnref:3" rev="footnote"> ↩</a></li></ol></div></div>]]></content>
+      <categories>
+        <category>Minecraft</category>
+      </categories>
+      <tags>
+        <tag>Minecraft</tag>
+        <tag>深度剖析MC</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>深度剖析Minecraft #3.4 计划刻元件</title>
+    <url>/2020/09/17/deeply-dissecting-minecraft_3.4/</url>
+    <content><![CDATA[<h1 id="3-4-计划刻元件"><a href="#3-4-计划刻元件" class="headerlink" title="3.4 计划刻元件"></a>3.4 计划刻元件</h1><p>阅前必读：</p>
+<p>《<a href="/2019/08/10/deeply-dissecting-minecraft_2/" title="深度剖析Minecraft #2 方块更新">深度剖析Minecraft #2 方块更新</a>》</p>
+<p>《<a href="/2020/09/16/deeply-dissecting-minecraft_3/" title="深度剖析Minecraft #3 计划刻">深度剖析Minecraft #3 计划刻</a>》</p>
+<h2 id="3-4-1-红石二极管"><a href="#3-4-1-红石二极管" class="headerlink" title="3.4.1 红石二极管"></a>3.4.1 红石二极管</h2><table>
+<thead>
+<tr>
+<th>名称</th>
+<th>信息</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>类</td>
+<td>net.minecraft.block.BlockRedstoneDiode</td>
+</tr>
+<tr>
+<td>基类</td>
+<td>net.minecraft.block.BlockHorizontal</td>
+</tr>
+<tr>
+<td>延迟</td>
+<td>非定值</td>
+</tr>
+<tr>
+<td>优先级</td>
+<td>非定值</td>
+</tr>
+<tr>
+<td>位置需求</td>
+<td>其下方依附着的方块上表面完整</td>
+</tr>
+<tr>
+<td>受方块更新时</td>
+<td>判断掉落，更新信号</td>
+</tr>
+<tr>
+<td>受状态更新时</td>
+<td>不响应</td>
+</tr>
+</tbody></table>
+<p>这是一个抽象类，是红石中继器以及红石比较器的基类，也就是说中继器跟比较器的本质是一个二极管，有许多的机制是完全相同的</p>
+<h3 id="3-4-1-1-方块状态"><a href="#3-4-1-1-方块状态" class="headerlink" title="3.4.1.1 方块状态"></a>3.4.1.1 方块状态</h3><p>作为一个可水平旋转的方块，二极管拥有一个 <code>facing</code> 标签表示其水平指向。除此之外二极管还具有以下标签：</p>
+<table>
+<thead>
+<tr>
+<th>标签名</th>
+<th>取值</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>powered</td>
+<td>false, true</td>
+<td>其当前的亮起状态。我们称该标签为假时二极管熄灭，该标签为真时二极管熄灭</td>
+</tr>
+</tbody></table>
+<h3 id="3-4-1-2-响应方块更新"><a href="#3-4-1-2-响应方块更新" class="headerlink" title="3.4.1.2 响应方块更新"></a>3.4.1.2 响应方块更新</h3><p>当二极管受到方块更新时，它会首先检测其所处位置是否满足位置需求，若不满足则掉落为物品，并先在所在位置发出方块更新，再在其毗邻 6 方块的位置发出方块更新（顺序：-y, +y, -z, +z, -x, +x <sup id="fnref:1"><a href="#fn:1" rel="footnote">1</a></sup>）；若合法，则开始检测信号变化 <sup id="fnref:2"><a href="#fn:2" rel="footnote">2</a></sup>。具体的检测信号变化的方法见 <a href="#3-4-1-红石二极管">红石中继器</a> 以及 <a href="#3-4-2-红石中继器">红石比较器</a></p>
+<h3 id="3-4-1-3-发出更新"><a href="#3-4-1-3-发出更新" class="headerlink" title="3.4.1.3 发出更新"></a>3.4.1.3 发出更新</h3><p>当二极管的状态发生变化的时候，它会先给其指向方块一个方块更新（下图黄色玻璃），再于其指向方块的位置处（下图黄色玻璃）发出一个除其指向方向反方向的方块更新。图中所有的染色玻璃也即是所有的<strong>受到</strong>方块更新的方块的位置</p>
+<p><img data-src="deeply-dissecting-minecraft_3.4/diode_update_range.png" alt="二极管更新范围示意" src="/2020/09/17/deeply-dissecting-minecraft_3.4/diode_update_range.png"></p>
+<p>具体的方法为 <code>net.minecraft.block.BlockRedstoneDiode#notifyNeighbors</code></p>
+<p>这一部分的调用之处是在 <code>onBlockAdded</code> 以及 <code>onReplaced</code> 中，因此只要涉及到二极管的方块状态的变化，均可以让这个二极管发出上述更新</p>
+<h2 id="3-4-2-红石中继器"><a href="#3-4-2-红石中继器" class="headerlink" title="3.4.2 红石中继器"></a>3.4.2 红石中继器</h2><table>
+<thead>
+<tr>
+<th>名称</th>
+<th>信息</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>类</td>
+<td>net.minecraft.block.BlockRedstoneRepeater</td>
+</tr>
+<tr>
+<td>基类</td>
+<td>net.minecraft.block.BlockRedstoneDiode</td>
+</tr>
+<tr>
+<td>延迟</td>
+<td>非定值</td>
+</tr>
+<tr>
+<td>优先级</td>
+<td>非定值</td>
+</tr>
+<tr>
+<td>位置需求</td>
+<td>同 <a href="#3-4-1-红石二极管">红石二极管</a></td>
+</tr>
+<tr>
+<td>受方块更新时</td>
+<td>同 <a href="#3-4-1-红石二极管">红石二极管</a></td>
+</tr>
+<tr>
+<td>受状态更新时</td>
+<td>更新自身被锁的状态</td>
+</tr>
+</tbody></table>
+<h3 id="3-4-2-1-方块状态"><a href="#3-4-2-1-方块状态" class="headerlink" title="3.4.2.1 方块状态"></a>3.4.2.1 方块状态</h3><p>红石中继器（简称中继器）在红石二极管的基础上，新增了两个方块标签：</p>
+<table>
+<thead>
+<tr>
+<th>标签名</th>
+<th>取值</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>delay</td>
+<td>1, 2, 3, 4</td>
+<td>储存中继器的延迟。计划刻事件的延迟将为 <code>delay</code> * 2</td>
+</tr>
+<tr>
+<td>locked</td>
+<td>false, true</td>
+<td>储存中继器是否被锁</td>
+</tr>
+</tbody></table>
+<h3 id="3-4-2-2-检测信号变化"><a href="#3-4-2-2-检测信号变化" class="headerlink" title="3.4.2.2 检测信号变化"></a>3.4.2.2 检测信号变化</h3><p>中继器接受来自其输入端方块的弱充能信号，与其当前的 <code>powered</code> 标签进行对比，若发现其状态需要改变，则添加一个计划刻事件用于延迟更新状态。计划刻事件的延迟如上所述，优先级如下：</p>
+<ul>
+<li>若其指向方块为红石二极管，且红石二极管的朝向非反向，则优先级为 -3</li>
+<li>若中继器的原 <code>powered</code> 标签为假，也即中继器准备熄灭，则优先级为 -2</li>
+<li>否则优先级为 -1</li>
+</ul>
+<h3 id="3-4-2-3-计划刻事件执行"><a href="#3-4-2-3-计划刻事件执行" class="headerlink" title="3.4.2.3 计划刻事件执行"></a>3.4.2.3 计划刻事件执行</h3><p>如果中继器目前被锁住，则跳过该计划刻事件的执行。由于计划刻事件并不储存该事件的实际功能，中继器需要再次计算其输入端方块的弱充能信号，并与其当前的 <code>powered</code> 标签作比较：</p>
+<ul>
+<li>若当前状态为亮起且输入端无信号，则改为熄灭状态</li>
+<li>若的前状态为熄灭，则改为亮起状态，再判断输入端是否有信号，若无信号则添加一个延迟为其自身的延迟，优先级为 -1 <sup id="fnref:3"><a href="#fn:3" rel="footnote">3</a></sup> 的计划刻事件用于熄灭。也就是说，即便在执行计划刻事件的时候输入信号已经消失，中继器也依然会亮起，这也是中继器可响应并输出任意短的正脉冲的原理</li>
+</ul>
+<p>上述过程中，改变其亮起状态时，在其所在位置发出的更新仅含状态更新。中继器在其前方发出的大范围方块更新见 <a href="#3-4-1-红石二极管">红石二极管</a> 的发出更新小节</p>
+<h3 id="3-4-2-4-受状态更新时"><a href="#3-4-2-4-受状态更新时" class="headerlink" title="3.4.2.4 受状态更新时"></a>3.4.2.4 受状态更新时</h3><p>当中继器受到状态更新时，若更新方向为水平方向，且方向为垂直于中继器的指向方向，则更新自身的被锁状态。中继器当且仅当被一个二极管指向侧面的时候会被锁住</p>
+<p><img data-src="deeply-dissecting-minecraft_3.4/repeater_lock.gif" alt="中继器响应状态更新" src="/2020/09/17/deeply-dissecting-minecraft_3.4/repeater_lock.gif"></p>
+<h3 id="实例"><a href="#实例" class="headerlink" title="实例"></a>实例</h3><h4 id="与-4gt-时钟交互"><a href="#与-4gt-时钟交互" class="headerlink" title="与 4gt 时钟交互"></a>与 4gt 时钟交互</h4><p><img data-src="deeply-dissecting-minecraft_3.4/4gtrepeater1.gif" alt="与 4gt 时钟交互" src="/2020/09/17/deeply-dissecting-minecraft_3.4/4gtrepeater1.gif"></p>
+<p><img data-src="deeply-dissecting-minecraft_3.4/4gtrepeater2.gif" alt="4gtrepeater2" src="/2020/09/17/deeply-dissecting-minecraft_3.4/4gtrepeater2.gif"></p>
+<p><img data-src="deeply-dissecting-minecraft_3.4/4gtrepeater3.gif" alt="4gtrepeater3" src="/2020/09/17/deeply-dissecting-minecraft_3.4/4gtrepeater3.gif"></p>
+<h2 id="3-4-3-红石比较器"><a href="#3-4-3-红石比较器" class="headerlink" title="3.4.3 红石比较器"></a>3.4.3 红石比较器</h2><table>
+<thead>
+<tr>
+<th>名称</th>
+<th>信息</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>类</td>
+<td>net.minecraft.block.BlockRedstoneComparator</td>
+</tr>
+<tr>
+<td>基类</td>
+<td>net.minecraft.block.BlockRedstoneDiode</td>
+</tr>
+<tr>
+<td>延迟</td>
+<td>2</td>
+</tr>
+<tr>
+<td>优先级</td>
+<td>非定值</td>
+</tr>
+<tr>
+<td>位置需求</td>
+<td>同 <a href="#3-4-1-红石二极管">红石二极管</a></td>
+</tr>
+<tr>
+<td>受方块更新时</td>
+<td>同 <a href="#3-4-1-红石二极管">红石二极管</a></td>
+</tr>
+<tr>
+<td>受状态更新时</td>
+<td>不响应</td>
+</tr>
+</tbody></table>
+<h3 id="3-4-3-1-方块状态"><a href="#3-4-3-1-方块状态" class="headerlink" title="3.4.3.1 方块状态"></a>3.4.3.1 方块状态</h3><p>红石比较器（简称比较器）在红石二极管的基础上，新增了一个方块标签：</p>
+<table>
+<thead>
+<tr>
+<th>标签名</th>
+<th>取值</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>mode</td>
+<td>compare, subtract</td>
+<td>储存着比较器当前的模式（比较模式、减法模式）</td>
+</tr>
+</tbody></table>
+<p>对于当前比较器的输出信号的储存，可能是因为一些历史遗留问题（1.13 以前的方块附加值储存能力不足），是储存于比较器方块实体之中的。也就是说，比较器其实是一个含有方块实体的方块。不过由于该方块实体并不是常运算的方块实体 <sup id="fnref:4"><a href="#fn:4" rel="footnote">4</a></sup>，因此并不会带来额外的卡顿</p>
+<h3 id="3-4-3-2-信号强度计算"><a href="#3-4-3-2-信号强度计算" class="headerlink" title="3.4.3.2 信号强度计算"></a>3.4.3.2 信号强度计算</h3><blockquote>
+<p>net.minecraft.block.BlockRedstoneComparator#calculateInputStrength</p>
+</blockquote>
+<p>首先，需要计算输入端的信号强度</p>
+<p>令输入端，即比较器后方一格处的方块为 A，比较器后方二格处的方块为 B</p>
+<p><img data-src="deeply-dissecting-minecraft_3.4/comparetor_input.png" alt="比较器输入信号" src="/2020/09/17/deeply-dissecting-minecraft_3.4/comparetor_input.png"></p>
+<ol>
+<li>维护一个取值为 0 ~ 15 的整数 $n$ 作为比较器待确定的输入的信号强度</li>
+<li>计算方块 A 的弱充能信号强度（与中继器相同），将 $n$ 设为该信号强度</li>
+<li>判断方块 A 是否可输出比较器信号<ul>
+<li>如果是，则将 $n$ 设为 A 的比较器输出值。如比较器直接读取毗邻容器</li>
+<li>如果不是，若 $n &lt; 15$ 且方块 A 为实体方块 <sup id="fnref:5"><a href="#fn:5" rel="footnote">5</a></sup>，则进行尝试使用 B 处可能的容器输出来覆盖当前的输入强度：<ol>
+<li>如果方块 B 可输出比较器信号，则将 $n$ 设方块 B 的比较器输出值</li>
+<li>如果方块 B 为空气，则查找位于方块 B 处的可能依附于方块 A 的一个物品展示框实体，若找到，则将 $n$ 设置为物品展示架的角度</li>
+</ol>
+</li>
+</ul>
+</li>
+<li>$n$ 即为比较器的输入信号强度</li>
+</ol>
+<p>随后，比较器会计算其来自侧面的输入的最大值。比较器<strong>仅</strong>会接受以下三种形式的输入：</p>
+<ul>
+<li><p>毗邻的红石块</p>
+</li>
+<li><p>毗邻的红石粉</p>
+</li>
+<li><p>毗邻的指向比较器的强充能元件</p>
+<p>  下图是一些常见的给予比较器侧面输入信号的方法</p>
+</li>
+</ul>
+<p><img data-src="deeply-dissecting-minecraft_3.4/comparetor_side_input.png" alt="比较器侧面输入" src="/2020/09/17/deeply-dissecting-minecraft_3.4/comparetor_side_input.png"></p>
+<p>不过，强充能元件并非只有中继器、比较器。当比较器前方有二极管时，比较器可响应侦测器的侧方输入。如果使用指令等方式得到了浮空方块，你甚至可以使用拉杆、按钮等元件进行输入：</p>
+<p><img data-src="deeply-dissecting-minecraft_3.4/comparetor_side_input_sp.png" alt="comparetor_side_input_sp" src="/2020/09/17/deeply-dissecting-minecraft_3.4/comparetor_side_input_sp.png"></p>
+<p>现在，我们已经知道比较器的后方输入以及侧面输入的信号强度了，现在只需要根据其所处模式（比较模式/减法模式）再次计算，即可得出比较器的输出信号了：</p>
+<ul>
+<li>比较模式：输出信号 = 后方输入（大小比较的相关逻辑并不在此处）</li>
+<li>减法模式：输出信号 = max(0, 后方输入 - 侧面输入)</li>
+</ul>
+<p>之后，比较器就可以判断是否应该输出信号了。这部分的实现很简单，直接结合代码说明：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">boolean</span> <span class="title">shouldBePowered</span><span class="params">(World worldIn, BlockPos pos, IBlockState state)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> i = <span class="keyword">this</span>.calculateInputStrength(worldIn, pos, state);</span><br><span class="line">    <span class="keyword">if</span> (i &gt;= <span class="number">15</span>)  <span class="comment">// 输入信号强度大于15</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span> (i == <span class="number">0</span>)  <span class="comment">// 输入信号强度为0</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span> i &gt;= <span class="keyword">this</span>.getPowerOnSides(worldIn, pos, state);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里也是比较模式大小相关逻辑的实现之处</p>
+<h3 id="3-4-3-3-检测信号变化"><a href="#3-4-3-3-检测信号变化" class="headerlink" title="3.4.3.3 检测信号变化"></a>3.4.3.3 检测信号变化</h3><p>与中继器类似，比较器会计算其当前应该输出的信号强度，并与当前自身储存着的信号强度作对比。如果输出的信号强度有改变，或者其亮起状态有变化，则添加一个计划刻事件，优先级如下：</p>
+<ul>
+<li>若其指向方块为红石二极管，且红石二极管的朝向非反向，则优先级为 -1</li>
+<li>其他情况，优先级为 0</li>
+</ul>
+<h3 id="3-4-3-4-计划刻事件执行"><a href="#3-4-3-4-计划刻事件执行" class="headerlink" title="3.4.3.4 计划刻事件执行"></a>3.4.3.4 计划刻事件执行</h3><p>与中继器类似，由于计划刻事件并不储存该事件的实际功能，比较器需要再次计算其当前应该输出的信号强度，并与当前自身储存着的信号强度作对比。若两者不同，或者其亮起状态有变化，则更新当前的亮起状态，并<a href="#3-4-1-3-发出更新">发出更新</a>。可以注意到，比较器并非同中继器一样，当原状态是熄灭的时候，无论如何都会点亮。<strong>如果比较器的计划刻执行时输入信号已消失，比较器是不会输出的</strong></p>
+<p>注意到对于任意一个红石二极管，当其方块状态发生变化时也会发出一次更新，因此若比较器在上述步骤中改变了亮起状态时，它会发出更新两次 <del>&lt;3 mojang</del></p>
+<h3 id="实例-1"><a href="#实例-1" class="headerlink" title="实例"></a>实例</h3><h4 id="响应计划刻元件的-2gt-脉冲"><a href="#响应计划刻元件的-2gt-脉冲" class="headerlink" title="响应计划刻元件的 2gt 脉冲"></a>响应计划刻元件的 2gt 脉冲</h4><p>下面以典型的侦测器为例。正常情况下，侦测器脉冲是无法激活比较器的，如下面这个例子</p>
+<p><img data-src="deeply-dissecting-minecraft_3.4/observer_comparator1.gif" alt="侦测器尝试激活比较器" src="/2020/09/17/deeply-dissecting-minecraft_3.4/observer_comparator1.gif"></p>
+<p>时序分析：</p>
+<table>
+<thead>
+<tr>
+<th>游戏刻</th>
+<th>游戏阶段</th>
+<th>事件</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>0</td>
+<td>TT.0.侦测器</td>
+<td>侦测器点亮。侦测器添加位于 gt 2 的计划刻事件用于熄灭，优先级为 0（关于侦测器的执行计划刻事件时的逻辑，见 <a href="#3-4-5-侦测器">侦测器</a>）</td>
+</tr>
+<tr>
+<td>0</td>
+<td>TT.0.侦测器</td>
+<td>侦测器发出方块更新。比较器受到方块更新，发现可输出信号，添加位于 gt 2 的计划刻事件，优先级为 0</td>
+</tr>
+<tr>
+<td>2</td>
+<td>TT.0.侦测器</td>
+<td>侦测器熄灭</td>
+</tr>
+<tr>
+<td>2</td>
+<td>TT.0.比较器</td>
+<td>比较器判断目前输出信号强度（0）与应当输出的信号强度（0），无变化，不执行任何操作</td>
+</tr>
+</tbody></table>
+<p>可见，比较器的计划刻事件执行的时候输入端信号已经消失，这导致了比较器不响应侦测器的脉冲</p>
+<hr>
+<p>若想要使用侦测器来激活比较器，有两种方法</p>
+<p><strong>1. 提升比较器的优先级</strong></p>
+<p>观察时序分析表，容易发现如果让 gt 2 中比较器的事件先于侦测器执行，则可以让侦测器执行计划刻事件时侦测器仍处于激活状态。一种可行的方法就是提升比较器的优先级，更准确地说，提升比较器添加用于亮起的计划刻事件的优先级。我们可以通过在比较器前方添加中继器来实现</p>
+<p><img data-src="deeply-dissecting-minecraft_3.4/observer_comparator2.gif" alt="侦测器尝试激活比较器" src="/2020/09/17/deeply-dissecting-minecraft_3.4/observer_comparator2.gif"></p>
+<p>时序分析：</p>
+<table>
+<thead>
+<tr>
+<th>游戏刻</th>
+<th>游戏阶段</th>
+<th>事件</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>0</td>
+<td>TT.0.侦测器</td>
+<td>侦测器 A 点亮，添加位于 gt 2 的计划刻事件。侦测器更新比较器，比较器发现自身可亮起，添加位于 gt 2 的计划事件</td>
+</tr>
+<tr>
+<td>2</td>
+<td>TT.<strong>-1</strong>.比较器</td>
+<td>比较器判断目前输出信号强度（0）与应当输出的信号强度（15），不相等。<strong>比较器亮起</strong></td>
+</tr>
+<tr>
+<td>2</td>
+<td>TT.0.侦测器</td>
+<td>侦测器熄灭</td>
+</tr>
+</tbody></table>
+<p><strong>2. 延长等优先级的 2gt 脉冲</strong></p>
+<p>为了让比较器在执行其计划刻事件的时候输入端仍有信号，除了提升比较器的计划刻事件的优先级外，是否还有方法？更新比较器，让比较器添加计划刻事件的那个侦测器肯定不能起到作用了，那么是否可以额外添加一个侦测器，让第二个侦测器在比较器事件执行完毕之后再熄灭？答案是可以，方案如下：</p>
+<p><img data-src="deeply-dissecting-minecraft_3.4/double_observer_comparator.gif" alt="双侦测器激活比较器" src="/2020/09/17/deeply-dissecting-minecraft_3.4/double_observer_comparator.gif"></p>
+<p>时序分析如下：</p>
+<table>
+<thead>
+<tr>
+<th>游戏刻</th>
+<th>游戏阶段</th>
+<th>事件</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>0</td>
+<td>TT.0.侦测器 A</td>
+<td>侦测器 A 点亮，添加位于 gt 2 的计划刻事件。侦测器更新比较器，比较器发现自身可亮起，添加位于 gt 2 的计划事件</td>
+</tr>
+<tr>
+<td>0</td>
+<td>TT.0.侦测器 B</td>
+<td>侦测器 A 点亮，添加位于 gt 2 的计划刻事件。侦测器更新比较器，比较器尝试添加位于 gt 2 的计划事件，不过由于计划刻队列中已有该事件，忽略操作</td>
+</tr>
+<tr>
+<td>2</td>
+<td>TT.0.侦测器 A</td>
+<td>侦测器 A 熄灭</td>
+</tr>
+<tr>
+<td>2</td>
+<td>TT.0.比较器</td>
+<td>虽然侦测器 A 熄灭了，但是侦测器 B 仍处于亮起状态。比较器判断目前输出信号强度（0）与应当输出的信号强度（15），不相等。<strong>比较器亮起</strong></td>
+</tr>
+<tr>
+<td>2</td>
+<td>TT.0.侦测器 B</td>
+<td>侦测器 B 熄灭</td>
+</tr>
+</tbody></table>
+<p>值得注意的是，该方案的铁轨不可用 2gt 的计划刻元件脉冲去激活，具体原因与侦测器的实现有关</p>
+<h4 id="使用-0gt-信号激活比较器"><a href="#使用-0gt-信号激活比较器" class="headerlink" title="使用 0gt 信号激活比较器"></a>使用 0gt 信号激活比较器</h4><p>通过上述例子我们可发现，若想要激活一个比较器，仅需要在比较器检查输入端是否有信号的时候，也就是以下两个时刻：</p>
+<ul>
+<li>添加计划刻事件时</li>
+<li>执行计划刻事件时</li>
+</ul>
+<p>让输入端存在信号就行了。这意味着，激活比较器的信号并不需要是一个连续的信号，我们只需要用两次脉冲分别覆盖上述两个时刻，就能让比较器点亮。这两个脉冲的时长可以任意短，可以短到 0gt 时长，只要覆盖到了上述两个时刻就行了</p>
+<p>对于上述的第一个时刻“添加计划刻事件时”，可在任意时刻实现；对于第二个时刻“执行计划刻事件时”，需理清楚比较器的计划刻事件的执行时间点</p>
+<p>下图是一个使用两次 0gt 信号激活比较器的例子</p>
+<p><img data-src="deeply-dissecting-minecraft_3.4/0t_x_comparator.gif" alt="0gt脉冲激活比较器" src="/2020/09/17/deeply-dissecting-minecraft_3.4/0t_x_comparator.gif"></p>
+<p>时序分析：</p>
+<p>该装置中含有两个 0gt 脉冲发生器，脉冲的持续时间为 TT.-1 ~ BE，可覆盖正常优先级的比较器的计划刻事件时刻 TT.0</p>
+<table>
+<thead>
+<tr>
+<th>游戏刻</th>
+<th>游戏阶段</th>
+<th>事件</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>0</td>
+<td>TT.-1.上中继器 A</td>
+<td>中继器 A 亮起，充能铁块激活红石粉，更新比较器。比较器添加位于 gt 2 的计划刻事件</td>
+</tr>
+<tr>
+<td>0</td>
+<td>BE</td>
+<td>活塞 A 推出，红石粉熄灭</td>
+</tr>
+<tr>
+<td>2</td>
+<td>TT.-1.上中继器 B</td>
+<td>中继器 B 亮起，充能铁块激活红石粉</td>
+</tr>
+<tr>
+<td>2</td>
+<td>TT.0.比较器</td>
+<td>比较器亮起，信号强度为 14（信号强度源自中继器 B）</td>
+</tr>
+<tr>
+<td>2</td>
+<td>BE</td>
+<td>活塞 B 推出，红石粉熄灭。红石粉更新比较器，比较器添加位于 gt 4 的计划刻事件</td>
+</tr>
+<tr>
+<td>4</td>
+<td>TT</td>
+<td>比较器熄灭</td>
+</tr>
+</tbody></table>
+<p>如果将比较器输入信号是否存在视作 0 1，画出波形图的话，是这样子的</p>
+<p><img data-src="deeply-dissecting-minecraft_3.4/comparetor_0t_wave.png" alt="波形图" src="/2020/09/17/deeply-dissecting-minecraft_3.4/comparetor_0t_wave.png"></p>
+<p>类似的，如果我们每 2gt 都发出一次上述 0gt 脉冲的话，比较器就能一直保持常亮状态。下方是上述例子示意装置的一个简单扩展，如果有必要的话甚至可以让比较器的输出信号强度也保持不变</p>
+<p><img data-src="deeply-dissecting-minecraft_3.4/0t_clock_comparator.gif" alt="0gt脉冲常激活比较器" src="/2020/09/17/deeply-dissecting-minecraft_3.4/0t_clock_comparator.gif"></p>
+<h4 id="无延迟比较器"><a href="#无延迟比较器" class="headerlink" title="无延迟比较器"></a>无延迟比较器</h4><p>在传统的使用比较器传输模拟信号的线路中，比较器逐个亮起，依次往前传递信号，传输速度较慢，如下图</p>
+<p><img data-src="deeply-dissecting-minecraft_3.4/not_instant_comparator.gif" alt="有延迟比较器" src="/2020/09/17/deeply-dissecting-minecraft_3.4/not_instant_comparator.gif"></p>
+<p>让我们分析一下上图，为什么这个比较器链传输信号如此之慢。上图中，比较器 B 需要等待比较器 A 亮起后才可亮起；比较器 C 需要等待比较器 B 亮起后才可亮起；比较器 D 需要等待比较器 C 亮起后才可亮起……每次等待，都耗费了 2gt 的时间进行延迟</p>
+<p>这些一个个的 2gt 延迟真的有必要存在吗？答案是不。我们可以仅在一个 gt 的计划刻阶段中就完成所有比较器的点亮，这就是无延迟比较器</p>
+<p>下图是一个简单的无延迟比较器的例子</p>
+<p><img data-src="deeply-dissecting-minecraft_3.4/instant_comparator.gif" alt="无延迟比较器" src="/2020/09/17/deeply-dissecting-minecraft_3.4/instant_comparator.gif"></p>
+<p>无延迟比较器的基本思路是，通过使用额外的计划刻元件生成的短脉冲，主动使所有比较器在<strong>同一个 gt 依次</strong>执行自己用于亮起的计划刻事件，使得比较器链在瞬间同时点亮。这种诱导比较器在指定时刻添加计划刻事件的脉冲，我们称之为<strong>诱导脉冲</strong>。</p>
+<p>上述操作将长距离传输信号的时间复杂度从 $\Theta(n)$ 降至了 $\Theta(1)$，从线性降为常数级，仿佛用于传输信号的比较器都是 0 延迟，因此我们称之为无延迟比较器</p>
+<p>下面是上图中的无延迟比较器的亮起操作的时序分析。熄灭/信号改变的时序分析同理：</p>
+<table>
+<thead>
+<tr>
+<th>游戏刻</th>
+<th>游戏阶段</th>
+<th>事件</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>0</td>
+<td>NU</td>
+<td>拉杆拉下</td>
+</tr>
+<tr>
+<td>2</td>
+<td>TT</td>
+<td>比较器 1 亮起。侦测器亮起，中继器<strong>从近到远依次</strong>添加位于 gt 4 的计划刻事件</td>
+</tr>
+<tr>
+<td>4</td>
+<td>TT.-1.中继器 A</td>
+<td>亮起，更新比较器 A，比较器 A 添加位于 gt 6 的计划刻事件</td>
+</tr>
+<tr>
+<td>4</td>
+<td>TT.-1.中继器 B</td>
+<td>亮起，更新比较器 B，比较器 B 添加位于 gt 6 的计划刻事件</td>
+</tr>
+<tr>
+<td>……</td>
+<td>……</td>
+<td>……</td>
+</tr>
+<tr>
+<td>4</td>
+<td>TT.-1.中继器 F</td>
+<td>亮起，更新比较器 F，比较器 F 添加位于 gt 6 的计划刻事件</td>
+</tr>
+<tr>
+<td>4</td>
+<td>TT.0</td>
+<td>比较器 2 亮起。侦测器熄灭</td>
+</tr>
+<tr>
+<td>6</td>
+<td>TT.-1</td>
+<td>中继器 A ~ F 依次熄灭</td>
+</tr>
+<tr>
+<td>6</td>
+<td>TT.0.比较器 A</td>
+<td>比较器 A 发现其输入端有来自比较器 2 的信号，亮起</td>
+</tr>
+<tr>
+<td>6</td>
+<td>TT.0.比较器 B</td>
+<td>比较器 B 发现其输入端有来自比较器 A 的信号，亮起</td>
+</tr>
+<tr>
+<td>……</td>
+<td>……</td>
+<td>……</td>
+</tr>
+<tr>
+<td>6</td>
+<td>TT.0.比较器 F</td>
+<td>比较器 F 发现其输入端有来自比较器 E 的信号，亮起</td>
+</tr>
+</tbody></table>
+<p>不过，上述无延迟比较器有一个缺点，就是在输入信号强度为 15 的情况下改变信号强度时不能维持无延迟。这是因为当输入的信号强度是 15 时，比较器链中都储存着强度为 15 的信号，而侧方位中继器发出的脉冲信号强度也是 15，两者大小相等，导致了诱导脉冲无法诱使比较器添加计划刻事件。如下图所示：</p>
+<p><img data-src="deeply-dissecting-minecraft_3.4/half_instant_comparator.gif" alt="于输入15信号的下降沿失效" src="/2020/09/17/deeply-dissecting-minecraft_3.4/half_instant_comparator.gif"></p>
+<p>对此的解决方法也并不困难。我们需要的是诱使比较器添加计划刻事件，只要按顺序添加了就可以，至于比较器是因为什么原因而添加计划刻事件，我们并不关心</p>
+<p>当比较器输出信号是 15 的时候，还有什么方法能诱使比较器添加计划刻事件呢？在减法模式下向比较器侧面输入脉冲！这样子，比较器会发现其输出信号需要减去其侧面输入，从而添加计划刻事件</p>
+<p>在向其侧面输入脉冲的条件下，向其背面输入端的脉冲也不可去掉，如下图所示</p>
+<p><img data-src="deeply-dissecting-minecraft_3.4/instant_comparator_sideway_pulse.png" alt="侧面输入脉冲" src="/2020/09/17/deeply-dissecting-minecraft_3.4/instant_comparator_sideway_pulse.png"></p>
+<p>设比较器的原信号强度为 $n$</p>
+<ul>
+<li>若 $n &gt; 0$，则来自比较器侧面的脉冲可让比较器输出的信号强度减小，从而诱使比较器添加计划刻事件</li>
+<li>若 $n &lt; 15$，则来自比较器后方的脉冲可让比较器输出的信号强度变为 15，从而诱使比较器添加计划刻事件</li>
+</ul>
+<p>当侧面输入与后方输入的信号强度相等时，比如使用中继器或侦测器这类输出 15 强度信号的元件时，这两个脉冲的顺序也是有讲究的。对于无延迟链上的每一个比较器，我们需要首先向其后端输入脉冲，再向其侧面输入脉冲，才可在所有情况下无延迟地传递信号。如果顺序相反，则当后端输入脉冲时，由于比较器侧面已存在信号强度 15 的输入，比较器将会输出 0 强度信号。若比较器储存着的信号已经是 0 强度了，那么这次脉冲输入就无法诱使比较器添加计划刻事件，从而使无延迟比较器失效</p>
+<p><img data-src="deeply-dissecting-minecraft_3.4/instant_comparator_pulse_order.png" alt="脉冲顺序" src="/2020/09/17/deeply-dissecting-minecraft_3.4/instant_comparator_pulse_order.png"></p>
+<p>下面图这类兼容所有情况的信号变化的无延迟比较器的一个实现</p>
+<p><img data-src="deeply-dissecting-minecraft_3.4/real_instant_comparator.gif" alt="全情况可用的无延迟比较器" src="/2020/09/17/deeply-dissecting-minecraft_3.4/real_instant_comparator.gif"></p>
+<p>以上图为例，在使用中继器或中继器时，所有需要以以下的顺序向比较器输入诱导脉冲：</p>
+<ol>
+<li>比较器 A 的后方输入端</li>
+<li>比较器 A 的侧面输入端</li>
+<li>比较器 B 的后方输入端</li>
+<li>比较器 B 的侧面输入端</li>
+<li>……</li>
+<li>比较器 F 的后方输入端</li>
+<li>比较器 F 的侧面输入端</li>
+</ol>
+<p>当然，在实际使用中，由于上述无延迟比较器设计都不能无限地延长。不过，如果配合无延迟信号线使用，即可实现可无限延伸的无延迟比较器链。下面是一个可行的例子</p>
+<p><img data-src="deeply-dissecting-minecraft_3.4/instant_comparator_inf.gif" alt="无限延伸的无延迟比较器链" src="/2020/09/17/deeply-dissecting-minecraft_3.4/instant_comparator_inf.gif"></p>
+<h4 id="比较器更新检测器"><a href="#比较器更新检测器" class="headerlink" title="比较器更新检测器"></a>比较器更新检测器</h4><h2 id="3-4-4-红石火把"><a href="#3-4-4-红石火把" class="headerlink" title="3.4.4 红石火把"></a>3.4.4 红石火把</h2><h3 id="计划刻事件执行"><a href="#计划刻事件执行" class="headerlink" title="计划刻事件执行"></a>计划刻事件执行</h3><p>blabla</p>
+<h2 id="3-4-5-侦测器"><a href="#3-4-5-侦测器" class="headerlink" title="3.4.5 侦测器"></a>3.4.5 侦测器</h2><h3 id="计划刻事件执行-1"><a href="#计划刻事件执行-1" class="headerlink" title="计划刻事件执行"></a>计划刻事件执行</h3><p>blabla</p>
+<h2 id="投掷器-发射器"><a href="#投掷器-发射器" class="headerlink" title="投掷器/发射器"></a>投掷器/发射器</h2><h3 id="计划刻事件执行-2"><a href="#计划刻事件执行-2" class="headerlink" title="计划刻事件执行"></a>计划刻事件执行</h3><p>blabla</p>
+<h2 id="红石灯"><a href="#红石灯" class="headerlink" title="红石灯"></a>红石灯</h2><h3 id="计划刻事件执行-3"><a href="#计划刻事件执行-3" class="headerlink" title="计划刻事件执行"></a>计划刻事件执行</h3><p>blabla</p>
+<h2 id="探测类元件"><a href="#探测类元件" class="headerlink" title="探测类元件"></a>探测类元件</h2><h3 id="计划刻事件执行-4"><a href="#计划刻事件执行-4" class="headerlink" title="计划刻事件执行"></a>计划刻事件执行</h3><p>blabla</p>
+<h2 id="其他红石元件"><a href="#其他红石元件" class="headerlink" title="其他红石元件"></a>其他红石元件</h2><h3 id="计划刻事件执行-5"><a href="#计划刻事件执行-5" class="headerlink" title="计划刻事件执行"></a>计划刻事件执行</h3><p>blabla</p>
+<h2 id="非红石元件"><a href="#非红石元件" class="headerlink" title="非红石元件"></a>非红石元件</h2><h3 id="计划刻事件执行-6"><a href="#计划刻事件执行-6" class="headerlink" title="计划刻事件执行"></a>计划刻事件执行</h3><p>blabla</p>
+<h2 id="流体"><a href="#流体" class="headerlink" title="流体"></a>流体</h2><h3 id="计划刻事件执行-7"><a href="#计划刻事件执行-7" class="headerlink" title="计划刻事件执行"></a>计划刻事件执行</h3><p>blabla<div id="footnotes"><hr><div id="footnotelist"><ol style="list-style:none; padding-left: 0;"><li id="fn:1"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">1.</span><span style="display: inline-block; vertical-align: top;">net.minecraft.util.EnumFacing#values</span><a href="#fnref:1" rev="footnote"> ↩</a></li><li id="fn:2"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">2.</span><span style="display: inline-block; vertical-align: top;">net.minecraft.block.BlockRedstoneDiode#updateState</span><a href="#fnref:2" rev="footnote"> ↩</a></li><li id="fn:3"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">3.</span><span style="display: inline-block; vertical-align: top;">在 1.15 及以后，该事件的优先级改为 -2</span><a href="#fnref:3" rev="footnote"> ↩</a></li><li id="fn:4"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">4.</span><span style="display: inline-block; vertical-align: top;">也就是比较器方块实体并未实现 <code>net.minecraft.util.ITickable</code> 这个接口</span><a href="#fnref:4" rev="footnote"> ↩</a></li><li id="fn:5"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">5.</span><span style="display: inline-block; vertical-align: top;">net.minecraft.block.Block#isNormalCube</span><a href="#fnref:5" rev="footnote"> ↩</a></li></ol></div></div></p>
+]]></content>
       <categories>
         <category>Minecraft</category>
       </categories>
