@@ -21,12 +21,12 @@
     var CONFIG = {"hostname":"fallenbreath.me","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":true,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":null,"activeClass":"gitalk"},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="前往TIS论坛，感受更好的 Markdown 渲染体验：https:&#x2F;&#x2F;forum.tis.world&#x2F;topic&#x2F;141&#x2F;实体方块的判断-源码中调用isnormalcube-的位置总结  游戏版本：Minecraft Java Edition 1.13.2源码来源：mcp不保证下列调用目的的表述正确性，仅均为个人猜想   isNormalCube实体方块，实心方块，整砖，普通方块，具体指什么？">
+  <meta name="description" content="游戏版本：Minecraft Java Edition 1.13.2源码来源：mcp不保证下列调用目的的表述正确性，仅均为个人猜想   isNormalCube实体方块，实心方块，整砖，普通方块，具体指什么？ 在我看来，绝大部分时间里，当我们提及“实体方块”一词的时候，指的都是能压线压箱发矿车的那一类实心完整方块。在源码中，这些，都是通过一个叫做isNormalCube()的函数进行判定的">
 <meta property="og:type" content="article">
 <meta property="og:title" content="实体方块的判断——源码中调用isNormalCube()的位置总结">
 <meta property="og:url" content="https://fallenbreath.me/2019/08/10/solidblock-summary-isNormalCube/index.html">
 <meta property="og:site_name" content="fallen&#39;s attic">
-<meta property="og:description" content="前往TIS论坛，感受更好的 Markdown 渲染体验：https:&#x2F;&#x2F;forum.tis.world&#x2F;topic&#x2F;141&#x2F;实体方块的判断-源码中调用isnormalcube-的位置总结  游戏版本：Minecraft Java Edition 1.13.2源码来源：mcp不保证下列调用目的的表述正确性，仅均为个人猜想   isNormalCube实体方块，实心方块，整砖，普通方块，具体指什么？">
+<meta property="og:description" content="游戏版本：Minecraft Java Edition 1.13.2源码来源：mcp不保证下列调用目的的表述正确性，仅均为个人猜想   isNormalCube实体方块，实心方块，整砖，普通方块，具体指什么？ 在我看来，绝大部分时间里，当我们提及“实体方块”一词的时候，指的都是能压线压箱发矿车的那一类实心完整方块。在源码中，这些，都是通过一个叫做isNormalCube()的函数进行判定的">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://fallenbreath.me/2019/08/10/solidblock-summary-isNormalCube/solidblock-summary-isNormalCube/base.png">
 <meta property="og:image" content="https://fallenbreath.me/2019/08/10/solidblock-summary-isNormalCube/solidblock-summary-isNormalCube/check.png">
@@ -260,7 +260,7 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>708</span>
+              <span>617</span>
             </span>
             <span class="post-meta-item" title="阅读时长">
               <span class="post-meta-item-icon">
@@ -279,13 +279,14 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p>前往TIS论坛，感受更好的 Markdown 渲染体验：<a target="_blank" rel="noopener" href="https://forum.tis.world/topic/141/实体方块的判断-源码中调用isnormalcube-的位置总结">https://forum.tis.world/topic/141/实体方块的判断-源码中调用isnormalcube-的位置总结</a></p>
-<blockquote>
+        <blockquote>
 <p>游戏版本：Minecraft Java Edition 1.13.2<br>源码来源：mcp<br>不保证下列调用目的的表述正确性，仅均为个人猜想</p>
 </blockquote>
 <hr>
 <h1 id="isNormalCube"><a href="#isNormalCube" class="headerlink" title="isNormalCube"></a>isNormalCube</h1><p>实体方块，实心方块，整砖，普通方块，具体指什么？</p>
 <p>在我看来，绝大部分时间里，当我们提及“实体方块”一词的时候，指的都是能压线压箱发矿车的那一类实心完整方块。在源码中，这些，都是通过一个叫做isNormalCube()的函数进行判定的</p>
+<a id="more"></a>
+
 <p><img data-src="solidblock-summary-isNormalCube/base.png" alt="net/minecraft/block/Block.java:293"></p>
 <blockquote>
 <p>我猜这个是<strong>实体方块</strong></p>

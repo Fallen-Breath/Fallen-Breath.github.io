@@ -1372,13 +1372,14 @@
   <entry>
     <title>实体方块的判断——源码中调用isNormalCube()的位置总结</title>
     <url>/2019/08/10/solidblock-summary-isNormalCube/</url>
-    <content><![CDATA[<p>前往TIS论坛，感受更好的 Markdown 渲染体验：<a href="https://forum.tis.world/topic/141/实体方块的判断-源码中调用isnormalcube-的位置总结">https://forum.tis.world/topic/141/实体方块的判断-源码中调用isnormalcube-的位置总结</a></p>
-<blockquote>
+    <content><![CDATA[<blockquote>
 <p>游戏版本：Minecraft Java Edition 1.13.2<br>源码来源：mcp<br>不保证下列调用目的的表述正确性，仅均为个人猜想</p>
 </blockquote>
 <hr>
 <h1 id="isNormalCube"><a href="#isNormalCube" class="headerlink" title="isNormalCube"></a>isNormalCube</h1><p>实体方块，实心方块，整砖，普通方块，具体指什么？</p>
 <p>在我看来，绝大部分时间里，当我们提及“实体方块”一词的时候，指的都是能压线压箱发矿车的那一类实心完整方块。在源码中，这些，都是通过一个叫做isNormalCube()的函数进行判定的</p>
+<a id="more"></a>
+
 <p><img data-src="solidblock-summary-isNormalCube/base.png" alt="net/minecraft/block/Block.java:293"></p>
 <blockquote>
 <p>我猜这个是<strong>实体方块</strong></p>
