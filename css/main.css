@@ -989,7 +989,7 @@ pre .javascript .function {
   color: var(--brand-hover-color);
 }
 .site-title {
-  font-family: 'Kalam', "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-family: 'Courgette', "PingFang SC", "Microsoft YaHei", sans-serif;
   font-size: 1.8em;
   font-weight: normal;
   margin: 0;
@@ -1246,7 +1246,7 @@ pre .javascript .function {
 }
 .links-of-author a::before,
 .links-of-author span.exturl::before {
-  background: #ff1891;
+  background: #414f28;
   border-radius: 50%;
   content: ' ';
   display: inline-block;
