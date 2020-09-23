@@ -104,7 +104,7 @@ function loadnestbg() {
   tracking = storetracking
   setTrack(tracking)
   window.onmousedown = function (e) {
-    if (e.button === 0 && e.target.className === 'use-motion') {
+    if (e.button === 0 && ['body', 'html', 'footer'].includes(e.target.localName)) {
       setTrack(1 - tracking);
     }
   }
