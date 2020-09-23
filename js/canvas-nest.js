@@ -125,10 +125,16 @@ function switchbg() {
 
 }
 
+let lastEvent = null
 function setTrack(newState) {
   if (newState === 1) {
+    if (lastEvent !== null) {
+      f.x = lastEvent.clientX
+      f.y = lastEvent.clientY
+    }
     window.onmousemove = function (i) {
       i = i || window.event
+      lastEvent = i
       f.x = i.clientX
       f.y = i.clientY
     }
@@ -142,7 +148,9 @@ function setTrack(newState) {
     f.x = null
     f.y = null
 
-    window.onmousemove = null
+    window.onmousemove = function (e) {
+      lastEvent = e
+    }
     window.onmouseout = null
 
     tracking = 0;
