@@ -28,16 +28,16 @@
 <meta property="og:site_name" content="fallen&#39;s attic">
 <meta property="og:description" content="1 游戏流程1.1 代码层面上的 GameTime 内游戏运算顺序 来吧顺着代码DFS  让我们从Minecraft服务端最底层的代码 —— MinecraftServer.tick() 开始。">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://fallenbreath.me/2019/12/08/deeply-dissecting-minecraft_1/deeply-dissecting-minecraft_1/BELoader1.png">
-<meta property="og:image" content="https://fallenbreath.me/2019/12/08/deeply-dissecting-minecraft_1/deeply-dissecting-minecraft_1/BELoader2.png">
-<meta property="og:image" content="https://fallenbreath.me/2019/12/08/deeply-dissecting-minecraft_1/deeply-dissecting-minecraft_1/BELoader3.png">
+<meta property="og:image" content="https://fallenbreath.me/2019/12/08/deeply-dissecting-minecraft_1/BELoader1.png">
+<meta property="og:image" content="https://fallenbreath.me/2019/12/08/deeply-dissecting-minecraft_1/BELoader2.png">
+<meta property="og:image" content="https://fallenbreath.me/2019/12/08/deeply-dissecting-minecraft_1/BELoader3.png">
 <meta property="article:published_time" content="2019-12-08T11:14:39.000Z">
 <meta property="article:modified_time" content="2019-12-08T11:14:39.000Z">
 <meta property="article:author" content="Fallen_Breath">
 <meta property="article:tag" content="Minecraft">
 <meta property="article:tag" content="深度剖析MC">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://fallenbreath.me/2019/12/08/deeply-dissecting-minecraft_1/deeply-dissecting-minecraft_1/BELoader1.png">
+<meta name="twitter:image" content="https://fallenbreath.me/2019/12/08/deeply-dissecting-minecraft_1/BELoader1.png">
 
 <link rel="canonical" href="https://fallenbreath.me/2019/12/08/deeply-dissecting-minecraft_1/">
 
@@ -462,7 +462,7 @@
 <h2 id="实例-自加载型区块加载器伪和平"><a href="#实例-自加载型区块加载器伪和平" class="headerlink" title="实例 自加载型区块加载器伪和平"></a>实例 自加载型区块加载器伪和平</h2><p>对于基于在卸载后能加载回自身的区块加载器的伪和平，在重加载时是否存在 1gt 的刷怪空档期是至关重要的，因为这直接与伪和平是否可用 100% 阻止生物刷新相关。完美的伪和平装置是不存在可刷怪空档期的</p>
 <p>让我们分析一下基于活塞区块加载器的伪和平：</p>
 <p>活塞区块加载器，利用了方块事件可以加载区块的原理，通过在每个gt利用活塞计划方块事件来确保自动保存后能加载回自身区块。</p>
-<p><img data-src="deeply-dissecting-minecraft_1/BELoader1.png" alt="活塞加载器伪和平1"><br>备注：此活塞加载器并非完美设计，但足以应用于本实例分析</p>
+<p><img data-src="/2019/12/08/deeply-dissecting-minecraft_1/BELoader1.png" alt="活塞加载器伪和平1"><br>备注：此活塞加载器并非完美设计，但足以应用于本实例分析</p>
 <p>这个方案是可以 100% 阻止生物刷新的，也就是不存在 1gt 的刷怪间隔。微观时序分析很简单。先列一下相关的阶段：</p>
 <table>
 <thead>
@@ -495,7 +495,7 @@
 <p>可看到，在自动保存等引发的区块卸载之后，下一次进行刷怪前，游戏执行了方块事件相关的运算，并在此处加载回了存怪的区块，让怪物容量超过上限，阻止下一次进行刷怪时的生物刷新。因此，这是一个完美的伪和平</p>
 <hr>
 <p>如果出于某些原因，活塞区块加载器与存怪装置不在同一个区块，需要使用漏斗加载存怪区块，如下图所示。这样的话这种伪和平装置是否还是完美的？</p>
-<p><img data-src="deeply-dissecting-minecraft_1/BELoader2.png" alt="活塞加载器伪和平2"></p>
+<p><img data-src="/2019/12/08/deeply-dissecting-minecraft_1/BELoader2.png" alt="活塞加载器伪和平2"></p>
 <p>相关的阶段：</p>
 <table>
 <thead>
@@ -569,7 +569,7 @@
 <p>因此，这个伪和平设计也能保证 100% 时刻不刷怪，是个完美的伪和平</p>
 <hr>
 <p>假如有个小天才嫌一个漏斗太少，非得多串几个漏斗才接到存怪装置区块，那会怎么样？</p>
-<p><img data-src="deeply-dissecting-minecraft_1/BELoader3.png" alt="活塞加载器伪和平3"></p>
+<p><img data-src="/2019/12/08/deeply-dissecting-minecraft_1/BELoader3.png" alt="活塞加载器伪和平3"></p>
 <p>区块卸载在 GameTick N，活塞加载器自加载在 GameTick N+1 的  BE，三个漏斗依次加载区块使存怪区域在 GameTick N+1 的 TE 被加载？并不是这样的</p>
 <p>TE 阶段有个性质：在 TE 阶段内新增的 TE 实体，并不会立即参与运算，而是会先加入一个临时的列表 <code>addedTileEntityList</code>，等到该 TE 阶段运算结束后再统一添加新 TE 实体至参与运算的 TE 列表 <code>loadedTileEntityList</code> 中，也就是说在 GameTick N 新增的 TE 实体要等到 GameTick N+1 的 TE 阶段才能进行运算</p>
 <p>因此，这个小天才活塞区块加载器伪和平的微观时序是这样的：</p>
