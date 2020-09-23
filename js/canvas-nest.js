@@ -86,7 +86,7 @@ m = window.requestAnimationFrame || window.webkitRequestAnimationFrame || window
 a = Math.random
 f = {x: null, y: null, max: 20000}
 u.id = c
-u.style.cssText = "position:fixed;top:0;left:0;z-index:" + s.z + ";opacity:" + s.o
+u.style.cssText = "position:fixed;top:0;left:0;z-index:" + s.z + ";opacity:" + s.o + ";pointer-events:none;"
 j("body")[0].appendChild(u)
 k()
 
