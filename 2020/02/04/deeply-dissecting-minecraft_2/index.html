@@ -24,33 +24,33 @@
   <meta name="description" content="2 方块更新感谢 迟昫123 与 qwrrdshfsghv 的捉虫 2.1 方块更新性质2.1.1 方块更新的种类1.13 之后，方块更新分为了两种类型，分别是 NeighborChanged 与 PostPlacement，简称 NC 与 PP 更新。若要与 1.13 之前相比，可将 1.13 之前的所有方块更新都视为 NC 更新。下文将用方块更新一词指代 NC 更新，用状态更新一词指代 PP">
 <meta property="og:type" content="article">
 <meta property="og:title" content="深度剖析Minecraft #2 方块更新">
-<meta property="og:url" content="https://fallenbreath.me/2019/08/10/deeply-dissecting-minecraft_2/index.html">
+<meta property="og:url" content="https://fallenbreath.me/2020/02/04/deeply-dissecting-minecraft_2/index.html">
 <meta property="og:site_name" content="fallen&#39;s attic">
 <meta property="og:description" content="2 方块更新感谢 迟昫123 与 qwrrdshfsghv 的捉虫 2.1 方块更新性质2.1.1 方块更新的种类1.13 之后，方块更新分为了两种类型，分别是 NeighborChanged 与 PostPlacement，简称 NC 与 PP 更新。若要与 1.13 之前相比，可将 1.13 之前的所有方块更新都视为 NC 更新。下文将用方块更新一词指代 NC 更新，用状态更新一词指代 PP">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://fallenbreath.me/2019/08/10/deeply-dissecting-minecraft_2/NC%E6%9B%B4%E6%96%B0%E6%96%B9%E5%9D%97.png">
-<meta property="og:image" content="https://fallenbreath.me/2019/08/10/deeply-dissecting-minecraft_2/PP%E6%9B%B4%E6%96%B0%E6%96%B9%E5%9D%97.png">
-<meta property="og:image" content="https://fallenbreath.me/2019/08/10/deeply-dissecting-minecraft_2/%E5%85%AD%E6%AF%97%E9%82%BB%E6%96%B9%E5%9D%97.png">
-<meta property="og:image" content="https://fallenbreath.me/2019/08/10/deeply-dissecting-minecraft_2/%E4%BA%94%E6%AF%97%E9%82%BB%E6%96%B9%E5%9D%97.png">
-<meta property="og:image" content="https://fallenbreath.me/2019/08/10/deeply-dissecting-minecraft_2/%E5%85%AD%E6%AF%97%E9%82%BB%E6%96%B9%E5%9D%97.png">
-<meta property="og:image" content="https://fallenbreath.me/2019/08/10/deeply-dissecting-minecraft_2/bud%E6%B4%BB%E5%A1%9E.png">
-<meta property="og:image" content="https://fallenbreath.me/2019/08/10/deeply-dissecting-minecraft_2/%E4%BE%A6%E6%B5%8B%E5%99%A8.png">
-<meta property="og:image" content="https://fallenbreath.me/2019/08/10/deeply-dissecting-minecraft_2/%E6%94%BE%E7%BD%AE%E6%96%B9%E5%9D%97.png">
-<meta property="og:image" content="https://fallenbreath.me/2019/08/10/deeply-dissecting-minecraft_2/%E4%B8%AD%E7%BB%A7%E5%99%A8%E6%9B%B4%E6%96%B0.png">
-<meta property="og:image" content="https://fallenbreath.me/2019/08/10/deeply-dissecting-minecraft_2/%E6%89%93%E5%BC%80%E7%AE%B1%E5%AD%90.png">
-<meta property="og:image" content="https://fallenbreath.me/2019/08/10/deeply-dissecting-minecraft_2/%E6%89%93%E5%BC%80%E6%A0%85%E6%A0%8F%E9%97%A8.png">
-<meta property="og:image" content="https://fallenbreath.me/2019/08/10/deeply-dissecting-minecraft_2/%E5%A4%A7%E9%9D%A2%E7%A7%AF%E7%9A%84bud%E9%93%81%E8%BD%A8.png">
-<meta property="og:image" content="https://fallenbreath.me/2019/08/10/deeply-dissecting-minecraft_2/%E6%89%8B%E6%94%BE%E6%96%B9%E5%9D%97.png">
-<meta property="og:image" content="https://fallenbreath.me/2019/08/10/deeply-dissecting-minecraft_2/%E6%9B%B4%E6%96%B0%E6%8A%91%E5%88%B6.png">
-<meta property="article:published_time" content="2019-08-10T06:19:57.000Z">
-<meta property="article:modified_time" content="2019-08-10T06:19:57.000Z">
+<meta property="og:image" content="https://fallenbreath.me/2020/02/04/deeply-dissecting-minecraft_2/NC%E6%9B%B4%E6%96%B0%E6%96%B9%E5%9D%97.png">
+<meta property="og:image" content="https://fallenbreath.me/2020/02/04/deeply-dissecting-minecraft_2/PP%E6%9B%B4%E6%96%B0%E6%96%B9%E5%9D%97.png">
+<meta property="og:image" content="https://fallenbreath.me/2020/02/04/deeply-dissecting-minecraft_2/%E5%85%AD%E6%AF%97%E9%82%BB%E6%96%B9%E5%9D%97.png">
+<meta property="og:image" content="https://fallenbreath.me/2020/02/04/deeply-dissecting-minecraft_2/%E4%BA%94%E6%AF%97%E9%82%BB%E6%96%B9%E5%9D%97.png">
+<meta property="og:image" content="https://fallenbreath.me/2020/02/04/deeply-dissecting-minecraft_2/%E5%85%AD%E6%AF%97%E9%82%BB%E6%96%B9%E5%9D%97.png">
+<meta property="og:image" content="https://fallenbreath.me/2020/02/04/deeply-dissecting-minecraft_2/bud%E6%B4%BB%E5%A1%9E.png">
+<meta property="og:image" content="https://fallenbreath.me/2020/02/04/deeply-dissecting-minecraft_2/%E4%BE%A6%E6%B5%8B%E5%99%A8.png">
+<meta property="og:image" content="https://fallenbreath.me/2020/02/04/deeply-dissecting-minecraft_2/%E6%94%BE%E7%BD%AE%E6%96%B9%E5%9D%97.png">
+<meta property="og:image" content="https://fallenbreath.me/2020/02/04/deeply-dissecting-minecraft_2/%E4%B8%AD%E7%BB%A7%E5%99%A8%E6%9B%B4%E6%96%B0.png">
+<meta property="og:image" content="https://fallenbreath.me/2020/02/04/deeply-dissecting-minecraft_2/%E6%89%93%E5%BC%80%E7%AE%B1%E5%AD%90.png">
+<meta property="og:image" content="https://fallenbreath.me/2020/02/04/deeply-dissecting-minecraft_2/%E6%89%93%E5%BC%80%E6%A0%85%E6%A0%8F%E9%97%A8.png">
+<meta property="og:image" content="https://fallenbreath.me/2020/02/04/deeply-dissecting-minecraft_2/%E5%A4%A7%E9%9D%A2%E7%A7%AF%E7%9A%84bud%E9%93%81%E8%BD%A8.png">
+<meta property="og:image" content="https://fallenbreath.me/2020/02/04/deeply-dissecting-minecraft_2/%E6%89%8B%E6%94%BE%E6%96%B9%E5%9D%97.png">
+<meta property="og:image" content="https://fallenbreath.me/2020/02/04/deeply-dissecting-minecraft_2/%E6%9B%B4%E6%96%B0%E6%8A%91%E5%88%B6.png">
+<meta property="article:published_time" content="2020-02-04T03:53:07.000Z">
+<meta property="article:modified_time" content="2020-02-04T03:53:07.000Z">
 <meta property="article:author" content="Fallen_Breath">
 <meta property="article:tag" content="Minecraft">
 <meta property="article:tag" content="深度剖析MC">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://fallenbreath.me/2019/08/10/deeply-dissecting-minecraft_2/NC%E6%9B%B4%E6%96%B0%E6%96%B9%E5%9D%97.png">
+<meta name="twitter:image" content="https://fallenbreath.me/2020/02/04/deeply-dissecting-minecraft_2/NC%E6%9B%B4%E6%96%B0%E6%96%B9%E5%9D%97.png">
 
-<link rel="canonical" href="https://fallenbreath.me/2019/08/10/deeply-dissecting-minecraft_2/">
+<link rel="canonical" href="https://fallenbreath.me/2020/02/04/deeply-dissecting-minecraft_2/">
 
 
 <script id="page-configurations">
@@ -215,7 +215,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://fallenbreath.me/2019/08/10/deeply-dissecting-minecraft_2/">
+    <link itemprop="mainEntityOfPage" href="https://fallenbreath.me/2020/02/04/deeply-dissecting-minecraft_2/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.jpg">
@@ -238,7 +238,7 @@
               </span>
               <span class="post-meta-item-text">发表于</span>
 
-              <time title="创建时间：2019-08-10 14:19:57" itemprop="dateCreated datePublished" datetime="2019-08-10T14:19:57+08:00">2019-08-10</time>
+              <time title="创建时间：2020-02-04 11:53:07" itemprop="dateCreated datePublished" datetime="2020-02-04T11:53:07+08:00">2020-02-04</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -299,7 +299,7 @@
 <li>灵魂沙、岩浆块添加生成气泡柱的 TT 事件</li>
 <li>海绵尝试吸水</li>
 </ul>
-<p><img src="/2019/08/10/deeply-dissecting-minecraft_2/NC%E6%9B%B4%E6%96%B0%E6%96%B9%E5%9D%97.png" alt="NC更新方块"></p>
+<p><img src="/2020/02/04/deeply-dissecting-minecraft_2/NC%E6%9B%B4%E6%96%B0%E6%96%B9%E5%9D%97.png" alt="NC更新方块"></p>
 <p>对，就这些。不过，根据日常经验来看，有不少需要方块更新的事件却不在这。不要着急，他们在 PostPlacement 更新中</p>
 <p>有此可见，各类红石元件处于 bud 态时，如无信号源的伸出活塞，不点燃的 TNT 等，需要的是方块更新，才能让它们意识到状态改变而恢复到正常的状态</p>
 <h4 id="2-1-1-2-PostPlacement"><a href="#2-1-1-2-PostPlacement" class="headerlink" title="2.1.1.2 PostPlacement"></a>2.1.1.2 PostPlacement</h4><p>PostPlacement，也即状态更新，指的是方块发生变化后导致的临近方块与之交互情况发生变化的更新。</p>
@@ -318,7 +318,7 @@
 <li><strong>仙人掌添加状态是否合法的 TT 事件</strong></li>
 <li>活珊瑚添加检测是否离水的 TT 事件</li>
 </ul>
-<p><img src="/2019/08/10/deeply-dissecting-minecraft_2/PP%E6%9B%B4%E6%96%B0%E6%96%B9%E5%9D%97.png" alt="PP更新方块"></p>
+<p><img src="/2020/02/04/deeply-dissecting-minecraft_2/PP%E6%9B%B4%E6%96%B0%E6%96%B9%E5%9D%97.png" alt="PP更新方块"></p>
 <p>有一点值得注意，调用状态更新时是带有一个方向参数的，也就是状态更新是有着方向区别的，方向不对的状态更新在某些代码中存在特判情况下并不能影响方块的状态。比如，对于一个依附于西面方块上的浮空火把，从东南北上下放置破坏方块触发状态更新是无法让它掉落的。这一点也是 1.13+ 与 1.12- 的一个重要的区别。</p>
 <h2 id="2-2-方块更新的实现"><a href="#2-2-方块更新的实现" class="headerlink" title="2.2 方块更新的实现"></a>2.2 方块更新的实现</h2><p>先把会出现的名词列一遍：</p>
 <ul>
@@ -332,7 +332,7 @@
 <p>注2：一个方块发出方块更新，也就是一个方块于其所在位置发出方块更新，或者说是一个位置发出了方块更新，由于指的都是一种事件并无歧义，都是可行的表述，可视上下文语境挑选合适者</p>
 <h3 id="2-2-1-一个方块受到了方块更新"><a href="#2-2-1-一个方块受到了方块更新" class="headerlink" title="2.2.1 一个方块受到了方块更新"></a>2.2.1 一个方块受到了方块更新</h3><p>一个方块受到了方块更新，将会调用位于这个方块的 <code>neighborChanged</code> 方法，并处理受到更新后的改变（见2.1.1.1 NeighborChanged）</p>
 <p>具体代码见下 World 类中的 <code>neighborChanged</code> 方法</p>
-<h3 id="2-2-2-一个方块发出了方块更新"><a href="#2-2-2-一个方块发出了方块更新" class="headerlink" title="2.2.2 一个方块发出了方块更新"></a>2.2.2 一个方块发出了方块更新</h3><p><img src="/2019/08/10/deeply-dissecting-minecraft_2/%E5%85%AD%E6%AF%97%E9%82%BB%E6%96%B9%E5%9D%97.png" alt="六毗邻方块"></p>
+<h3 id="2-2-2-一个方块发出了方块更新"><a href="#2-2-2-一个方块发出了方块更新" class="headerlink" title="2.2.2 一个方块发出了方块更新"></a>2.2.2 一个方块发出了方块更新</h3><p><img src="/2020/02/04/deeply-dissecting-minecraft_2/%E5%85%AD%E6%AF%97%E9%82%BB%E6%96%B9%E5%9D%97.png" alt="六毗邻方块"></p>
 <p>当一个方块发出方块更新时，这个方块将会使其毗邻的六个方块依次受到方块更新。这里的“依次受到”的顺序为：</p>
 <ol>
 <li>西 -x</li>
@@ -346,11 +346,11 @@
 <h3 id="2-2-3-一个方块发出了除-lt-方向-gt-外的方块更新"><a href="#2-2-3-一个方块发出了除-lt-方向-gt-外的方块更新" class="headerlink" title="2.2.3 一个方块发出了除 &lt;方向&gt; 外的方块更新"></a>2.2.3 一个方块发出了除 &lt;方向&gt; 外的方块更新</h3><p>注：<code>&lt;方向&gt;</code> 为 <code>东</code> <code>南</code> <code>西</code> <code>北</code> <code>上</code> <code>下</code> 中的任意一者</p>
 <p>一个方块发出了除 <code>&lt;方向&gt;</code> 外的方块更新的表现，与上 2.2.2 并无太大区别区别仅为这次发出的方块更新将会跳过指定的一个方向，也就是只更新 5 个毗邻的方块</p>
 <p>这种特殊的方块更新<strong>仅</strong>于中继器/比较器/侦测器在其指向方块发出更新时使用</p>
-<p><img src="/2019/08/10/deeply-dissecting-minecraft_2/%E4%BA%94%E6%AF%97%E9%82%BB%E6%96%B9%E5%9D%97.png" alt="五毗邻方块"></p>
+<p><img src="/2020/02/04/deeply-dissecting-minecraft_2/%E4%BA%94%E6%AF%97%E9%82%BB%E6%96%B9%E5%9D%97.png" alt="五毗邻方块"></p>
 <p>具体代码见下 World 类中的 <code>notifyNeighborsOfStateExcept</code> 方法</p>
 <h3 id="2-2-4-一个方块受到了状态更新"><a href="#2-2-4-一个方块受到了状态更新" class="headerlink" title="2.2.4 一个方块受到了状态更新"></a>2.2.4 一个方块受到了状态更新</h3><p>一个方块受到了状态更新，将会调用位于这个方块的 <code>updatePostPlacement</code> 方法，并处理受到更新后的改变</p>
 <p>具体代码见下 IBlockState 类中的 <code>updatePostPlacement</code> 方法（见 <a href="#2-1-1-2-PostPlacement">PostPlacement</a> 小节）</p>
-<h3 id="2-2-5-一个方块发出了状态更新"><a href="#2-2-5-一个方块发出了状态更新" class="headerlink" title="2.2.5 一个方块发出了状态更新"></a>2.2.5 一个方块发出了状态更新</h3><p><img src="/2019/08/10/deeply-dissecting-minecraft_2/%E5%85%AD%E6%AF%97%E9%82%BB%E6%96%B9%E5%9D%97.png" alt="六毗邻方块"></p>
+<h3 id="2-2-5-一个方块发出了状态更新"><a href="#2-2-5-一个方块发出了状态更新" class="headerlink" title="2.2.5 一个方块发出了状态更新"></a>2.2.5 一个方块发出了状态更新</h3><p><img src="/2020/02/04/deeply-dissecting-minecraft_2/%E5%85%AD%E6%AF%97%E9%82%BB%E6%96%B9%E5%9D%97.png" alt="六毗邻方块"></p>
 <p>当一个方块发出状态更新时，这个方块将会使其毗邻的六个方块依次受到状态更新。这里的“依次受到”的顺序为：</p>
 <ol>
 <li>西 -x</li>
@@ -394,18 +394,18 @@
 <li>等等</li>
 </ul>
 <h2 id="2-5-方块更新检测器-发生器"><a href="#2-5-方块更新检测器-发生器" class="headerlink" title="2.5 方块更新检测器 / 发生器"></a>2.5 方块更新检测器 / 发生器</h2><p>一个被 QC 激活的 bud 态活塞，即为一个方块更新检测器，这也是最常用的方块更新检测器。当活塞底座受到方块更新时，活塞将在下一个 BE 阶段开始伸缩一次</p>
-<p><img src="/2019/08/10/deeply-dissecting-minecraft_2/bud%E6%B4%BB%E5%A1%9E.png" alt="bud活塞"></p>
+<p><img src="/2020/02/04/deeply-dissecting-minecraft_2/bud%E6%B4%BB%E5%A1%9E.png" alt="bud活塞"></p>
 <p>能响应状态更新并能多次使用的方块寥寥无几，做常用的就是侦测器了。当侦测器脸朝着的方块发出一个状态更新时，侦测器将会立即添加一个 TT 事件并在对应的 TT 阶段输出脉冲，因此侦测器是一个很棒的状态更新检测器。图里则是侦测器检测栅栏门开关的一个例子</p>
-<p><img src="/2019/08/10/deeply-dissecting-minecraft_2/%E4%BE%A6%E6%B5%8B%E5%99%A8.png" alt="侦测器"></p>
+<p><img src="/2020/02/04/deeply-dissecting-minecraft_2/%E4%BE%A6%E6%B5%8B%E5%99%A8.png" alt="侦测器"></p>
 <p>上面就是两种十分常用的方块更新检测器，当然能检测方块更新或状态更新的方式还有很多，这里就不一一叙述了。</p>
 <p>至于方块更新发生器，能同时发出方块更新+状态更新的事件有很多，如方块的放置、音符盒的点击。他们都能同时使方块更新检测器与状态更新检测器响应</p>
-<p><img src="/2019/08/10/deeply-dissecting-minecraft_2/%E6%94%BE%E7%BD%AE%E6%96%B9%E5%9D%97.png" alt="放置方块"></p>
+<p><img src="/2020/02/04/deeply-dissecting-minecraft_2/%E6%94%BE%E7%BD%AE%E6%96%B9%E5%9D%97.png" alt="放置方块"></p>
 <p>如果要只发出方块更新，可以使用红石元件，如中继器。中继器在调节档位时会在其指向的方块的位置发出一个方块更新</p>
-<p><img src="/2019/08/10/deeply-dissecting-minecraft_2/%E4%B8%AD%E7%BB%A7%E5%99%A8%E6%9B%B4%E6%96%B0.png" alt="中继器更新"></p>
+<p><img src="/2020/02/04/deeply-dissecting-minecraft_2/%E4%B8%AD%E7%BB%A7%E5%99%A8%E6%9B%B4%E6%96%B0.png" alt="中继器更新"></p>
 <p>还有一种可行的方法是打开箱子。对于一个箱子，当玩家打开它时它会发出一个方块更新</p>
-<p><img src="/2019/08/10/deeply-dissecting-minecraft_2/%E6%89%93%E5%BC%80%E7%AE%B1%E5%AD%90.png" alt="打开箱子"></p>
+<p><img src="/2020/02/04/deeply-dissecting-minecraft_2/%E6%89%93%E5%BC%80%E7%AE%B1%E5%AD%90.png" alt="打开箱子"></p>
 <p>如果仅需发出状态更新，常用的方法则是开关栅栏门/活板门。当栅栏门/活板门开关时，它们仅会发出一个状态更新而无方块更新</p>
-<p><img src="/2019/08/10/deeply-dissecting-minecraft_2/%E6%89%93%E5%BC%80%E6%A0%85%E6%A0%8F%E9%97%A8.png" alt="打开栅栏门"></p>
+<p><img src="/2020/02/04/deeply-dissecting-minecraft_2/%E6%89%93%E5%BC%80%E6%A0%85%E6%A0%8F%E9%97%A8.png" alt="打开栅栏门"></p>
 <h2 id="2-6-即时更新元件"><a href="#2-6-即时更新元件" class="headerlink" title="2.6 即时更新元件"></a>2.6 即时更新元件</h2><p>即时更新元件，指的是那些收到方块更新后立即在当前阶段改变其状态，并发出指定类型的更新（可能没有）的元件。它们被广泛地用于信号传递以及方块更新的传导</p>
 <h3 id="2-6-1-充能-激活铁轨"><a href="#2-6-1-充能-激活铁轨" class="headerlink" title="2.6.1 充能 / 激活铁轨"></a>2.6.1 充能 / 激活铁轨</h3><p>当充能 / 激活铁轨（以下以充能铁轨为例）受到方块更新时，它会先检测当前位置是否合法。若不合法，则掉落，否则执行铁轨的更新</p>
 <p>在铁轨的更新中，首先铁轨会通过计算临近铁轨状态来判断当前的状态是否需要改变，具体怎么判断的这里就不多解释了。如果需要更新，铁轨会依次执行位于 BlockRailPowered 类的 <code>updateState</code> 方法中的以下内容：</p>
@@ -454,13 +454,13 @@
 <li>红石灯</li>
 </ul>
 <h2 id="2-7-更新抑制"><a href="#2-7-更新抑制" class="headerlink" title="2.7 更新抑制"></a>2.7 更新抑制</h2><p>一个方块发出方块的更新可以导致了另一个方块的更新，如果此时另一个方块也发出了方块更新，那么说不定可以再更新一个新的方块。如果有无限的方块排一排等着更新，如果给一它们一个方块更新，它们能一口气全部更新完吗？虽然实际上应该是可以的，但是基于 MC 的实现机制，答案是：不行</p>
-<p><img src="/2019/08/10/deeply-dissecting-minecraft_2/%E5%A4%A7%E9%9D%A2%E7%A7%AF%E7%9A%84bud%E9%93%81%E8%BD%A8.png" alt="大面积的bud铁轨"></p>
+<p><img src="/2020/02/04/deeply-dissecting-minecraft_2/%E5%A4%A7%E9%9D%A2%E7%A7%AF%E7%9A%84bud%E9%93%81%E8%BD%A8.png" alt="大面积的bud铁轨"></p>
 <p>在处理方块更新时，游戏内是简单地通过递归处理的，而最大的递归次数，是由 java 虚拟机的栈空间所决定的。栈空间不像堆空间，在默认条件下容量不大，这导致了当出现递归更新过量方块时栈空间将会耗尽，导致 java 抛出了栈溢出的异常（实际上栈溢出后可能抛出的是其他类型的异常，这里为了方便表述称其为栈溢出异常）</p>
 <p>异常可是个很危险的东西。出现异常时，程序将会一直忽略之后的操作，一直往外跳出，直到异常被捕获。在大部分 MC 流程中，异常将会在最底层的 MinecraftServer 类的 <code>run</code> 方法中被捕获，随后游戏将生成崩溃报告并强行关闭服务器，也就是崩服，服务器崩溃了</p>
 <p>不过，如果一个异常是在玩家操作阶段被玩家的动作触发，则这个异常将会在 Util 类的 <code>runTask</code> 方法中被捕获并作为一个 Fatal 输出，而非被 MinecraftServer 捕获，也就是说玩家动作引发的异常是不会引起服务端崩溃的。作为异常之一的栈溢出，如果是由玩家操作引起的，比如玩家打掉了一个接连插了几千个旗子的方块，或者玩家在大面积的 bud 态充能铁轨旁边放置了方块，虽会导致栈溢出，但都<strong>不会</strong>导致游戏崩溃</p>
-<p><img src="/2019/08/10/deeply-dissecting-minecraft_2/%E6%89%8B%E6%94%BE%E6%96%B9%E5%9D%97.png" alt="手放方块"></p>
+<p><img src="/2020/02/04/deeply-dissecting-minecraft_2/%E6%89%8B%E6%94%BE%E6%96%B9%E5%9D%97.png" alt="手放方块"></p>
 <p>由于栈溢出可以跳过在异常捕获前的所有运算，因此可以用此来跳过一些运算以实现普通游戏里不可能的操作，如跳过对特定方块的更新，从而制造各种悬空木门、贴在告示牌背面的告示牌、切片的地狱门；也可以跳过对玩家物品栏物品的操作，在不消耗工具耐久或者不消耗手中物品的情况下破坏/放置方块。这一类操作，我们统称为为<strong>更新抑制</strong></p>
-<p><img src="/2019/08/10/deeply-dissecting-minecraft_2/%E6%9B%B4%E6%96%B0%E6%8A%91%E5%88%B6.png" alt="更新抑制"></p>
+<p><img src="/2020/02/04/deeply-dissecting-minecraft_2/%E6%9B%B4%E6%96%B0%E6%8A%91%E5%88%B6.png" alt="更新抑制"></p>
 <p>关于更新抑制与可协助产生更新抑制的更新抑制器，Xcom6000 制作过一个非常详细的讲解视频，红石科技搬运组已在 bilibili 将其翻译成熟肉。推荐大家去观看学习。<a target="_blank" rel="noopener" href="https://www.bilibili.com/video/av83979198">传送门</a></p>
 <h3 id="2-7-1-方块更新与深度优先搜索"><a href="#2-7-1-方块更新与深度优先搜索" class="headerlink" title="2.7.1 方块更新与深度优先搜索"></a>2.7.1 方块更新与深度优先搜索</h3><p>方块受到更新，方块改变状态，方块发出更新，依次更新毗邻方块，新方块受到更新……这一层层递归的过程，本质上正是一个深度优先搜索，也就是 DFS（Depth First Search）。每当一个 bud 充能铁轨受到更新了，将会按照其发出方块更新的顺序，以及方块更新的更新顺序，往新的 bud 铁轨方块递归下去</p>
 <p>关于深度优先搜索，或者 DFS，网络上相关的资料一搜一大把，这里就不再重复阐述了</p>
@@ -480,7 +480,7 @@
   </li>
   <li class="post-copyright-link">
     <strong>本文链接：</strong>
-    <a href="https://fallenbreath.me/2019/08/10/deeply-dissecting-minecraft_2/" title="深度剖析Minecraft #2 方块更新">https://fallenbreath.me/2019/08/10/deeply-dissecting-minecraft_2/</a>
+    <a href="https://fallenbreath.me/2020/02/04/deeply-dissecting-minecraft_2/" title="深度剖析Minecraft #2 方块更新">https://fallenbreath.me/2020/02/04/deeply-dissecting-minecraft_2/</a>
   </li>
   <li class="post-copyright-license">
     <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
@@ -500,10 +500,13 @@
 
         
     <div class="post-nav">
-      <div class="post-nav-item"></div>
       <div class="post-nav-item">
-    <a href="/2019/08/10/solidblock-summary-isNormalCube/" rel="next" title="实体方块的判断——源码中调用isNormalCube()的位置总结">
-      实体方块的判断——源码中调用isNormalCube()的位置总结 <i class="fa fa-chevron-right"></i>
+    <a href="/2019/12/08/deeply-dissecting-minecraft_1/" rel="prev" title="深度剖析Minecraft #1 游戏流程">
+      <i class="fa fa-chevron-left"></i> 深度剖析Minecraft #1 游戏流程
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/09/16/deeply-dissecting-minecraft_3/" rel="next" title="深度剖析Minecraft #3 计划刻">
+      深度剖析Minecraft #3 计划刻 <i class="fa fa-chevron-right"></i>
     </a></div>
     </div>
       </footer>
@@ -759,7 +762,7 @@
       quicklink({
         timeout : 3000,
         priority: true,
-        ignores : [uri => uri.includes('#'),uri => uri === 'https://fallenbreath.me/2019/08/10/deeply-dissecting-minecraft_2/',]
+        ignores : [uri => uri.includes('#'),uri => uri === 'https://fallenbreath.me/2020/02/04/deeply-dissecting-minecraft_2/',]
       });
       });
   </script>
@@ -775,7 +778,7 @@ NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
       repo        : 'blog-comments',
       owner       : 'Fallen-Breath',
       admin       : ['Fallen-Breath'],
-      id          : '2db1eb37330ec2251596bfa1c5d14db6',
+      id          : '602e857875a0986c86ac54c41b428434',
         language: 'zh-CN',
       distractionFreeMode: false
     });
