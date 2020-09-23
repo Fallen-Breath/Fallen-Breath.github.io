@@ -459,7 +459,7 @@ code,
 kbd,
 figure.highlight,
 pre {
-  background: var(--highlight-background);
+  background: #eee;
   color: var(--highlight-foreground);
 }
 figure.highlight,
