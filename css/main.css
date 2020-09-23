@@ -993,7 +993,6 @@ pre .javascript .function {
   font-size: 1.375em;
   font-weight: normal;
   margin: 0;
-  line-height: 1em;
 }
 .site-subtitle {
   color: #ddd;
@@ -1247,7 +1246,7 @@ pre .javascript .function {
 }
 .links-of-author a::before,
 .links-of-author span.exturl::before {
-  background: #60cb7c;
+  background: #ff548e;
   border-radius: 50%;
   content: ' ';
   display: inline-block;
