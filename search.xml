@@ -371,7 +371,7 @@
   </entry>
   <entry>
     <title>深度剖析Minecraft #0 绪论</title>
-    <url>/2019/12/08/deeply-dissecting-minecraft_0/</url>
+    <url>/2020/09/16/deeply-dissecting-minecraft_0/</url>
     <content><![CDATA[<h1 id="0-绪论"><a href="#0-绪论" class="headerlink" title="0 绪论"></a>0 绪论</h1><h2 id="0-1-owo"><a href="#0-1-owo" class="headerlink" title="0.1 owo"></a>0.1 owo</h2><p>嘛，填这个巨坑的目的，是想对啃了一段时间的源码做一些总结，并给出一些对现象的解释，如果可能的话还会给出一些易于分析的模型</p>
 <p>前人的理论虽已挺完善，已经有了不少的分析文章，但他们或多或少的都存在一些无法解释的现象，或者说以为版本迭代而过时</p>
 <p>强推 gp（Gamepiaynmo）的文章<a href="http://tieba.baidu.com/p/4078230299">《[理论分析]红石更新延迟理论》</a>，虽然这个是 1.8 的，但绝大部分内容在 1.13.2 仍适用</p>
@@ -419,7 +419,7 @@
   </entry>
   <entry>
     <title>深度剖析Minecraft #2 方块更新</title>
-    <url>/2020/02/04/deeply-dissecting-minecraft_2/</url>
+    <url>/2020/09/16/deeply-dissecting-minecraft_2/</url>
     <content><![CDATA[<h1 id="2-方块更新"><a href="#2-方块更新" class="headerlink" title="2 方块更新"></a>2 方块更新</h1><p>感谢 <a href="https://space.bilibili.com/112998430">迟昫123</a> 与 <a href="https://space.bilibili.com/397105271">qwrrdshfsghv</a> 的捉虫</p>
 <h2 id="2-1-方块更新性质"><a href="#2-1-方块更新性质" class="headerlink" title="2.1 方块更新性质"></a>2.1 方块更新性质</h2><h3 id="2-1-1-方块更新的种类"><a href="#2-1-1-方块更新的种类" class="headerlink" title="2.1.1 方块更新的种类"></a>2.1.1 方块更新的种类</h3><p>1.13 之后，方块更新分为了两种类型，分别是 <code>NeighborChanged</code> 与 <code>PostPlacement</code>，简称 NC 与 PP 更新。若要与 1.13 之前相比，可将 1.13 之前的所有方块更新都视为 NC 更新。下文将用<strong>方块更新</strong>一词指代 NC 更新，用<strong>状态更新</strong>一词指代 PP 更新</p>
 <p>这两种方块更新的类型在官方的反混淆表（来自 1.14.4）中的名称分别为 neighborChanged 与 updateShape，其命名也能有助于理解上述对两类方块更新具体含义</p>
@@ -1368,5 +1368,23 @@
         <tag>Minecraft</tag>
         <tag>深度剖析MC</tag>
       </tags>
+  </entry>
+  <entry>
+    <title>Hello World</title>
+    <url>/2020/09/23/hello-world/</url>
+    <content><![CDATA[<p>Welcome to <a href="https://hexo.io/">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues">GitHub</a>.</p>
+<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo new <span class="string">&quot;My New Post&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>More info: <a href="https://hexo.io/docs/writing.html">Writing</a></p>
+<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
+
+<p>More info: <a href="https://hexo.io/docs/server.html">Server</a></p>
+<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
+
+<p>More info: <a href="https://hexo.io/docs/generating.html">Generating</a></p>
+<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
+
+<p>More info: <a href="https://hexo.io/docs/one-command-deployment.html">Deployment</a></p>
+]]></content>
   </entry>
 </search>

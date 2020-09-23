@@ -24,33 +24,33 @@
   <meta name="description" content="2 方块更新感谢 迟昫123 与 qwrrdshfsghv 的捉虫 2.1 方块更新性质2.1.1 方块更新的种类1.13 之后，方块更新分为了两种类型，分别是 NeighborChanged 与 PostPlacement，简称 NC 与 PP 更新。若要与 1.13 之前相比，可将 1.13 之前的所有方块更新都视为 NC 更新。下文将用方块更新一词指代 NC 更新，用状态更新一词指代 PP">
 <meta property="og:type" content="article">
 <meta property="og:title" content="深度剖析Minecraft #2 方块更新">
-<meta property="og:url" content="https://fallenbreath.me/2020/02/04/deeply-dissecting-minecraft_2/index.html">
+<meta property="og:url" content="https://fallenbreath.me/2020/09/16/deeply-dissecting-minecraft_2/index.html">
 <meta property="og:site_name" content="fallen&#39;s attic">
 <meta property="og:description" content="2 方块更新感谢 迟昫123 与 qwrrdshfsghv 的捉虫 2.1 方块更新性质2.1.1 方块更新的种类1.13 之后，方块更新分为了两种类型，分别是 NeighborChanged 与 PostPlacement，简称 NC 与 PP 更新。若要与 1.13 之前相比，可将 1.13 之前的所有方块更新都视为 NC 更新。下文将用方块更新一词指代 NC 更新，用状态更新一词指代 PP">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://fallenbreath.me/2020/02/04/deeply-dissecting-minecraft_2/deeply-dissecting-minecraft_2/NC%E6%9B%B4%E6%96%B0%E6%96%B9%E5%9D%97.png">
-<meta property="og:image" content="https://fallenbreath.me/2020/02/04/deeply-dissecting-minecraft_2/deeply-dissecting-minecraft_2/PP%E6%9B%B4%E6%96%B0%E6%96%B9%E5%9D%97.png">
-<meta property="og:image" content="https://fallenbreath.me/2020/02/04/deeply-dissecting-minecraft_2/deeply-dissecting-minecraft_2/%E5%85%AD%E6%AF%97%E9%82%BB%E6%96%B9%E5%9D%97.png">
-<meta property="og:image" content="https://fallenbreath.me/2020/02/04/deeply-dissecting-minecraft_2/deeply-dissecting-minecraft_2/%E4%BA%94%E6%AF%97%E9%82%BB%E6%96%B9%E5%9D%97.png">
-<meta property="og:image" content="https://fallenbreath.me/2020/02/04/deeply-dissecting-minecraft_2/deeply-dissecting-minecraft_2/%E5%85%AD%E6%AF%97%E9%82%BB%E6%96%B9%E5%9D%97.png">
-<meta property="og:image" content="https://fallenbreath.me/2020/02/04/deeply-dissecting-minecraft_2/deeply-dissecting-minecraft_2/bud%E6%B4%BB%E5%A1%9E.png">
-<meta property="og:image" content="https://fallenbreath.me/2020/02/04/deeply-dissecting-minecraft_2/deeply-dissecting-minecraft_2/%E4%BE%A6%E6%B5%8B%E5%99%A8.png">
-<meta property="og:image" content="https://fallenbreath.me/2020/02/04/deeply-dissecting-minecraft_2/deeply-dissecting-minecraft_2/%E6%94%BE%E7%BD%AE%E6%96%B9%E5%9D%97.png">
-<meta property="og:image" content="https://fallenbreath.me/2020/02/04/deeply-dissecting-minecraft_2/deeply-dissecting-minecraft_2/%E4%B8%AD%E7%BB%A7%E5%99%A8%E6%9B%B4%E6%96%B0.png">
-<meta property="og:image" content="https://fallenbreath.me/2020/02/04/deeply-dissecting-minecraft_2/deeply-dissecting-minecraft_2/%E6%89%93%E5%BC%80%E7%AE%B1%E5%AD%90.png">
-<meta property="og:image" content="https://fallenbreath.me/2020/02/04/deeply-dissecting-minecraft_2/deeply-dissecting-minecraft_2/%E6%89%93%E5%BC%80%E6%A0%85%E6%A0%8F%E9%97%A8.png">
-<meta property="og:image" content="https://fallenbreath.me/2020/02/04/deeply-dissecting-minecraft_2/deeply-dissecting-minecraft_2/%E5%A4%A7%E9%9D%A2%E7%A7%AF%E7%9A%84bud%E9%93%81%E8%BD%A8.png">
-<meta property="og:image" content="https://fallenbreath.me/2020/02/04/deeply-dissecting-minecraft_2/deeply-dissecting-minecraft_2/%E6%89%8B%E6%94%BE%E6%96%B9%E5%9D%97.png">
-<meta property="og:image" content="https://fallenbreath.me/2020/02/04/deeply-dissecting-minecraft_2/deeply-dissecting-minecraft_2/%E6%9B%B4%E6%96%B0%E6%8A%91%E5%88%B6.png">
-<meta property="article:published_time" content="2020-02-04T03:53:07.000Z">
-<meta property="article:modified_time" content="2020-02-04T03:53:07.000Z">
+<meta property="og:image" content="https://fallenbreath.me/2020/09/16/deeply-dissecting-minecraft_2/deeply-dissecting-minecraft_2/NC%E6%9B%B4%E6%96%B0%E6%96%B9%E5%9D%97.png">
+<meta property="og:image" content="https://fallenbreath.me/2020/09/16/deeply-dissecting-minecraft_2/deeply-dissecting-minecraft_2/PP%E6%9B%B4%E6%96%B0%E6%96%B9%E5%9D%97.png">
+<meta property="og:image" content="https://fallenbreath.me/2020/09/16/deeply-dissecting-minecraft_2/deeply-dissecting-minecraft_2/%E5%85%AD%E6%AF%97%E9%82%BB%E6%96%B9%E5%9D%97.png">
+<meta property="og:image" content="https://fallenbreath.me/2020/09/16/deeply-dissecting-minecraft_2/deeply-dissecting-minecraft_2/%E4%BA%94%E6%AF%97%E9%82%BB%E6%96%B9%E5%9D%97.png">
+<meta property="og:image" content="https://fallenbreath.me/2020/09/16/deeply-dissecting-minecraft_2/deeply-dissecting-minecraft_2/%E5%85%AD%E6%AF%97%E9%82%BB%E6%96%B9%E5%9D%97.png">
+<meta property="og:image" content="https://fallenbreath.me/2020/09/16/deeply-dissecting-minecraft_2/deeply-dissecting-minecraft_2/bud%E6%B4%BB%E5%A1%9E.png">
+<meta property="og:image" content="https://fallenbreath.me/2020/09/16/deeply-dissecting-minecraft_2/deeply-dissecting-minecraft_2/%E4%BE%A6%E6%B5%8B%E5%99%A8.png">
+<meta property="og:image" content="https://fallenbreath.me/2020/09/16/deeply-dissecting-minecraft_2/deeply-dissecting-minecraft_2/%E6%94%BE%E7%BD%AE%E6%96%B9%E5%9D%97.png">
+<meta property="og:image" content="https://fallenbreath.me/2020/09/16/deeply-dissecting-minecraft_2/deeply-dissecting-minecraft_2/%E4%B8%AD%E7%BB%A7%E5%99%A8%E6%9B%B4%E6%96%B0.png">
+<meta property="og:image" content="https://fallenbreath.me/2020/09/16/deeply-dissecting-minecraft_2/deeply-dissecting-minecraft_2/%E6%89%93%E5%BC%80%E7%AE%B1%E5%AD%90.png">
+<meta property="og:image" content="https://fallenbreath.me/2020/09/16/deeply-dissecting-minecraft_2/deeply-dissecting-minecraft_2/%E6%89%93%E5%BC%80%E6%A0%85%E6%A0%8F%E9%97%A8.png">
+<meta property="og:image" content="https://fallenbreath.me/2020/09/16/deeply-dissecting-minecraft_2/deeply-dissecting-minecraft_2/%E5%A4%A7%E9%9D%A2%E7%A7%AF%E7%9A%84bud%E9%93%81%E8%BD%A8.png">
+<meta property="og:image" content="https://fallenbreath.me/2020/09/16/deeply-dissecting-minecraft_2/deeply-dissecting-minecraft_2/%E6%89%8B%E6%94%BE%E6%96%B9%E5%9D%97.png">
+<meta property="og:image" content="https://fallenbreath.me/2020/09/16/deeply-dissecting-minecraft_2/deeply-dissecting-minecraft_2/%E6%9B%B4%E6%96%B0%E6%8A%91%E5%88%B6.png">
+<meta property="article:published_time" content="2020-09-16T14:55:09.000Z">
+<meta property="article:modified_time" content="2020-09-16T14:55:09.000Z">
 <meta property="article:author" content="Fallen_Breath">
 <meta property="article:tag" content="Minecraft">
 <meta property="article:tag" content="深度剖析MC">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://fallenbreath.me/2020/02/04/deeply-dissecting-minecraft_2/deeply-dissecting-minecraft_2/NC%E6%9B%B4%E6%96%B0%E6%96%B9%E5%9D%97.png">
+<meta name="twitter:image" content="https://fallenbreath.me/2020/09/16/deeply-dissecting-minecraft_2/deeply-dissecting-minecraft_2/NC%E6%9B%B4%E6%96%B0%E6%96%B9%E5%9D%97.png">
 
-<link rel="canonical" href="https://fallenbreath.me/2020/02/04/deeply-dissecting-minecraft_2/">
+<link rel="canonical" href="https://fallenbreath.me/2020/09/16/deeply-dissecting-minecraft_2/">
 
 
 <script id="page-configurations">
@@ -215,7 +215,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://fallenbreath.me/2020/02/04/deeply-dissecting-minecraft_2/">
+    <link itemprop="mainEntityOfPage" href="https://fallenbreath.me/2020/09/16/deeply-dissecting-minecraft_2/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.jpg">
@@ -238,7 +238,7 @@
               </span>
               <span class="post-meta-item-text">发表于</span>
 
-              <time title="创建时间：2020-02-04 11:53:07" itemprop="dateCreated datePublished" datetime="2020-02-04T11:53:07+08:00">2020-02-04</time>
+              <time title="创建时间：2020-09-16 22:55:09" itemprop="dateCreated datePublished" datetime="2020-09-16T22:55:09+08:00">2020-09-16</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -480,7 +480,7 @@
   </li>
   <li class="post-copyright-link">
     <strong>本文链接：</strong>
-    <a href="https://fallenbreath.me/2020/02/04/deeply-dissecting-minecraft_2/" title="深度剖析Minecraft #2 方块更新">https://fallenbreath.me/2020/02/04/deeply-dissecting-minecraft_2/</a>
+    <a href="https://fallenbreath.me/2020/09/16/deeply-dissecting-minecraft_2/" title="深度剖析Minecraft #2 方块更新">https://fallenbreath.me/2020/09/16/deeply-dissecting-minecraft_2/</a>
   </li>
   <li class="post-copyright-license">
     <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
@@ -501,12 +501,12 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2019/12/08/deeply-dissecting-minecraft_0/" rel="prev" title="深度剖析Minecraft #0 绪论">
-      <i class="fa fa-chevron-left"></i> 深度剖析Minecraft #0 绪论
+    <a href="/2020/09/16/deeply-dissecting-minecraft_1/" rel="prev" title="深度剖析Minecraft #1 游戏流程">
+      <i class="fa fa-chevron-left"></i> 深度剖析Minecraft #1 游戏流程
     </a></div>
       <div class="post-nav-item">
-    <a href="/2020/09/16/deeply-dissecting-minecraft_1/" rel="next" title="深度剖析Minecraft #1 游戏流程">
-      深度剖析Minecraft #1 游戏流程 <i class="fa fa-chevron-right"></i>
+    <a href="/2020/09/16/deeply-dissecting-minecraft_3/" rel="next" title="深度剖析Minecraft #3 计划刻">
+      深度剖析Minecraft #3 计划刻 <i class="fa fa-chevron-right"></i>
     </a></div>
     </div>
       </footer>
@@ -583,7 +583,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">5</span>
+          <span class="site-state-item-count">6</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -636,7 +636,7 @@
 
 <div class="copyright">
   
-  &copy; 2019 – 
+  &copy; 
   <span itemprop="copyrightYear">2020</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
@@ -646,12 +646,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="站点总字数">24k</span>
+    <span title="站点总字数">25k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">44 分钟</span>
+    <span title="站点阅读时长">45 分钟</span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
   </div>
@@ -759,7 +759,7 @@ NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
       repo        : 'blog-comments',
       owner       : 'Fallen-Breath',
       admin       : ['Fallen-Breath'],
-      id          : '602e857875a0986c86ac54c41b428434',
+      id          : 'a3479710d51b2724e09e49b62c4c7e9f',
         language: 'zh-CN',
       distractionFreeMode: false
     });

@@ -24,20 +24,20 @@
   <meta name="description" content="0 绪论0.1 owo嘛，填这个巨坑的目的，是想对啃了一段时间的源码做一些总结，并给出一些对现象的解释，如果可能的话还会给出一些易于分析的模型 前人的理论虽已挺完善，已经有了不少的分析文章，但他们或多或少的都存在一些无法解释的现象，或者说以为版本迭代而过时 强推 gp（Gamepiaynmo）的文章《[理论分析]红石更新延迟理论》，虽然这个是 1.8 的，但绝大部分内容在 1.13.2 仍适用 我">
 <meta property="og:type" content="article">
 <meta property="og:title" content="深度剖析Minecraft #0 绪论">
-<meta property="og:url" content="https://fallenbreath.me/2019/12/08/deeply-dissecting-minecraft_0/index.html">
+<meta property="og:url" content="https://fallenbreath.me/2020/09/16/deeply-dissecting-minecraft_0/index.html">
 <meta property="og:site_name" content="fallen&#39;s attic">
 <meta property="og:description" content="0 绪论0.1 owo嘛，填这个巨坑的目的，是想对啃了一段时间的源码做一些总结，并给出一些对现象的解释，如果可能的话还会给出一些易于分析的模型 前人的理论虽已挺完善，已经有了不少的分析文章，但他们或多或少的都存在一些无法解释的现象，或者说以为版本迭代而过时 强推 gp（Gamepiaynmo）的文章《[理论分析]红石更新延迟理论》，虽然这个是 1.8 的，但绝大部分内容在 1.13.2 仍适用 我">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://fallenbreath.me/2019/12/08/deeply-dissecting-minecraft_0/deeply-dissecting-minecraft_0/banner.png">
-<meta property="article:published_time" content="2019-12-08T11:14:05.000Z">
-<meta property="article:modified_time" content="2019-12-08T11:14:05.000Z">
+<meta property="og:image" content="https://fallenbreath.me/2020/09/16/deeply-dissecting-minecraft_0/deeply-dissecting-minecraft_0/banner.png">
+<meta property="article:published_time" content="2020-09-16T14:20:09.000Z">
+<meta property="article:modified_time" content="2020-09-16T14:20:09.000Z">
 <meta property="article:author" content="Fallen_Breath">
 <meta property="article:tag" content="Minecraft">
 <meta property="article:tag" content="深度剖析MC">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://fallenbreath.me/2019/12/08/deeply-dissecting-minecraft_0/deeply-dissecting-minecraft_0/banner.png">
+<meta name="twitter:image" content="https://fallenbreath.me/2020/09/16/deeply-dissecting-minecraft_0/deeply-dissecting-minecraft_0/banner.png">
 
-<link rel="canonical" href="https://fallenbreath.me/2019/12/08/deeply-dissecting-minecraft_0/">
+<link rel="canonical" href="https://fallenbreath.me/2020/09/16/deeply-dissecting-minecraft_0/">
 
 
 <script id="page-configurations">
@@ -202,7 +202,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://fallenbreath.me/2019/12/08/deeply-dissecting-minecraft_0/">
+    <link itemprop="mainEntityOfPage" href="https://fallenbreath.me/2020/09/16/deeply-dissecting-minecraft_0/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.jpg">
@@ -225,7 +225,7 @@
               </span>
               <span class="post-meta-item-text">发表于</span>
 
-              <time title="创建时间：2019-12-08 19:14:05" itemprop="dateCreated datePublished" datetime="2019-12-08T19:14:05+08:00">2019-12-08</time>
+              <time title="创建时间：2020-09-16 22:20:09" itemprop="dateCreated datePublished" datetime="2020-09-16T22:20:09+08:00">2020-09-16</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -320,7 +320,7 @@
   </li>
   <li class="post-copyright-link">
     <strong>本文链接：</strong>
-    <a href="https://fallenbreath.me/2019/12/08/deeply-dissecting-minecraft_0/" title="深度剖析Minecraft #0 绪论">https://fallenbreath.me/2019/12/08/deeply-dissecting-minecraft_0/</a>
+    <a href="https://fallenbreath.me/2020/09/16/deeply-dissecting-minecraft_0/" title="深度剖析Minecraft #0 绪论">https://fallenbreath.me/2020/09/16/deeply-dissecting-minecraft_0/</a>
   </li>
   <li class="post-copyright-license">
     <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
@@ -342,8 +342,8 @@
     <div class="post-nav">
       <div class="post-nav-item"></div>
       <div class="post-nav-item">
-    <a href="/2020/02/04/deeply-dissecting-minecraft_2/" rel="next" title="深度剖析Minecraft #2 方块更新">
-      深度剖析Minecraft #2 方块更新 <i class="fa fa-chevron-right"></i>
+    <a href="/2020/09/16/deeply-dissecting-minecraft_1/" rel="next" title="深度剖析Minecraft #1 游戏流程">
+      深度剖析Minecraft #1 游戏流程 <i class="fa fa-chevron-right"></i>
     </a></div>
     </div>
       </footer>
@@ -420,7 +420,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">5</span>
+          <span class="site-state-item-count">6</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -473,7 +473,7 @@
 
 <div class="copyright">
   
-  &copy; 2019 – 
+  &copy; 
   <span itemprop="copyrightYear">2020</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
@@ -483,12 +483,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="站点总字数">24k</span>
+    <span title="站点总字数">25k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">44 分钟</span>
+    <span title="站点阅读时长">45 分钟</span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
   </div>
@@ -596,7 +596,7 @@ NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
       repo        : 'blog-comments',
       owner       : 'Fallen-Breath',
       admin       : ['Fallen-Breath'],
-      id          : 'ab3895423630bb9a94f90b0e5051aaf8',
+      id          : 'a70e568c566ea1649141492a6d5f1e16',
         language: 'zh-CN',
       distractionFreeMode: false
     });
