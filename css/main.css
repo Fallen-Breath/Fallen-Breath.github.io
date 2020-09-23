@@ -981,7 +981,7 @@ pre .javascript .function {
   border-bottom: none;
   color: var(--brand-color);
   display: inline-block;
-  line-height: 1.375em;
+  line-height: 1.8em;
   padding: 0 40px;
   position: relative;
 }
@@ -990,7 +990,7 @@ pre .javascript .function {
 }
 .site-title {
   font-family: 'Kalam', "PingFang SC", "Microsoft YaHei", sans-serif;
-  font-size: 1.375em;
+  font-size: 1.8em;
   font-weight: normal;
   margin: 0;
 }
@@ -1246,7 +1246,7 @@ pre .javascript .function {
 }
 .links-of-author a::before,
 .links-of-author span.exturl::before {
-  background: #ff548e;
+  background: #ff1891;
   border-radius: 50%;
   content: ' ';
   display: inline-block;
