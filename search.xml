@@ -159,375 +159,6 @@
       </tags>
   </entry>
   <entry>
-    <title>深度剖析Minecraft #1 游戏流程</title>
-    <url>/2019/12/08/deeply-dissecting-minecraft_1/</url>
-    <content><![CDATA[<h1 id="1-游戏流程"><a href="#1-游戏流程" class="headerlink" title="1 游戏流程"></a>1 游戏流程</h1><h2 id="1-1-代码层面上的-GameTime-内游戏运算顺序"><a href="#1-1-代码层面上的-GameTime-内游戏运算顺序" class="headerlink" title="1.1 代码层面上的 GameTime 内游戏运算顺序"></a>1.1 代码层面上的 GameTime 内游戏运算顺序</h2><blockquote>
-<p>来吧顺着代码DFS</p>
-</blockquote>
-<p>让我们从Minecraft服务端最底层的代码 —— <code>MinecraftServer.tick()</code> 开始。<a id="more"></a>这个 tick 函数包含了两个与游戏阶段相关的函数：</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 主运算部分</span></span><br><span class="line"><span class="keyword">this</span>.updateTimeLightAndEntities(hasTimeLeft) </span><br><span class="line"><span class="comment">// 900gt一次的自动保存</span></span><br><span class="line"><span class="keyword">this</span>.saveAllWorlds(<span class="keyword">true</span>);</span><br></pre></td></tr></table></figure>
-
-<p>随后我们进入到 <code>updateTimeLightAndEntities()</code> 中，在这里的精简代码（删去无关代码以及过长参数）如下</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">// MinecraftServer.tick()</span></span><br><span class="line"><span class="comment">// 成就命令相关</span></span><br><span class="line"><span class="keyword">this</span>.getFunctionManager().tick(); </span><br><span class="line"><span class="comment">// 循环每一个世界：</span></span><br><span class="line"><span class="keyword">for</span> (WorldServer worldserver : <span class="keyword">this</span>.getWorlds())</span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 同步玩家的客户端时间</span></span><br><span class="line">    <span class="keyword">this</span>.playerList.sendPacketToAllPlayersInDimension(<span class="keyword">new</span> SPacketTimeUpdate); </span><br><span class="line">    <span class="comment">// 运算游戏内容</span></span><br><span class="line">    worldserver.tick(hasTimeLeft); </span><br><span class="line">    <span class="comment">// 运算实体</span></span><br><span class="line">    worldserver.tickEntities(); </span><br><span class="line">    <span class="comment">// 传输至客户端的实体信息相关</span></span><br><span class="line">    worldserver.getEntityTracker().tick(); </span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 网络玩家信息运算</span></span><br><span class="line"><span class="keyword">this</span>.getNetworkSystem().tick(); </span><br></pre></td></tr></table></figure>
-
-<p>让我们进入 <code>worldserver.tick(hasTimeLeft)</code>，终于开始要有具体的游戏阶段了。精简代码如下</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">// worldserver.tick(hasTimeLeft)</span></span><br><span class="line"><span class="comment">// 极限模式下难度锁困难判断</span></span><br><span class="line"><span class="keyword">if</span> (<span class="keyword">this</span>.getWorldInfo().isHardcore() &amp;&amp; <span class="keyword">this</span>.getDifficulty() != EnumDifficulty.HARD)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">this</span>.getWorldInfo().setDifficulty(EnumDifficulty.HARD);</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 群系生成相关</span></span><br><span class="line"><span class="keyword">this</span>.chunkProvider.getChunkGenerator().getBiomeProvider().tick();</span><br><span class="line"><span class="keyword">if</span> (<span class="keyword">this</span>.areAllPlayersAsleep())</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">this</span>.getGameRules().getBoolean(<span class="string">&quot;doDaylightCycle&quot;</span>))</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">long</span> i = <span class="keyword">this</span>.worldInfo.getDayTime() + <span class="number">24000L</span>;</span><br><span class="line">        <span class="keyword">this</span>.worldInfo.setDayTime(i - i % <span class="number">24000L</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">this</span>.wakeAllPlayers();</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 刷怪</span></span><br><span class="line"><span class="keyword">this</span>.entitySpawner.findChunksForSpawning();</span><br><span class="line"><span class="keyword">this</span>.getChunkProvider().spawnMobs();</span><br><span class="line"><span class="comment">// 区块卸载</span></span><br><span class="line"><span class="keyword">this</span>.chunkProvider.tick(hasTimeLeft);</span><br><span class="line"><span class="comment">// 天空光衰减计算</span></span><br><span class="line"><span class="keyword">int</span> j = <span class="keyword">this</span>.calculateSkylightSubtracted(<span class="number">1.0F</span>);</span><br><span class="line"><span class="keyword">if</span> (j != <span class="keyword">this</span>.getSkylightSubtracted())</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">this</span>.setSkylightSubtracted(j);</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 设置GameTime与Daytime</span></span><br><span class="line"><span class="keyword">this</span>.worldInfo.setGameTime(<span class="keyword">this</span>.worldInfo.getGameTime() + <span class="number">1L</span>);</span><br><span class="line"><span class="keyword">if</span> (<span class="keyword">this</span>.getGameRules().getBoolean(<span class="string">&quot;doDaylightCycle&quot;</span>))</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">this</span>.worldInfo.setDayTime(<span class="keyword">this</span>.worldInfo.getDayTime() </span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 计划刻 Tile Tick (Next Tick Entry)</span></span><br><span class="line"><span class="keyword">this</span>.tickPending();</span><br><span class="line"><span class="comment">// 各类方块特性的运算，将进入继续分析</span></span><br><span class="line"><span class="keyword">this</span>.tickBlocks();</span><br><span class="line"><span class="comment">// 玩家加载的区块列表更新，并发送更新客户端世界信息的包</span></span><br><span class="line"><span class="keyword">this</span>.playerChunkMap.tick();</span><br><span class="line"><span class="comment">// 村庄运算</span></span><br><span class="line"><span class="keyword">this</span>.villageCollection.tick();</span><br><span class="line"><span class="comment">// 僵尸围城</span></span><br><span class="line"><span class="keyword">this</span>.villageSiege.tick();</span><br><span class="line"><span class="comment">// 地狱门缓存清空</span></span><br><span class="line"><span class="keyword">this</span>.worldTeleporter.tick(<span class="keyword">this</span>.getGameTime());</span><br><span class="line"><span class="comment">// 方块事件 Block Event</span></span><br><span class="line"><span class="keyword">this</span>.sendQueuedBlockEvents();</span><br></pre></td></tr></table></figure>
-
-<p>好的，我们再来看看 <code>this.tickBlocks();</code> 这个各类方块相关的事件运算。由于有部分事件已经涉及到了底层实现而没有用函数封装，对于这部分事件我用前缀”·”表示</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">// this.tickBlocks()</span></span><br><span class="line"><span class="comment">// 随机检查并更新玩家附近的亮度</span></span><br><span class="line"><span class="keyword">this</span>.playerCheckLight();</span><br><span class="line"><span class="comment">// 循环每个玩家周围的区块进行：</span></span><br><span class="line"><span class="keyword">for</span> (Iterator&lt;Chunk&gt; iterator = <span class="keyword">this</span>.playerChunkMap.getChunkIterator(); iterator.hasNext(); <span class="keyword">this</span>.profiler.endSection())</span><br><span class="line">&#123;</span><br><span class="line">    Chunk chunk = iterator.next();</span><br><span class="line">    <span class="comment">// 客户端的亮度检查</span></span><br><span class="line">    chunk.enqueueRelightChecks();</span><br><span class="line">    <span class="comment">// 天空光的计算与将新增的 Tile Entity 储存至区块内</span></span><br><span class="line">    chunk.tick(<span class="keyword">false</span>);</span><br><span class="line">    <span class="comment">// 生成雷电，以及骷髅马陷阱</span></span><br><span class="line">    ·thunder</span><br><span class="line">    <span class="comment">// 下雪与结冰</span></span><br><span class="line">    ·iceandsnow</span><br><span class="line">    <span class="comment">// 随机刻</span></span><br><span class="line">    ·randomTick</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>终于跟踪分析完<code>worldserver.tick(hasTimeLeft);</code>这个运算游戏内容，然后就是<code>worldserver.tickEntities();</code></p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">// worldserver.tickEntities()</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">tickEntities</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">// 维度卸载判定相关</span></span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">this</span>.playerEntities.isEmpty())</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span> (<span class="keyword">this</span>.updateEntityTick++ &gt;= <span class="number">300</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">this</span>.resetUpdateEntityTick();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 维度相关的运算，目前仅有末地的龙战相关逻辑</span></span><br><span class="line">    <span class="keyword">this</span>.dimension.tick();</span><br><span class="line">    <span class="comment">// 调用父类World的tickEntities()</span></span><br><span class="line">    <span class="keyword">super</span>.tickEntities();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">// World.tickEntities()</span></span><br><span class="line"><span class="comment">// 天气相关实体运算</span></span><br><span class="line">·weatherEffects</span><br><span class="line"><span class="comment">// 玩家实体运算</span></span><br><span class="line"><span class="keyword">this</span>.tickPlayers();</span><br><span class="line"><span class="comment">// 普通实体运算</span></span><br><span class="line">·loadedEntities</span><br><span class="line"><span class="comment">// 方块实体运算</span></span><br><span class="line">·TileEntities</span><br></pre></td></tr></table></figure>
-
-<p>现在让我们来按顺序总结一下所有的游戏阶段运行顺序：</p>
-<ol>
-<li>成就命令相关 <sup id="fnref:1"><a href="#fn:1" rel="footnote">1</a></sup></li>
-<li>同步玩家的客户端时间 <sup id="fnref:2"><a href="#fn:2" rel="footnote">2</a></sup></li>
-<li>极限模式下难度锁困难判断 <sup id="fnref:3"><a href="#fn:3" rel="footnote">3</a></sup></li>
-<li>群系生成相关 <sup id="fnref:4"><a href="#fn:4" rel="footnote">4</a></sup></li>
-<li>玩家睡觉逻辑 <sup id="fnref:5"><a href="#fn:5" rel="footnote">5</a></sup></li>
-<li>生物、怪物刷新 <sup id="fnref:6"><a href="#fn:6" rel="footnote">6</a></sup></li>
-<li>区块卸载  <sup id="fnref:7"><a href="#fn:7" rel="footnote">7</a></sup></li>
-<li>天空光衰减计算 <sup id="fnref:8"><a href="#fn:8" rel="footnote">8</a></sup></li>
-<li>设置 GameTime 与 Daytime <sup id="fnref:9"><a href="#fn:9" rel="footnote">9</a></sup></li>
-<li>计划刻 Tile Tick (Next Tick Entry) <sup id="fnref:10"><a href="#fn:10" rel="footnote">10</a></sup></li>
-<li>随机检查并更新玩家附近的亮度 <sup id="fnref:11"><a href="#fn:11" rel="footnote">11</a></sup></li>
-<li>天空光的计算与将新增的 Tile Entity 储存至区块内；雷电；下雪与结冰；随机刻 <sup id="fnref:12"><a href="#fn:12" rel="footnote">12</a></sup></li>
-<li>玩家加载的区块列表更新，并发送客户端方块更新数据包 <sup id="fnref:13"><a href="#fn:13" rel="footnote">13</a></sup></li>
-<li>村庄运算 <sup id="fnref:14"><a href="#fn:14" rel="footnote">14</a></sup></li>
-<li>僵尸围城 <sup id="fnref:15"><a href="#fn:15" rel="footnote">15</a></sup></li>
-<li>地狱门缓存清空 <sup id="fnref:16"><a href="#fn:16" rel="footnote">16</a></sup></li>
-<li>方块事件 Block Event <sup id="fnref:17"><a href="#fn:17" rel="footnote">17</a></sup></li>
-<li>维度卸载判定相关 <sup id="fnref:18"><a href="#fn:18" rel="footnote">18</a></sup></li>
-<li>维度相关的运算，目前仅有末地的龙战相关逻辑 <sup id="fnref:19"><a href="#fn:19" rel="footnote">19</a></sup></li>
-<li>天气相关实体运算 <sup id="fnref:20"><a href="#fn:20" rel="footnote">20</a></sup></li>
-<li>玩家实体运算 <sup id="fnref:21"><a href="#fn:21" rel="footnote">21</a></sup></li>
-<li>普通实体运算 <sup id="fnref:22"><a href="#fn:22" rel="footnote">22</a></sup></li>
-<li>方块实体运算 <sup id="fnref:23"><a href="#fn:23" rel="footnote">23</a></sup></li>
-<li>发送客户端实体更新数据包 <sup id="fnref:24"><a href="#fn:24" rel="footnote">24</a></sup></li>
-<li>网络玩家信息运算 <sup id="fnref:25"><a href="#fn:25" rel="footnote">25</a></sup></li>
-<li>自动保存 <sup id="fnref:26"><a href="#fn:26" rel="footnote">26</a></sup></li>
-</ol>
-<h2 id="1-2-GameTick"><a href="#1-2-GameTick" class="headerlink" title="1.2 GameTick"></a>1.2 GameTick</h2><p>GameTick（gt），也就是游戏刻，或者说游戏里的时间量，是用来衡量电路延迟、生物生存周期等的重要指标。要想明确 GameTick 是什么，就先得给出 GameTick 的定义</p>
-<p>作为一个离散的时间量，在游戏的运算过程中一定存在某个时刻，GameTick 这个时间量发生改变，这就是 GameTick 的分界线。在 1.1 节，我们从代码执行顺序的角度列出了游戏的运算顺序。在这个长达 24 条的列表里，我将 GameTick 的分界线的划分在：<strong>8. 设置GameTime与Daytime</strong>，并给出GameTick的定义：</p>
-<blockquote>
-<p>GameTick 为 x 的定义是：所有执行 <code>World.worldInfo.getGameTime()</code> 得到的返回值为 x 的时刻的集合</p>
-</blockquote>
-<p>于是，我们可以得到事件P发生于GameTick x的定义：</p>
-<blockquote>
-<p>一个事件P发生于 GameTick x 的定义为：<br>发生事件P时若执行<code>World.worldInfo.getGameTime()</code>，得到的返回值为 x</p>
-</blockquote>
-<p>这样做定义 GameTick 的好处有：</p>
-<ul>
-<li>与 TileTick 元件的执行时间相对应。在 GameTick N 触发的 x gt 延迟 TileTick 元件会在 GameTick N + x 执行动作</li>
-<li>可以直观地在代码中调用 <code>World.worldInfo.getGameTime()</code> 来确定当前的 GameTick</li>
-</ul>
-<p>定义完 GameTick 并确定好分界线后，我们就可以重新排列 1.1 节末尾的列表，并获得一个 GameTick 内各阶段发生的顺序了：</p>
-<ol>
-<li>设置 GameTime 与 Daytime</li>
-<li>计划刻 Tile Tick (Next Tick Entry)</li>
-<li>随机检查并更新玩家附近的亮度</li>
-<li>天空光的计算与将新增的 Tile Entity 储存至区块内；雷电；下雪与结冰；随机刻</li>
-<li>玩家加载的区块列表更新，并发送客户端方块更新数据包</li>
-<li>村庄运算</li>
-<li>僵尸围城</li>
-<li>地狱门缓存清空</li>
-<li>方块事件 Block Event</li>
-<li>维度卸载判定相关</li>
-<li>维度相关的运算，目前仅有末地的龙战相关逻辑</li>
-<li>天气相关实体运算</li>
-<li>玩家实体运算</li>
-<li>普通实体运算</li>
-<li>方块实体运算</li>
-<li>发送客户端实体更新数据包</li>
-<li>网络玩家信息运算</li>
-<li>自动保存</li>
-<li>成就命令相关</li>
-<li>同步玩家的客户端时间</li>
-<li>极限模式下难度锁困难判断</li>
-<li>群系生成相关</li>
-<li>刷怪</li>
-<li>玩家睡觉逻辑</li>
-<li>区块卸载</li>
-<li>天空光衰减计算</li>
-</ol>
-<p>对于与修改服务端世界相关的操作所在的阶段，此表可化简为以下<strong>常用阶段顺序表</strong>：</p>
-<table>
-<thead>
-<tr>
-<th>序号</th>
-<th>阶段</th>
-<th>名称</th>
-<th>缩写</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>1</td>
-<td>设置世界时间</td>
-<td>World Time Update</td>
-<td>WTU</td>
-</tr>
-<tr>
-<td>2</td>
-<td>计划刻</td>
-<td>Tile Tick (Next Tick Entry)</td>
-<td>TT (NTE)</td>
-</tr>
-<tr>
-<td>3</td>
-<td>随机刻与气候</td>
-<td>RandomTick&amp;Climate</td>
-<td>RTC</td>
-</tr>
-<tr>
-<td>4</td>
-<td>村庄相关</td>
-<td>Village</td>
-<td>V</td>
-</tr>
-<tr>
-<td>5</td>
-<td>方块事件</td>
-<td>Block Event</td>
-<td>BE</td>
-</tr>
-<tr>
-<td>6</td>
-<td>实体</td>
-<td>Entity Update</td>
-<td>EU</td>
-</tr>
-<tr>
-<td>7</td>
-<td>方块实体</td>
-<td>Tile Entity</td>
-<td>TE</td>
-</tr>
-<tr>
-<td>8</td>
-<td>玩家操作</td>
-<td>Network Update</td>
-<td>NU</td>
-</tr>
-<tr>
-<td>9</td>
-<td>刷怪</td>
-<td>Spawning</td>
-<td>S</td>
-</tr>
-<tr>
-<td>10</td>
-<td>区块卸载</td>
-<td>Chunk Unload</td>
-<td>CU</td>
-</tr>
-</tbody></table>
-<p>这个常用阶段顺序表是之后分析最为常用的列表，划重点记笔记！（其实只要记住缩写即可，因为下文会大量使用缩写）</p>
-<p>对于之后对精确到一个游戏刻内阶段的分析，我称之为：微观时序分析</p>
-<h2 id="1-3-游戏事件执行时刻"><a href="#1-3-游戏事件执行时刻" class="headerlink" title="1.3 游戏事件执行时刻"></a>1.3 游戏事件执行时刻</h2><blockquote>
-<p>这一章节的目的是概述各大部分游戏事件运作的时刻，其中性质的详细描述见后文</p>
-</blockquote>
-<p>在 1.2 里，存在以下几个游戏阶段为抽象的阶段，并未明确声明在其中会发生什么事件。它们是： </p>
-<ul>
-<li>计划刻 TT </li>
-<li>方块事件 BE</li>
-<li>方块实体 TE </li>
-<li>玩家操作 NU</li>
-</ul>
-<p>下面列一下大部分与之相关的游戏事件</p>
-<ul>
-<li>中继器、比较器、红石火把、侦测器的激活与熄灭：TT</li>
-<li>按钮、压力板、红石灯、绊线、绊线钩的激活：瞬时；熄灭：TT</li>
-<li>拉杆、红石线、铁轨、各类活版栅栏木铁门、漏斗、音符盒、投掷器发射器的激活与熄灭：瞬时</li>
-<li>投掷器发射器的工作：TT</li>
-<li>命令方块的运作：TT</li>
-<li>树叶、流体、脚手架的更新：TT</li>
-<li>重力方块判定并创建重力方块实体：TT</li>
-<li>活塞推拉的开始：BE</li>
-<li>移动中方块的运算：TE</li>
-<li>移动中方块的到位：BE（粘性活塞受短脉冲）；TE（粘性活塞受长信号）</li>
-<li>玩家移动、放置破坏方块、与方块交互：NU</li>
-</ul>
-<p>注：瞬时指的是可属于任意阶段，触发即运算</p>
-<h2 id="实例-自加载型区块加载器伪和平"><a href="#实例-自加载型区块加载器伪和平" class="headerlink" title="实例 自加载型区块加载器伪和平"></a>实例 自加载型区块加载器伪和平</h2><p>对于基于在卸载后能加载回自身的区块加载器的伪和平，在重加载时是否存在 1gt 的刷怪空档期是至关重要的，因为这直接与伪和平是否可用 100% 阻止生物刷新相关。完美的伪和平装置是不存在可刷怪空档期的</p>
-<p>让我们分析一下基于活塞区块加载器的伪和平：</p>
-<p>活塞区块加载器，利用了方块事件可以加载区块的原理，通过在每个gt利用活塞计划方块事件来确保自动保存后能加载回自身区块。</p>
-<p><img data-src="/2019/12/08/deeply-dissecting-minecraft_1/BELoader1.png" alt="活塞加载器伪和平1"><br>备注：此活塞加载器并非完美设计，但足以应用于本实例分析</p>
-<p>这个方案是可以 100% 阻止生物刷新的，也就是不存在 1gt 的刷怪间隔。微观时序分析很简单。先列一下相关的阶段：</p>
-<table>
-<thead>
-<tr>
-<th>序号</th>
-<th>阶段</th>
-<th>名称</th>
-<th>缩写</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>5</td>
-<td>方块事件</td>
-<td>Block Event</td>
-<td>BE</td>
-</tr>
-<tr>
-<td>9</td>
-<td>刷怪</td>
-<td>Spawning</td>
-<td>S</td>
-</tr>
-<tr>
-<td>10</td>
-<td>区块卸载</td>
-<td>Chunk Unload</td>
-<td>CU</td>
-</tr>
-</tbody></table>
-<p>可看到，在自动保存等引发的区块卸载之后，下一次进行刷怪前，游戏执行了方块事件相关的运算，并在此处加载回了存怪的区块，让怪物容量超过上限，阻止下一次进行刷怪时的生物刷新。因此，这是一个完美的伪和平</p>
-<hr>
-<p>如果出于某些原因，活塞区块加载器与存怪装置不在同一个区块，需要使用漏斗加载存怪区块，如下图所示。这样的话这种伪和平装置是否还是完美的？</p>
-<p><img data-src="/2019/12/08/deeply-dissecting-minecraft_1/BELoader2.png" alt="活塞加载器伪和平2"></p>
-<p>相关的阶段：</p>
-<table>
-<thead>
-<tr>
-<th>序号</th>
-<th>阶段</th>
-<th>名称</th>
-<th>缩写</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>5</td>
-<td>方块事件</td>
-<td>Block Event</td>
-<td>BE</td>
-</tr>
-<tr>
-<td>7</td>
-<td>方块实体</td>
-<td>Tile Entity</td>
-<td>TE</td>
-</tr>
-<tr>
-<td>9</td>
-<td>刷怪</td>
-<td>Spawning</td>
-<td>S</td>
-</tr>
-<tr>
-<td>10</td>
-<td>区块卸载</td>
-<td>Chunk Unload</td>
-<td>CU</td>
-</tr>
-</tbody></table>
-<p>让我们看一下这个设计的区块被卸载时的微观时序</p>
-<table>
-<thead>
-<tr>
-<th>GameTick</th>
-<th>阶段</th>
-<th>事件</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>N</td>
-<td>S</td>
-<td>伪和平开启，不刷怪</td>
-</tr>
-<tr>
-<td>N</td>
-<td>CU</td>
-<td>伪和平装置的区块被卸载</td>
-</tr>
-<tr>
-<td>N + 1</td>
-<td>BE</td>
-<td>活塞加载器区块加载，漏斗A被加载并立刻被添加至世界参与运算的TE列表</td>
-</tr>
-<tr>
-<td>N + 1</td>
-<td>TE</td>
-<td>漏斗加载存怪装置区块</td>
-</tr>
-<tr>
-<td>N + 1</td>
-<td>S</td>
-<td>刷怪阶段内怪物容量被占满，伪和平开启，不刷怪</td>
-</tr>
-</tbody></table>
-<p>因此，这个伪和平设计也能保证 100% 时刻不刷怪，是个完美的伪和平</p>
-<hr>
-<p>假如有个小天才嫌一个漏斗太少，非得多串几个漏斗才接到存怪装置区块，那会怎么样？</p>
-<p><img data-src="/2019/12/08/deeply-dissecting-minecraft_1/BELoader3.png" alt="活塞加载器伪和平3"></p>
-<p>区块卸载在 GameTick N，活塞加载器自加载在 GameTick N+1 的  BE，三个漏斗依次加载区块使存怪区域在 GameTick N+1 的 TE 被加载？并不是这样的</p>
-<p>TE 阶段有个性质：在 TE 阶段内新增的 TE 实体，并不会立即参与运算，而是会先加入一个临时的列表 <code>addedTileEntityList</code>，等到该 TE 阶段运算结束后再统一添加新 TE 实体至参与运算的 TE 列表 <code>loadedTileEntityList</code> 中，也就是说在 GameTick N 新增的 TE 实体要等到 GameTick N+1 的 TE 阶段才能进行运算</p>
-<p>因此，这个小天才活塞区块加载器伪和平的微观时序是这样的：</p>
-<table>
-<thead>
-<tr>
-<th>GameTick</th>
-<th>阶段</th>
-<th>事件</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>N</td>
-<td>S</td>
-<td>伪和平开启，不刷怪</td>
-</tr>
-<tr>
-<td>N</td>
-<td>CU</td>
-<td>伪和平装置的区块被卸载</td>
-</tr>
-<tr>
-<td>N + 1</td>
-<td>BE</td>
-<td>活塞加载器区块加载，漏斗 A 被加载并立刻被添加至世界参与运算的TE列表</td>
-</tr>
-<tr>
-<td>N + 1</td>
-<td>TE</td>
-<td>漏斗 A 加载漏斗 B 所在的区块。漏斗 B 被加载但在 TE 阶段结束时才被添加进参与运算的 TE 列表</td>
-</tr>
-<tr>
-<td>N + 1</td>
-<td>S</td>
-<td>伪和平失效，<strong>刷怪</strong></td>
-</tr>
-<tr>
-<td>N + 2</td>
-<td>TE</td>
-<td>漏斗 B 加载漏斗 C 所在的区块。漏斗 C 被加载但在 TE 阶段结束时才被添加进参与运算的 TE 列表</td>
-</tr>
-<tr>
-<td>N + 2</td>
-<td>S</td>
-<td>伪和平失效，<strong>刷怪</strong></td>
-</tr>
-<tr>
-<td>N + 3</td>
-<td>TE</td>
-<td>漏斗 C 加载存怪装置区块</td>
-</tr>
-<tr>
-<td>N + 3</td>
-<td>S</td>
-<td>伪和平开启，不刷怪</td>
-</tr>
-</tbody></table>
-<p>因此这个伪和平方案在每次被卸载时，足足有 2gt 的刷怪空档期，不是一个完美的伪和平方案<div id="footnotes"><hr><div id="footnotelist"><ol style="list-style:none; padding-left: 0;"><li id="fn:1"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">1.</span><span style="display: inline-block; vertical-align: top;">net/minecraft/server/MinecraftServer.java:850</span><a href="#fnref:1" rev="footnote"> ↩</a></li><li id="fn:2"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">2.</span><span style="display: inline-block; vertical-align: top;">net/minecraft/server/MinecraftServer.java:867</span><a href="#fnref:2" rev="footnote"> ↩</a></li><li id="fn:3"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">3.</span><span style="display: inline-block; vertical-align: top;">net/minecraft/world/WorldServer.java:176</span><a href="#fnref:3" rev="footnote"> ↩</a></li><li id="fn:4"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">4.</span><span style="display: inline-block; vertical-align: top;">net/minecraft/world/WorldServer.java:181</span><a href="#fnref:4" rev="footnote"> ↩</a></li><li id="fn:5"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">5.</span><span style="display: inline-block; vertical-align: top;">net/minecraft/world/WorldServer.java:183</span><a href="#fnref:5" rev="footnote"> ↩</a></li><li id="fn:6"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">6.</span><span style="display: inline-block; vertical-align: top;">net/minecraft/world/WorldServer.java:196</span><a href="#fnref:6" rev="footnote"> ↩</a></li><li id="fn:7"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">7.</span><span style="display: inline-block; vertical-align: top;">net/minecraft/world/WorldServer.java:203</span><a href="#fnref:7" rev="footnote"> ↩</a></li><li id="fn:8"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">8.</span><span style="display: inline-block; vertical-align: top;">net/minecraft/world/WorldServer.java:204</span><a href="#fnref:8" rev="footnote"> ↩</a></li><li id="fn:9"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">9.</span><span style="display: inline-block; vertical-align: top;">net/minecraft/world/WorldServer.java:211</span><a href="#fnref:9" rev="footnote"> ↩</a></li><li id="fn:10"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">10.</span><span style="display: inline-block; vertical-align: top;">net/minecraft/world/WorldServer.java:219</span><a href="#fnref:10" rev="footnote"> ↩</a></li><li id="fn:11"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">11.</span><span style="display: inline-block; vertical-align: top;">net/minecraft/world/WorldServer.java:382</span><a href="#fnref:11" rev="footnote"> ↩</a></li><li id="fn:12"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">12.</span><span style="display: inline-block; vertical-align: top;">net/minecraft/world/WorldServer.java:400</span><a href="#fnref:12" rev="footnote"> ↩</a></li><li id="fn:13"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">13.</span><span style="display: inline-block; vertical-align: top;">net/minecraft/world/WorldServer.java:223</span><a href="#fnref:13" rev="footnote"> ↩</a></li><li id="fn:14"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">14.</span><span style="display: inline-block; vertical-align: top;">net/minecraft/world/WorldServer.java:225</span><a href="#fnref:14" rev="footnote"> ↩</a></li><li id="fn:15"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">15.</span><span style="display: inline-block; vertical-align: top;">net/minecraft/world/WorldServer.java:226</span><a href="#fnref:15" rev="footnote"> ↩</a></li><li id="fn:16"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">16.</span><span style="display: inline-block; vertical-align: top;">net/minecraft/world/WorldServer.java:228</span><a href="#fnref:16" rev="footnote"> ↩</a></li><li id="fn:17"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">17.</span><span style="display: inline-block; vertical-align: top;">net/minecraft/world/WorldServer.java:230</span><a href="#fnref:17" rev="footnote"> ↩</a></li><li id="fn:18"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">18.</span><span style="display: inline-block; vertical-align: top;">net/minecraft/world/WorldServer.java:528</span><a href="#fnref:18" rev="footnote"> ↩</a></li><li id="fn:19"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">19.</span><span style="display: inline-block; vertical-align: top;">net/minecraft/world/WorldServer.java:540</span><a href="#fnref:19" rev="footnote"> ↩</a></li><li id="fn:20"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">20.</span><span style="display: inline-block; vertical-align: top;">net/minecraft/world/World.java:1203</span><a href="#fnref:20" rev="footnote"> ↩</a></li><li id="fn:21"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">21.</span><span style="display: inline-block; vertical-align: top;">net/minecraft/world/World.java:1256</span><a href="#fnref:21" rev="footnote"> ↩</a></li><li id="fn:22"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">22.</span><span style="display: inline-block; vertical-align: top;">net/minecraft/world/World.java:1257</span><a href="#fnref:22" rev="footnote"> ↩</a></li><li id="fn:23"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">23.</span><span style="display: inline-block; vertical-align: top;">net/minecraft/world/World.java:13113</span><a href="#fnref:23" rev="footnote"> ↩</a></li><li id="fn:24"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">24.</span><span style="display: inline-block; vertical-align: top;">net.minecraft.world.WorldServer.java:897</span><a href="#fnref:24" rev="footnote"> ↩</a></li><li id="fn:25"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">25.</span><span style="display: inline-block; vertical-align: top;">net/minecraft/server/MinecraftServer.java:909</span><a href="#fnref:25" rev="footnote"> ↩</a></li><li id="fn:26"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">26.</span><span style="display: inline-block; vertical-align: top;">net/minecraft/server/MinecraftServer.java:811</span><a href="#fnref:26" rev="footnote"> ↩</a></li></ol></div></div></p>
-]]></content>
-      <categories>
-        <category>Minecraft</category>
-      </categories>
-      <tags>
-        <tag>Minecraft</tag>
-        <tag>深度剖析MC</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>深度剖析Minecraft #2 方块更新</title>
     <url>/2020/02/04/deeply-dissecting-minecraft_2/</url>
     <content><![CDATA[<h1 id="2-方块更新"><a href="#2-方块更新" class="headerlink" title="2 方块更新"></a>2 方块更新</h1><p>感谢 <a href="https://space.bilibili.com/112998430">迟昫123</a> 与 <a href="https://space.bilibili.com/397105271">qwrrdshfsghv</a> 的捉虫</p>
@@ -1225,6 +856,375 @@
 <h2 id="其他红石元件"><a href="#其他红石元件" class="headerlink" title="其他红石元件"></a>其他红石元件</h2><h3 id="计划刻事件执行-5"><a href="#计划刻事件执行-5" class="headerlink" title="计划刻事件执行"></a>计划刻事件执行</h3><p>blabla</p>
 <h2 id="非红石元件"><a href="#非红石元件" class="headerlink" title="非红石元件"></a>非红石元件</h2><h3 id="计划刻事件执行-6"><a href="#计划刻事件执行-6" class="headerlink" title="计划刻事件执行"></a>计划刻事件执行</h3><p>blabla</p>
 <h2 id="流体"><a href="#流体" class="headerlink" title="流体"></a>流体</h2><h3 id="计划刻事件执行-7"><a href="#计划刻事件执行-7" class="headerlink" title="计划刻事件执行"></a>计划刻事件执行</h3><p>blabla<div id="footnotes"><hr><div id="footnotelist"><ol style="list-style:none; padding-left: 0;"><li id="fn:1"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">1.</span><span style="display: inline-block; vertical-align: top;">net.minecraft.util.EnumFacing#values</span><a href="#fnref:1" rev="footnote"> ↩</a></li><li id="fn:2"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">2.</span><span style="display: inline-block; vertical-align: top;">net.minecraft.block.BlockRedstoneDiode#updateState</span><a href="#fnref:2" rev="footnote"> ↩</a></li><li id="fn:3"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">3.</span><span style="display: inline-block; vertical-align: top;">在 1.15 及以后，该事件的优先级改为 -2</span><a href="#fnref:3" rev="footnote"> ↩</a></li><li id="fn:4"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">4.</span><span style="display: inline-block; vertical-align: top;">也就是比较器方块实体并未实现 <code>net.minecraft.util.ITickable</code> 这个接口</span><a href="#fnref:4" rev="footnote"> ↩</a></li><li id="fn:5"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">5.</span><span style="display: inline-block; vertical-align: top;">net.minecraft.block.Block#isNormalCube</span><a href="#fnref:5" rev="footnote"> ↩</a></li></ol></div></div></p>
+]]></content>
+      <categories>
+        <category>Minecraft</category>
+      </categories>
+      <tags>
+        <tag>Minecraft</tag>
+        <tag>深度剖析MC</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>深度剖析Minecraft #1 游戏流程</title>
+    <url>/2019/12/08/deeply-dissecting-minecraft_1/</url>
+    <content><![CDATA[<h1 id="1-游戏流程"><a href="#1-游戏流程" class="headerlink" title="1 游戏流程"></a>1 游戏流程</h1><h2 id="1-1-代码层面上的-GameTime-内游戏运算顺序"><a href="#1-1-代码层面上的-GameTime-内游戏运算顺序" class="headerlink" title="1.1 代码层面上的 GameTime 内游戏运算顺序"></a>1.1 代码层面上的 GameTime 内游戏运算顺序</h2><blockquote>
+<p>来吧顺着代码DFS</p>
+</blockquote>
+<p>让我们从Minecraft服务端最底层的代码 —— <code>MinecraftServer.tick()</code> 开始。<a id="more"></a>这个 tick 函数包含了两个与游戏阶段相关的函数：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 主运算部分</span></span><br><span class="line"><span class="keyword">this</span>.updateTimeLightAndEntities(hasTimeLeft) </span><br><span class="line"><span class="comment">// 900gt一次的自动保存</span></span><br><span class="line"><span class="keyword">this</span>.saveAllWorlds(<span class="keyword">true</span>);</span><br></pre></td></tr></table></figure>
+
+<p>随后我们进入到 <code>updateTimeLightAndEntities()</code> 中，在这里的精简代码（删去无关代码以及过长参数）如下</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">// MinecraftServer.tick()</span></span><br><span class="line"><span class="comment">// 成就命令相关</span></span><br><span class="line"><span class="keyword">this</span>.getFunctionManager().tick(); </span><br><span class="line"><span class="comment">// 循环每一个世界：</span></span><br><span class="line"><span class="keyword">for</span> (WorldServer worldserver : <span class="keyword">this</span>.getWorlds())</span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 同步玩家的客户端时间</span></span><br><span class="line">    <span class="keyword">this</span>.playerList.sendPacketToAllPlayersInDimension(<span class="keyword">new</span> SPacketTimeUpdate); </span><br><span class="line">    <span class="comment">// 运算游戏内容</span></span><br><span class="line">    worldserver.tick(hasTimeLeft); </span><br><span class="line">    <span class="comment">// 运算实体</span></span><br><span class="line">    worldserver.tickEntities(); </span><br><span class="line">    <span class="comment">// 传输至客户端的实体信息相关</span></span><br><span class="line">    worldserver.getEntityTracker().tick(); </span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 网络玩家信息运算</span></span><br><span class="line"><span class="keyword">this</span>.getNetworkSystem().tick(); </span><br></pre></td></tr></table></figure>
+
+<p>让我们进入 <code>worldserver.tick(hasTimeLeft)</code>，终于开始要有具体的游戏阶段了。精简代码如下</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">// worldserver.tick(hasTimeLeft)</span></span><br><span class="line"><span class="comment">// 极限模式下难度锁困难判断</span></span><br><span class="line"><span class="keyword">if</span> (<span class="keyword">this</span>.getWorldInfo().isHardcore() &amp;&amp; <span class="keyword">this</span>.getDifficulty() != EnumDifficulty.HARD)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">this</span>.getWorldInfo().setDifficulty(EnumDifficulty.HARD);</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 群系生成相关</span></span><br><span class="line"><span class="keyword">this</span>.chunkProvider.getChunkGenerator().getBiomeProvider().tick();</span><br><span class="line"><span class="keyword">if</span> (<span class="keyword">this</span>.areAllPlayersAsleep())</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">this</span>.getGameRules().getBoolean(<span class="string">&quot;doDaylightCycle&quot;</span>))</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">long</span> i = <span class="keyword">this</span>.worldInfo.getDayTime() + <span class="number">24000L</span>;</span><br><span class="line">        <span class="keyword">this</span>.worldInfo.setDayTime(i - i % <span class="number">24000L</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">this</span>.wakeAllPlayers();</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 刷怪</span></span><br><span class="line"><span class="keyword">this</span>.entitySpawner.findChunksForSpawning();</span><br><span class="line"><span class="keyword">this</span>.getChunkProvider().spawnMobs();</span><br><span class="line"><span class="comment">// 区块卸载</span></span><br><span class="line"><span class="keyword">this</span>.chunkProvider.tick(hasTimeLeft);</span><br><span class="line"><span class="comment">// 天空光衰减计算</span></span><br><span class="line"><span class="keyword">int</span> j = <span class="keyword">this</span>.calculateSkylightSubtracted(<span class="number">1.0F</span>);</span><br><span class="line"><span class="keyword">if</span> (j != <span class="keyword">this</span>.getSkylightSubtracted())</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">this</span>.setSkylightSubtracted(j);</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 设置GameTime与Daytime</span></span><br><span class="line"><span class="keyword">this</span>.worldInfo.setGameTime(<span class="keyword">this</span>.worldInfo.getGameTime() + <span class="number">1L</span>);</span><br><span class="line"><span class="keyword">if</span> (<span class="keyword">this</span>.getGameRules().getBoolean(<span class="string">&quot;doDaylightCycle&quot;</span>))</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">this</span>.worldInfo.setDayTime(<span class="keyword">this</span>.worldInfo.getDayTime() </span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 计划刻 Tile Tick (Next Tick Entry)</span></span><br><span class="line"><span class="keyword">this</span>.tickPending();</span><br><span class="line"><span class="comment">// 各类方块特性的运算，将进入继续分析</span></span><br><span class="line"><span class="keyword">this</span>.tickBlocks();</span><br><span class="line"><span class="comment">// 玩家加载的区块列表更新，并发送更新客户端世界信息的包</span></span><br><span class="line"><span class="keyword">this</span>.playerChunkMap.tick();</span><br><span class="line"><span class="comment">// 村庄运算</span></span><br><span class="line"><span class="keyword">this</span>.villageCollection.tick();</span><br><span class="line"><span class="comment">// 僵尸围城</span></span><br><span class="line"><span class="keyword">this</span>.villageSiege.tick();</span><br><span class="line"><span class="comment">// 地狱门缓存清空</span></span><br><span class="line"><span class="keyword">this</span>.worldTeleporter.tick(<span class="keyword">this</span>.getGameTime());</span><br><span class="line"><span class="comment">// 方块事件 Block Event</span></span><br><span class="line"><span class="keyword">this</span>.sendQueuedBlockEvents();</span><br></pre></td></tr></table></figure>
+
+<p>好的，我们再来看看 <code>this.tickBlocks();</code> 这个各类方块相关的事件运算。由于有部分事件已经涉及到了底层实现而没有用函数封装，对于这部分事件我用前缀”·”表示</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">// this.tickBlocks()</span></span><br><span class="line"><span class="comment">// 随机检查并更新玩家附近的亮度</span></span><br><span class="line"><span class="keyword">this</span>.playerCheckLight();</span><br><span class="line"><span class="comment">// 循环每个玩家周围的区块进行：</span></span><br><span class="line"><span class="keyword">for</span> (Iterator&lt;Chunk&gt; iterator = <span class="keyword">this</span>.playerChunkMap.getChunkIterator(); iterator.hasNext(); <span class="keyword">this</span>.profiler.endSection())</span><br><span class="line">&#123;</span><br><span class="line">    Chunk chunk = iterator.next();</span><br><span class="line">    <span class="comment">// 客户端的亮度检查</span></span><br><span class="line">    chunk.enqueueRelightChecks();</span><br><span class="line">    <span class="comment">// 天空光的计算与将新增的 Tile Entity 储存至区块内</span></span><br><span class="line">    chunk.tick(<span class="keyword">false</span>);</span><br><span class="line">    <span class="comment">// 生成雷电，以及骷髅马陷阱</span></span><br><span class="line">    ·thunder</span><br><span class="line">    <span class="comment">// 下雪与结冰</span></span><br><span class="line">    ·iceandsnow</span><br><span class="line">    <span class="comment">// 随机刻</span></span><br><span class="line">    ·randomTick</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>终于跟踪分析完<code>worldserver.tick(hasTimeLeft);</code>这个运算游戏内容，然后就是<code>worldserver.tickEntities();</code></p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">// worldserver.tickEntities()</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">tickEntities</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">// 维度卸载判定相关</span></span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">this</span>.playerEntities.isEmpty())</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span> (<span class="keyword">this</span>.updateEntityTick++ &gt;= <span class="number">300</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">this</span>.resetUpdateEntityTick();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 维度相关的运算，目前仅有末地的龙战相关逻辑</span></span><br><span class="line">    <span class="keyword">this</span>.dimension.tick();</span><br><span class="line">    <span class="comment">// 调用父类World的tickEntities()</span></span><br><span class="line">    <span class="keyword">super</span>.tickEntities();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">// World.tickEntities()</span></span><br><span class="line"><span class="comment">// 天气相关实体运算</span></span><br><span class="line">·weatherEffects</span><br><span class="line"><span class="comment">// 玩家实体运算</span></span><br><span class="line"><span class="keyword">this</span>.tickPlayers();</span><br><span class="line"><span class="comment">// 普通实体运算</span></span><br><span class="line">·loadedEntities</span><br><span class="line"><span class="comment">// 方块实体运算</span></span><br><span class="line">·TileEntities</span><br></pre></td></tr></table></figure>
+
+<p>现在让我们来按顺序总结一下所有的游戏阶段运行顺序：</p>
+<ol>
+<li>成就命令相关 <sup id="fnref:1"><a href="#fn:1" rel="footnote">1</a></sup></li>
+<li>同步玩家的客户端时间 <sup id="fnref:2"><a href="#fn:2" rel="footnote">2</a></sup></li>
+<li>极限模式下难度锁困难判断 <sup id="fnref:3"><a href="#fn:3" rel="footnote">3</a></sup></li>
+<li>群系生成相关 <sup id="fnref:4"><a href="#fn:4" rel="footnote">4</a></sup></li>
+<li>玩家睡觉逻辑 <sup id="fnref:5"><a href="#fn:5" rel="footnote">5</a></sup></li>
+<li>生物、怪物刷新 <sup id="fnref:6"><a href="#fn:6" rel="footnote">6</a></sup></li>
+<li>区块卸载  <sup id="fnref:7"><a href="#fn:7" rel="footnote">7</a></sup></li>
+<li>天空光衰减计算 <sup id="fnref:8"><a href="#fn:8" rel="footnote">8</a></sup></li>
+<li>设置 GameTime 与 Daytime <sup id="fnref:9"><a href="#fn:9" rel="footnote">9</a></sup></li>
+<li>计划刻 Tile Tick (Next Tick Entry) <sup id="fnref:10"><a href="#fn:10" rel="footnote">10</a></sup></li>
+<li>随机检查并更新玩家附近的亮度 <sup id="fnref:11"><a href="#fn:11" rel="footnote">11</a></sup></li>
+<li>天空光的计算与将新增的 Tile Entity 储存至区块内；雷电；下雪与结冰；随机刻 <sup id="fnref:12"><a href="#fn:12" rel="footnote">12</a></sup></li>
+<li>玩家加载的区块列表更新，并发送客户端方块更新数据包 <sup id="fnref:13"><a href="#fn:13" rel="footnote">13</a></sup></li>
+<li>村庄运算 <sup id="fnref:14"><a href="#fn:14" rel="footnote">14</a></sup></li>
+<li>僵尸围城 <sup id="fnref:15"><a href="#fn:15" rel="footnote">15</a></sup></li>
+<li>地狱门缓存清空 <sup id="fnref:16"><a href="#fn:16" rel="footnote">16</a></sup></li>
+<li>方块事件 Block Event <sup id="fnref:17"><a href="#fn:17" rel="footnote">17</a></sup></li>
+<li>维度卸载判定相关 <sup id="fnref:18"><a href="#fn:18" rel="footnote">18</a></sup></li>
+<li>维度相关的运算，目前仅有末地的龙战相关逻辑 <sup id="fnref:19"><a href="#fn:19" rel="footnote">19</a></sup></li>
+<li>天气相关实体运算 <sup id="fnref:20"><a href="#fn:20" rel="footnote">20</a></sup></li>
+<li>玩家实体运算 <sup id="fnref:21"><a href="#fn:21" rel="footnote">21</a></sup></li>
+<li>普通实体运算 <sup id="fnref:22"><a href="#fn:22" rel="footnote">22</a></sup></li>
+<li>方块实体运算 <sup id="fnref:23"><a href="#fn:23" rel="footnote">23</a></sup></li>
+<li>发送客户端实体更新数据包 <sup id="fnref:24"><a href="#fn:24" rel="footnote">24</a></sup></li>
+<li>网络玩家信息运算 <sup id="fnref:25"><a href="#fn:25" rel="footnote">25</a></sup></li>
+<li>自动保存 <sup id="fnref:26"><a href="#fn:26" rel="footnote">26</a></sup></li>
+</ol>
+<h2 id="1-2-GameTick"><a href="#1-2-GameTick" class="headerlink" title="1.2 GameTick"></a>1.2 GameTick</h2><p>GameTick（gt），也就是游戏刻，或者说游戏里的时间量，是用来衡量电路延迟、生物生存周期等的重要指标。要想明确 GameTick 是什么，就先得给出 GameTick 的定义</p>
+<p>作为一个离散的时间量，在游戏的运算过程中一定存在某个时刻，GameTick 这个时间量发生改变，这就是 GameTick 的分界线。在 1.1 节，我们从代码执行顺序的角度列出了游戏的运算顺序。在这个长达 24 条的列表里，我将 GameTick 的分界线的划分在：<strong>8. 设置GameTime与Daytime</strong>，并给出GameTick的定义：</p>
+<blockquote>
+<p>GameTick 为 x 的定义是：所有执行 <code>World.worldInfo.getGameTime()</code> 得到的返回值为 x 的时刻的集合</p>
+</blockquote>
+<p>于是，我们可以得到事件P发生于GameTick x的定义：</p>
+<blockquote>
+<p>一个事件P发生于 GameTick x 的定义为：<br>发生事件P时若执行<code>World.worldInfo.getGameTime()</code>，得到的返回值为 x</p>
+</blockquote>
+<p>这样做定义 GameTick 的好处有：</p>
+<ul>
+<li>与 TileTick 元件的执行时间相对应。在 GameTick N 触发的 x gt 延迟 TileTick 元件会在 GameTick N + x 执行动作</li>
+<li>可以直观地在代码中调用 <code>World.worldInfo.getGameTime()</code> 来确定当前的 GameTick</li>
+</ul>
+<p>定义完 GameTick 并确定好分界线后，我们就可以重新排列 1.1 节末尾的列表，并获得一个 GameTick 内各阶段发生的顺序了：</p>
+<ol>
+<li>设置 GameTime 与 Daytime</li>
+<li>计划刻 Tile Tick (Next Tick Entry)</li>
+<li>随机检查并更新玩家附近的亮度</li>
+<li>天空光的计算与将新增的 Tile Entity 储存至区块内；雷电；下雪与结冰；随机刻</li>
+<li>玩家加载的区块列表更新，并发送客户端方块更新数据包</li>
+<li>村庄运算</li>
+<li>僵尸围城</li>
+<li>地狱门缓存清空</li>
+<li>方块事件 Block Event</li>
+<li>维度卸载判定相关</li>
+<li>维度相关的运算，目前仅有末地的龙战相关逻辑</li>
+<li>天气相关实体运算</li>
+<li>玩家实体运算</li>
+<li>普通实体运算</li>
+<li>方块实体运算</li>
+<li>发送客户端实体更新数据包</li>
+<li>网络玩家信息运算</li>
+<li>自动保存</li>
+<li>成就命令相关</li>
+<li>同步玩家的客户端时间</li>
+<li>极限模式下难度锁困难判断</li>
+<li>群系生成相关</li>
+<li>刷怪</li>
+<li>玩家睡觉逻辑</li>
+<li>区块卸载</li>
+<li>天空光衰减计算</li>
+</ol>
+<p>对于与修改服务端世界相关的操作所在的阶段，此表可化简为以下<strong>常用阶段顺序表</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>序号</th>
+<th>阶段</th>
+<th>名称</th>
+<th>缩写</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>设置世界时间</td>
+<td>World Time Update</td>
+<td>WTU</td>
+</tr>
+<tr>
+<td>2</td>
+<td>计划刻</td>
+<td>Tile Tick (Next Tick Entry)</td>
+<td>TT (NTE)</td>
+</tr>
+<tr>
+<td>3</td>
+<td>随机刻与气候</td>
+<td>RandomTick&amp;Climate</td>
+<td>RTC</td>
+</tr>
+<tr>
+<td>4</td>
+<td>村庄相关</td>
+<td>Village</td>
+<td>V</td>
+</tr>
+<tr>
+<td>5</td>
+<td>方块事件</td>
+<td>Block Event</td>
+<td>BE</td>
+</tr>
+<tr>
+<td>6</td>
+<td>实体</td>
+<td>Entity Update</td>
+<td>EU</td>
+</tr>
+<tr>
+<td>7</td>
+<td>方块实体</td>
+<td>Tile Entity</td>
+<td>TE</td>
+</tr>
+<tr>
+<td>8</td>
+<td>玩家操作</td>
+<td>Network Update</td>
+<td>NU</td>
+</tr>
+<tr>
+<td>9</td>
+<td>刷怪</td>
+<td>Spawning</td>
+<td>S</td>
+</tr>
+<tr>
+<td>10</td>
+<td>区块卸载</td>
+<td>Chunk Unload</td>
+<td>CU</td>
+</tr>
+</tbody></table>
+<p>这个常用阶段顺序表是之后分析最为常用的列表，划重点记笔记！（其实只要记住缩写即可，因为下文会大量使用缩写）</p>
+<p>对于之后对精确到一个游戏刻内阶段的分析，我称之为：微观时序分析</p>
+<h2 id="1-3-游戏事件执行时刻"><a href="#1-3-游戏事件执行时刻" class="headerlink" title="1.3 游戏事件执行时刻"></a>1.3 游戏事件执行时刻</h2><blockquote>
+<p>这一章节的目的是概述各大部分游戏事件运作的时刻，其中性质的详细描述见后文</p>
+</blockquote>
+<p>在 1.2 里，存在以下几个游戏阶段为抽象的阶段，并未明确声明在其中会发生什么事件。它们是： </p>
+<ul>
+<li>计划刻 TT </li>
+<li>方块事件 BE</li>
+<li>方块实体 TE </li>
+<li>玩家操作 NU</li>
+</ul>
+<p>下面列一下大部分与之相关的游戏事件</p>
+<ul>
+<li>中继器、比较器、红石火把、侦测器的激活与熄灭：TT</li>
+<li>按钮、压力板、红石灯、绊线、绊线钩的激活：瞬时；熄灭：TT</li>
+<li>拉杆、红石线、铁轨、各类活版栅栏木铁门、漏斗、音符盒、投掷器发射器的激活与熄灭：瞬时</li>
+<li>投掷器发射器的工作：TT</li>
+<li>命令方块的运作：TT</li>
+<li>树叶、流体、脚手架的更新：TT</li>
+<li>重力方块判定并创建重力方块实体：TT</li>
+<li>活塞推拉的开始：BE</li>
+<li>移动中方块的运算：TE</li>
+<li>移动中方块的到位：BE（粘性活塞受短脉冲）；TE（粘性活塞受长信号）</li>
+<li>玩家移动、放置破坏方块、与方块交互：NU</li>
+</ul>
+<p>注：瞬时指的是可属于任意阶段，触发即运算</p>
+<h2 id="实例-自加载型区块加载器伪和平"><a href="#实例-自加载型区块加载器伪和平" class="headerlink" title="实例 自加载型区块加载器伪和平"></a>实例 自加载型区块加载器伪和平</h2><p>对于基于在卸载后能加载回自身的区块加载器的伪和平，在重加载时是否存在 1gt 的刷怪空档期是至关重要的，因为这直接与伪和平是否可用 100% 阻止生物刷新相关。完美的伪和平装置是不存在可刷怪空档期的</p>
+<p>让我们分析一下基于活塞区块加载器的伪和平：</p>
+<p>活塞区块加载器，利用了方块事件可以加载区块的原理，通过在每个gt利用活塞计划方块事件来确保自动保存后能加载回自身区块。</p>
+<p><img data-src="/2019/12/08/deeply-dissecting-minecraft_1/BELoader1.png" alt="活塞加载器伪和平1"><br>备注：此活塞加载器并非完美设计，但足以应用于本实例分析</p>
+<p>这个方案是可以 100% 阻止生物刷新的，也就是不存在 1gt 的刷怪间隔。微观时序分析很简单。先列一下相关的阶段：</p>
+<table>
+<thead>
+<tr>
+<th>序号</th>
+<th>阶段</th>
+<th>名称</th>
+<th>缩写</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>5</td>
+<td>方块事件</td>
+<td>Block Event</td>
+<td>BE</td>
+</tr>
+<tr>
+<td>9</td>
+<td>刷怪</td>
+<td>Spawning</td>
+<td>S</td>
+</tr>
+<tr>
+<td>10</td>
+<td>区块卸载</td>
+<td>Chunk Unload</td>
+<td>CU</td>
+</tr>
+</tbody></table>
+<p>可看到，在自动保存等引发的区块卸载之后，下一次进行刷怪前，游戏执行了方块事件相关的运算，并在此处加载回了存怪的区块，让怪物容量超过上限，阻止下一次进行刷怪时的生物刷新。因此，这是一个完美的伪和平</p>
+<hr>
+<p>如果出于某些原因，活塞区块加载器与存怪装置不在同一个区块，需要使用漏斗加载存怪区块，如下图所示。这样的话这种伪和平装置是否还是完美的？</p>
+<p><img data-src="/2019/12/08/deeply-dissecting-minecraft_1/BELoader2.png" alt="活塞加载器伪和平2"></p>
+<p>相关的阶段：</p>
+<table>
+<thead>
+<tr>
+<th>序号</th>
+<th>阶段</th>
+<th>名称</th>
+<th>缩写</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>5</td>
+<td>方块事件</td>
+<td>Block Event</td>
+<td>BE</td>
+</tr>
+<tr>
+<td>7</td>
+<td>方块实体</td>
+<td>Tile Entity</td>
+<td>TE</td>
+</tr>
+<tr>
+<td>9</td>
+<td>刷怪</td>
+<td>Spawning</td>
+<td>S</td>
+</tr>
+<tr>
+<td>10</td>
+<td>区块卸载</td>
+<td>Chunk Unload</td>
+<td>CU</td>
+</tr>
+</tbody></table>
+<p>让我们看一下这个设计的区块被卸载时的微观时序</p>
+<table>
+<thead>
+<tr>
+<th>GameTick</th>
+<th>阶段</th>
+<th>事件</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>N</td>
+<td>S</td>
+<td>伪和平开启，不刷怪</td>
+</tr>
+<tr>
+<td>N</td>
+<td>CU</td>
+<td>伪和平装置的区块被卸载</td>
+</tr>
+<tr>
+<td>N + 1</td>
+<td>BE</td>
+<td>活塞加载器区块加载，漏斗A被加载并立刻被添加至世界参与运算的TE列表</td>
+</tr>
+<tr>
+<td>N + 1</td>
+<td>TE</td>
+<td>漏斗加载存怪装置区块</td>
+</tr>
+<tr>
+<td>N + 1</td>
+<td>S</td>
+<td>刷怪阶段内怪物容量被占满，伪和平开启，不刷怪</td>
+</tr>
+</tbody></table>
+<p>因此，这个伪和平设计也能保证 100% 时刻不刷怪，是个完美的伪和平</p>
+<hr>
+<p>假如有个小天才嫌一个漏斗太少，非得多串几个漏斗才接到存怪装置区块，那会怎么样？</p>
+<p><img data-src="/2019/12/08/deeply-dissecting-minecraft_1/BELoader3.png" alt="活塞加载器伪和平3"></p>
+<p>区块卸载在 GameTick N，活塞加载器自加载在 GameTick N+1 的  BE，三个漏斗依次加载区块使存怪区域在 GameTick N+1 的 TE 被加载？并不是这样的</p>
+<p>TE 阶段有个性质：在 TE 阶段内新增的 TE 实体，并不会立即参与运算，而是会先加入一个临时的列表 <code>addedTileEntityList</code>，等到该 TE 阶段运算结束后再统一添加新 TE 实体至参与运算的 TE 列表 <code>loadedTileEntityList</code> 中，也就是说在 GameTick N 新增的 TE 实体要等到 GameTick N+1 的 TE 阶段才能进行运算</p>
+<p>因此，这个小天才活塞区块加载器伪和平的微观时序是这样的：</p>
+<table>
+<thead>
+<tr>
+<th>GameTick</th>
+<th>阶段</th>
+<th>事件</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>N</td>
+<td>S</td>
+<td>伪和平开启，不刷怪</td>
+</tr>
+<tr>
+<td>N</td>
+<td>CU</td>
+<td>伪和平装置的区块被卸载</td>
+</tr>
+<tr>
+<td>N + 1</td>
+<td>BE</td>
+<td>活塞加载器区块加载，漏斗 A 被加载并立刻被添加至世界参与运算的TE列表</td>
+</tr>
+<tr>
+<td>N + 1</td>
+<td>TE</td>
+<td>漏斗 A 加载漏斗 B 所在的区块。漏斗 B 被加载但在 TE 阶段结束时才被添加进参与运算的 TE 列表</td>
+</tr>
+<tr>
+<td>N + 1</td>
+<td>S</td>
+<td>伪和平失效，<strong>刷怪</strong></td>
+</tr>
+<tr>
+<td>N + 2</td>
+<td>TE</td>
+<td>漏斗 B 加载漏斗 C 所在的区块。漏斗 C 被加载但在 TE 阶段结束时才被添加进参与运算的 TE 列表</td>
+</tr>
+<tr>
+<td>N + 2</td>
+<td>S</td>
+<td>伪和平失效，<strong>刷怪</strong></td>
+</tr>
+<tr>
+<td>N + 3</td>
+<td>TE</td>
+<td>漏斗 C 加载存怪装置区块</td>
+</tr>
+<tr>
+<td>N + 3</td>
+<td>S</td>
+<td>伪和平开启，不刷怪</td>
+</tr>
+</tbody></table>
+<p>因此这个伪和平方案在每次被卸载时，足足有 2gt 的刷怪空档期，不是一个完美的伪和平方案<div id="footnotes"><hr><div id="footnotelist"><ol style="list-style:none; padding-left: 0;"><li id="fn:1"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">1.</span><span style="display: inline-block; vertical-align: top;">net/minecraft/server/MinecraftServer.java:850</span><a href="#fnref:1" rev="footnote"> ↩</a></li><li id="fn:2"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">2.</span><span style="display: inline-block; vertical-align: top;">net/minecraft/server/MinecraftServer.java:867</span><a href="#fnref:2" rev="footnote"> ↩</a></li><li id="fn:3"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">3.</span><span style="display: inline-block; vertical-align: top;">net/minecraft/world/WorldServer.java:176</span><a href="#fnref:3" rev="footnote"> ↩</a></li><li id="fn:4"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">4.</span><span style="display: inline-block; vertical-align: top;">net/minecraft/world/WorldServer.java:181</span><a href="#fnref:4" rev="footnote"> ↩</a></li><li id="fn:5"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">5.</span><span style="display: inline-block; vertical-align: top;">net/minecraft/world/WorldServer.java:183</span><a href="#fnref:5" rev="footnote"> ↩</a></li><li id="fn:6"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">6.</span><span style="display: inline-block; vertical-align: top;">net/minecraft/world/WorldServer.java:196</span><a href="#fnref:6" rev="footnote"> ↩</a></li><li id="fn:7"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">7.</span><span style="display: inline-block; vertical-align: top;">net/minecraft/world/WorldServer.java:203</span><a href="#fnref:7" rev="footnote"> ↩</a></li><li id="fn:8"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">8.</span><span style="display: inline-block; vertical-align: top;">net/minecraft/world/WorldServer.java:204</span><a href="#fnref:8" rev="footnote"> ↩</a></li><li id="fn:9"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">9.</span><span style="display: inline-block; vertical-align: top;">net/minecraft/world/WorldServer.java:211</span><a href="#fnref:9" rev="footnote"> ↩</a></li><li id="fn:10"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">10.</span><span style="display: inline-block; vertical-align: top;">net/minecraft/world/WorldServer.java:219</span><a href="#fnref:10" rev="footnote"> ↩</a></li><li id="fn:11"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">11.</span><span style="display: inline-block; vertical-align: top;">net/minecraft/world/WorldServer.java:382</span><a href="#fnref:11" rev="footnote"> ↩</a></li><li id="fn:12"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">12.</span><span style="display: inline-block; vertical-align: top;">net/minecraft/world/WorldServer.java:400</span><a href="#fnref:12" rev="footnote"> ↩</a></li><li id="fn:13"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">13.</span><span style="display: inline-block; vertical-align: top;">net/minecraft/world/WorldServer.java:223</span><a href="#fnref:13" rev="footnote"> ↩</a></li><li id="fn:14"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">14.</span><span style="display: inline-block; vertical-align: top;">net/minecraft/world/WorldServer.java:225</span><a href="#fnref:14" rev="footnote"> ↩</a></li><li id="fn:15"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">15.</span><span style="display: inline-block; vertical-align: top;">net/minecraft/world/WorldServer.java:226</span><a href="#fnref:15" rev="footnote"> ↩</a></li><li id="fn:16"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">16.</span><span style="display: inline-block; vertical-align: top;">net/minecraft/world/WorldServer.java:228</span><a href="#fnref:16" rev="footnote"> ↩</a></li><li id="fn:17"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">17.</span><span style="display: inline-block; vertical-align: top;">net/minecraft/world/WorldServer.java:230</span><a href="#fnref:17" rev="footnote"> ↩</a></li><li id="fn:18"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">18.</span><span style="display: inline-block; vertical-align: top;">net/minecraft/world/WorldServer.java:528</span><a href="#fnref:18" rev="footnote"> ↩</a></li><li id="fn:19"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">19.</span><span style="display: inline-block; vertical-align: top;">net/minecraft/world/WorldServer.java:540</span><a href="#fnref:19" rev="footnote"> ↩</a></li><li id="fn:20"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">20.</span><span style="display: inline-block; vertical-align: top;">net/minecraft/world/World.java:1203</span><a href="#fnref:20" rev="footnote"> ↩</a></li><li id="fn:21"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">21.</span><span style="display: inline-block; vertical-align: top;">net/minecraft/world/World.java:1256</span><a href="#fnref:21" rev="footnote"> ↩</a></li><li id="fn:22"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">22.</span><span style="display: inline-block; vertical-align: top;">net/minecraft/world/World.java:1257</span><a href="#fnref:22" rev="footnote"> ↩</a></li><li id="fn:23"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">23.</span><span style="display: inline-block; vertical-align: top;">net/minecraft/world/World.java:13113</span><a href="#fnref:23" rev="footnote"> ↩</a></li><li id="fn:24"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">24.</span><span style="display: inline-block; vertical-align: top;">net.minecraft.world.WorldServer.java:897</span><a href="#fnref:24" rev="footnote"> ↩</a></li><li id="fn:25"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">25.</span><span style="display: inline-block; vertical-align: top;">net/minecraft/server/MinecraftServer.java:909</span><a href="#fnref:25" rev="footnote"> ↩</a></li><li id="fn:26"><span style="display: inline-block; vertical-align: top; padding-right: 10px;">26.</span><span style="display: inline-block; vertical-align: top;">net/minecraft/server/MinecraftServer.java:811</span><a href="#fnref:26" rev="footnote"> ↩</a></li></ol></div></div></p>
 ]]></content>
       <categories>
         <category>Minecraft</category>
