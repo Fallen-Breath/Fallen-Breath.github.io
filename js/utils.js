@@ -166,6 +166,7 @@ NexT.utils = {
       }
       this.activateNavByIndex(index);
     });
+    this.activateNavByIndex(0);  // expand index 0 at the beginning
 
     backToTop && backToTop.addEventListener('click', () => {
       window.anime({
