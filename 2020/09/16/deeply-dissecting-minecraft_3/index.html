@@ -423,7 +423,8 @@
 <p>1.13 前，方块和流体共用一个计划刻管理系统进行储存，1.13 及以后，方块和流体为独立的计划刻管理系统</p>
 <h2 id="3-2-计划刻的实现原理"><a href="#3-2-计划刻的实现原理" class="headerlink" title="3.2 计划刻的实现原理"></a>3.2 计划刻的实现原理</h2><h3 id="3-2-1-计划刻管理系统"><a href="#3-2-1-计划刻管理系统" class="headerlink" title="3.2.1 计划刻管理系统"></a>3.2.1 计划刻管理系统</h3><p>一个计划刻管理系统，是一个包含了一套完善的与计划刻相关的状态、容器的对象，类名如下</p>
 <blockquote>
-<p>net.minecraft.world.ServerTickList (1.13.2 mcp)<br>net.minecraft.server.world.ServerTickScheduler (1.15.2 yarn)</p>
+<p>net.minecraft.world.ServerTickList (1.13.2 mcp)</p>
+<p>net.minecraft.server.world.ServerTickScheduler (1.15.2 yarn)</p>
 </blockquote>
 <p>其中，有三个储存着计划刻事件的容器是我们所关注的：</p>
 <table>
