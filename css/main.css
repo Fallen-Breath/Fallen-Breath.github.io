@@ -449,7 +449,6 @@ pre:hover .copy-btn {
   padding: 2px 6px;
   position: absolute;
   transition: opacity 0.2s ease-in-out;
-  background: #fff;
   border: 0;
   font-size: 0.8125em;
   right: 0;
