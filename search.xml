@@ -855,7 +855,9 @@
 <p>上述过程中，改变其亮起状态时，在其所在位置发出的更新仅含状态更新。中继器在其前方发出的大范围方块更新见 <a href="#3-4-1-红石二极管">红石二极管</a> 的发出更新小节</p>
 <h3 id="3-4-2-4-受状态更新时"><a href="#3-4-2-4-受状态更新时" class="headerlink" title="3.4.2.4 受状态更新时"></a>3.4.2.4 受状态更新时</h3><p>当中继器受到状态更新时，若更新方向为水平方向，且方向为垂直于中继器的指向方向，则更新自身的被锁状态。中继器当且仅当被一个二极管指向侧面的时候会被锁住</p>
 <p><img data-src="/2020/09/17/deeply-dissecting-minecraft_3.4/repeater_lock.gif" alt="中继器响应状态更新"></p>
-<h3 id="实例"><a href="#实例" class="headerlink" title="实例"></a>实例</h3><h4 id="与-4gt-时钟交互"><a href="#与-4gt-时钟交互" class="headerlink" title="与 4gt 时钟交互"></a>与 4gt 时钟交互</h4><p><img data-src="/2020/09/17/deeply-dissecting-minecraft_3.4/4gtrepeater1.gif" alt="与 4gt 时钟交互"></p>
+<h3 id="实例"><a href="#实例" class="headerlink" title="实例"></a>实例</h3><h4 id="与-4gt-时钟交互"><a href="#与-4gt-时钟交互" class="headerlink" title="与 4gt 时钟交互"></a>与 4gt 时钟交互</h4><p>当将 4gt 时钟，如对脸侦测器，的输出接至中继器链时，常常会见到下图的现象：中继器链大部分都在 4gt 时钟下闪烁，可是最末端的中继器却处于常量状态</p>
+<p><img data-src="/2020/09/17/deeply-dissecting-minecraft_3.4/4gtrepeater1.gif" alt="与 4gt 时钟交互"></p>
+<p>这是因为中继器添加事件的优先级所导致的。</p>
 <p><img data-src="/2020/09/17/deeply-dissecting-minecraft_3.4/4gtrepeater2.gif" alt="4gtrepeater2"></p>
 <p><img data-src="/2020/09/17/deeply-dissecting-minecraft_3.4/4gtrepeater3.gif" alt="4gtrepeater3"></p>
 <h2 id="3-4-3-红石比较器"><a href="#3-4-3-红石比较器" class="headerlink" title="3.4.3 红石比较器"></a>3.4.3 红石比较器</h2><table>
