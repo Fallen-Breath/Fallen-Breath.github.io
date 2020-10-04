@@ -1193,7 +1193,7 @@ pre code {
   color: var(--brand-hover-color);
 }
 .site-title {
-  font-family: Courgette, "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-family: Courgette;
   font-size: 1.8em;
   font-weight: normal;
   margin: 0;
