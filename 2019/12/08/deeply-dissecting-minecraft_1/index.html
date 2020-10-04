@@ -25,12 +25,12 @@
     var CONFIG = {"hostname":"fallenbreath.me","root":"/","scheme":"Gemini","version":"8.0.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":true,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":{"enable":true,"onlypost":true,"loadingImg":"images/loading.svg"},"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":null,"activeClass":"gitalk"},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}};
   </script>
 
-  <meta name="description" content="1 游戏流程1.1 代码层面上的 GameTime 内游戏运算顺序下图这张树状剖析图，代表了代码层面上，Minecraft 每执行一次 tick() 时的游戏执行顺序：  1.2 GameTickGameTick（gt），也就是游戏刻，或者说游戏里的时间量，是用来衡量电路延迟、生物生存周期等的重要指标。要想明确 GameTick 是什么，就先得给出 GameTick 的定义 作为一个离散的时间量，">
+  <meta name="description" content="1 游戏流程1.1 代码层面上的 GameTime 内游戏运算顺序下图这张树状剖析图，代表了代码层面上，Minecraft 每执行一次 tick() 时的游戏执行顺序：">
 <meta property="og:type" content="article">
 <meta property="og:title" content="深度剖析Minecraft #1 游戏流程">
 <meta property="og:url" content="https://fallenbreath.me/2019/12/08/deeply-dissecting-minecraft_1/index.html">
 <meta property="og:site_name" content="fallen&#39;s attic">
-<meta property="og:description" content="1 游戏流程1.1 代码层面上的 GameTime 内游戏运算顺序下图这张树状剖析图，代表了代码层面上，Minecraft 每执行一次 tick() 时的游戏执行顺序：  1.2 GameTickGameTick（gt），也就是游戏刻，或者说游戏里的时间量，是用来衡量电路延迟、生物生存周期等的重要指标。要想明确 GameTick 是什么，就先得给出 GameTick 的定义 作为一个离散的时间量，">
+<meta property="og:description" content="1 游戏流程1.1 代码层面上的 GameTime 内游戏运算顺序下图这张树状剖析图，代表了代码层面上，Minecraft 每执行一次 tick() 时的游戏执行顺序：">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://fallenbreath.me/2019/12/08/deeply-dissecting-minecraft_1/process_analysis.png">
 <meta property="og:image" content="https://fallenbreath.me/2019/12/08/deeply-dissecting-minecraft_1/process_analysis_wtu.png">
@@ -405,6 +405,8 @@
     
     <div class="post-body" itemprop="articleBody">
         <h1 id="1-游戏流程"><a href="#1-游戏流程" class="headerlink" title="1 游戏流程"></a>1 游戏流程</h1><h2 id="1-1-代码层面上的-GameTime-内游戏运算顺序"><a href="#1-1-代码层面上的-GameTime-内游戏运算顺序" class="headerlink" title="1.1 代码层面上的 GameTime 内游戏运算顺序"></a>1.1 代码层面上的 GameTime 内游戏运算顺序</h2><p>下图这张树状剖析图，代表了代码层面上，Minecraft 每执行一次 <code>tick()</code> 时的游戏执行顺序：</p>
+<a id="more"></a>
+
 <p><img data-src="/2019/12/08/deeply-dissecting-minecraft_1/process_analysis.png" alt="游戏流程剖析"></p>
 <h2 id="1-2-GameTick"><a href="#1-2-GameTick" class="headerlink" title="1.2 GameTick"></a>1.2 GameTick</h2><p>GameTick（gt），也就是游戏刻，或者说游戏里的时间量，是用来衡量电路延迟、生物生存周期等的重要指标。要想明确 GameTick 是什么，就先得给出 GameTick 的定义</p>
 <p>作为一个离散的时间量，在游戏的运算过程中一定存在某个时刻，GameTick 这个时间量发生改变，这就是 GameTick 的分界线。在 1.1 节，我们从代码执行顺序的角度列出了游戏的运算顺序。在这个长达 24 条的列表里，我将 GameTick 的分界线的划分在：<code>GameTime 与 DayTime 加一</code>，并给出GameTick的定义：</p>
