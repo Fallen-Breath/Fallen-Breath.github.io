@@ -414,7 +414,7 @@
 <a id="more"></a>
 
 <p><img data-src="/2019/12/08/deeply-dissecting-minecraft_1/process_analysis.png" alt="游戏流程剖析"></p>
-<p>如读者感兴趣，<a href="/process_analysis_1.15.2.png">这里</a>是1.15.2版本的流程分析图</p>
+<p>如读者感兴趣，<a 12 2019 href="<a href=" 08 deeply-dissecting-minecraft_1 " title="深度剖析Minecraft #1 游戏流程">深度剖析Minecraft #1 游戏流程</a>/process_analysis_1.15.2.png">这里是1.15.2版本的流程分析图</p>
 <h2 id="1-2-GameTick"><a href="#1-2-GameTick" class="headerlink" title="1.2 GameTick"></a>1.2 GameTick</h2><p>GameTick（gt），也就是游戏刻，或者说游戏里的时间量，是用来衡量电路延迟、生物生存周期等的重要指标。要想明确 GameTick 是什么，就先得给出 GameTick 的定义</p>
 <p>作为一个离散的时间量，在游戏的运算过程中一定存在某个时刻，GameTick 这个时间量发生改变，这就是 GameTick 的分界线。在 1.1 节，我们从代码执行顺序的角度列出了游戏的运算顺序。在这个长达 24 条的列表里，我将 GameTick 的分界线的划分在：<code>GameTime 与 DayTime 加一</code>，并给出GameTick的定义：</p>
 <blockquote>
