@@ -25,16 +25,23 @@
     var CONFIG = {"hostname":"fallenbreath.me","root":"/","scheme":"Gemini","version":"8.0.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":true,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":{"enable":true,"onlypost":true,"loadingImg":"images/loading.svg"},"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":null,"activeClass":"gitalk"},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}};
   </script>
 
-  <meta property="og:type" content="website">
-<meta property="og:title" content="fallen&#39;s attic">
-<meta property="og:url" content="https://fallenbreath.me/archives/2019/12/index.html">
+  <meta name="description" content="让我们从生电巅峰 1.12 开始往后，为那些在历史长河中消逝的技术科技默哀  1.13 无人维度加载 百区块阵列永加载器 世界装饰控制 世界随机数发生器控制 基岩开采术 龙蛋破基岩 无活塞方块消耗破基岩 展示框物品复制 瞬时计划刻&#x2F;重力方块 线程竞争冒险区块替换 重力方块附加值修改  1.14 基于遮光方块的 lc 计算 可控的光照引擎 方块更新通用区块加载 基于村庄的刷铁机 无底地狱门猪人生成">
+<meta property="og:type" content="article">
+<meta property="og:title" content="消逝的科技">
+<meta property="og:url" content="https://fallenbreath.me/2020/11/26/vanished-technologies/index.html">
 <meta property="og:site_name" content="fallen&#39;s attic">
+<meta property="og:description" content="让我们从生电巅峰 1.12 开始往后，为那些在历史长河中消逝的技术科技默哀  1.13 无人维度加载 百区块阵列永加载器 世界装饰控制 世界随机数发生器控制 基岩开采术 龙蛋破基岩 无活塞方块消耗破基岩 展示框物品复制 瞬时计划刻&#x2F;重力方块 线程竞争冒险区块替换 重力方块附加值修改  1.14 基于遮光方块的 lc 计算 可控的光照引擎 方块更新通用区块加载 基于村庄的刷铁机 无底地狱门猪人生成">
 <meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2020-11-26T03:17:09.000Z">
+<meta property="article:modified_time" content="2020-11-26T03:17:09.000Z">
 <meta property="article:author" content="Fallen_Breath">
+<meta property="article:tag" content="Minecraft">
+<meta property="article:tag" content="方块更新">
+<meta property="article:tag" content="反混淆">
 <meta name="twitter:card" content="summary">
 
 
-<link rel="canonical" href="https://fallenbreath.me/archives/2019/12/">
+<link rel="canonical" href="https://fallenbreath.me/2020/11/26/vanished-technologies/">
 
 
 <script class="page-configurations">
@@ -42,12 +49,12 @@
   CONFIG.page = {
     sidebar: "",
     isHome : false,
-    isPost : false,
+    isPost : true,
     lang   : 'zh-CN'
   };
 </script>
 
-  <title>归档 | fallen's attic</title>
+  <title>消逝的科技 | fallen's attic</title>
   
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-178753892-1"></script>
     <script>
@@ -213,7 +220,7 @@
 
   <aside class="sidebar">
 
-    <div class="sidebar-inner sidebar-overview-active">
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
       <ul class="sidebar-nav">
         <li class="sidebar-nav-toc">
           文章目录
@@ -225,6 +232,7 @@
 
       <!--noindex-->
       <section class="post-toc-wrap sidebar-panel">
+          <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#1-13"><span class="nav-text">1.13</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#1-14"><span class="nav-text">1.14</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#1-15"><span class="nav-text">1.15</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#1-16"><span class="nav-text">1.16</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#1-17"><span class="nav-text">1.17</span></a></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-text">?</span></a></li></ol></div>
       </section>
       <!--/noindex-->
 
@@ -309,77 +317,188 @@
 </noscript>
 
 
-    <div class="main-inner archive posts-collapse">
+    <div class="main-inner post posts-expand">
       
 
       
 
+    
   
   
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://fallenbreath.me/2020/11/26/vanished-technologies/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Fallen_Breath">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="fallen's attic">
+    </span>
+
+    
+    
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          消逝的科技
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2020-11-26 11:17:09" itemprop="dateCreated datePublished" datetime="2020-11-26T11:17:09+08:00">2020-11-26</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Minecraft/" itemprop="url" rel="index"><span itemprop="name">Minecraft</span></a>
+        </span>
+    </span>
+
   
-  <div class="post-block">
-    <div class="post-content">
-      <div class="collection-title">
-        <span class="collection-header">嗯..! 目前共计 8 篇日志。 继续努力。</span>
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
       </div>
+      <div class="post-meta">
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>299</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>1 分钟</span>
+    </span>
+</div>
 
-      
-    <div class="collection-year">
-      <span class="collection-header">2019</span>
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <blockquote>
+<p>让我们从生电巅峰 1.12 开始往后，为那些在历史长河中消逝的技术科技默哀</p>
+</blockquote>
+<h1 id="1-13"><a href="#1-13" class="headerlink" title="1.13"></a>1.13</h1><ul>
+<li>无人维度加载</li>
+<li>百区块阵列永加载器</li>
+<li>世界装饰控制</li>
+<li>世界随机数发生器控制</li>
+<li>基岩开采术</li>
+<li>龙蛋破基岩</li>
+<li>无活塞方块消耗破基岩</li>
+<li>展示框物品复制</li>
+<li>瞬时计划刻/重力方块</li>
+<li>线程竞争冒险区块替换</li>
+<li>重力方块附加值修改</li>
+</ul>
+<h1 id="1-14"><a href="#1-14" class="headerlink" title="1.14"></a>1.14</h1><ul>
+<li>基于遮光方块的 lc 计算</li>
+<li>可控的光照引擎</li>
+<li>方块更新通用区块加载</li>
+<li>基于村庄的刷铁机</li>
+<li>无底地狱门猪人生成</li>
+<li>地狱门珍珠超传</li>
+<li>末地区块加载</li>
+</ul>
+<h1 id="1-15"><a href="#1-15" class="headerlink" title="1.15"></a>1.15</h1><ul>
+<li>区块保存抑制</li>
+<li>地狱门缓存</li>
+<li>溺尸/尸壳转换物品复制</li>
+<li>弱加载怪物储存</li>
+</ul>
+<h1 id="1-16"><a href="#1-16" class="headerlink" title="1.16"></a>1.16</h1><ul>
+<li>作物强制催熟</li>
+<li>仅 POI 出口地狱门</li>
+<li>羊驼末地门物品复制</li>
+<li>多头活塞</li>
+<li>钓鱼机</li>
+</ul>
+<h1 id="1-17"><a href="#1-17" class="headerlink" title="1.17"></a>1.17</h1><ul>
+<li>方块实体删除</li>
+</ul>
+<h1 id><a href="#" class="headerlink" title="?"></a>?</h1><ul>
+<li>铁轨 / 地毯 / TNT 复制</li>
+<li>更新抑制</li>
+<li>光照抑制</li>
+<li>计划刻 EMP</li>
+<li>活塞破基岩</li>
+<li>……</li>
+</ul>
+
     </div>
 
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-      <div class="post-meta-container">
-        <time itemprop="dateCreated"
-              datetime="2019-12-08T19:14:39+08:00"
-              content="2019-12-08">
-          12-08
-        </time>
-      </div>
+    
+    
+    
 
-      <div class="post-title">
-          <a class="post-title-link" href="/2019/12/08/deeply-dissecting-minecraft_1/" itemprop="url">
-            <span itemprop="name">深度剖析Minecraft #1 游戏流程</span>
-          </a>
-      </div>
+    <footer class="post-footer">
+          
 
-      
-    </header>
+<div class="post-copyright">
+<ul>
+  <li class="post-copyright-author">
+      <strong>本文作者： </strong>Fallen_Breath
+  </li>
+  <li class="post-copyright-link">
+      <strong>本文链接：</strong>
+      <a href="https://fallenbreath.me/2020/11/26/vanished-technologies/" title="消逝的科技">https://fallenbreath.me/2020/11/26/vanished-technologies/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/Minecraft/" rel="tag"># Minecraft</a>
+              <a href="/tags/%E6%96%B9%E5%9D%97%E6%9B%B4%E6%96%B0/" rel="tag"># 方块更新</a>
+              <a href="/tags/%E5%8F%8D%E6%B7%B7%E6%B7%86/" rel="tag"># 反混淆</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2020/09/17/deeply-dissecting-minecraft_3.4/" rel="prev" title="深度剖析Minecraft #3.4 计划刻元件">
+                  <i class="fa fa-chevron-left"></i> 深度剖析Minecraft #3.4 计划刻元件
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
   </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-      <div class="post-meta-container">
-        <time itemprop="dateCreated"
-              datetime="2019-12-08T19:14:05+08:00"
-              content="2019-12-08">
-          12-08
-        </time>
-      </div>
-
-      <div class="post-title">
-          <a class="post-title-link" href="/2019/12/08/deeply-dissecting-minecraft_0/" itemprop="url">
-            <span itemprop="name">深度剖析Minecraft #0 绪论</span>
-          </a>
-      </div>
-
-      
-    </header>
-  </article>
-
-
-    </div>
-  </div>
   
   
-  
-
   
 
 
 
       
+    <div class="comments" id="gitalk-container"></div>
 
 <script>
   window.addEventListener('tabs:register', () => {
@@ -567,6 +686,25 @@
 
   
 
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1.6.2/dist/gitalk.css">
+
+<script>
+NexT.utils.loadComments('#gitalk-container', () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1.6.2/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : 'cf0173681bce1acd6dec',
+      clientSecret: '12c622fd7d1517f2a7973df89f8189c42dd9bf06',
+      repo        : 'blog-comments',
+      owner       : 'Fallen-Breath',
+      admin       : ['Fallen-Breath'],
+      id          : '5ecbad1e2e1e0c295848c00e44ac26e3',
+        language: 'zh-CN',
+      distractionFreeMode: false
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
 
 </body>
 </html>
