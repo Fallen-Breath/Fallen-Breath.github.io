@@ -349,56 +349,67 @@
       </tags>
   </entry>
   <entry>
-    <title>实体方块的判断——源码中调用isNormalCube()的位置总结</title>
-    <url>/2019/08/10/solidblock-summary-isNormalCube/</url>
+    <title>消逝的科技</title>
+    <url>/2020/11/26/vanished-technologies/</url>
     <content><![CDATA[<blockquote>
-<p>游戏版本：Minecraft Java Edition 1.13.2<br>源码来源：mcp<br>不保证下列调用目的的表述正确性，仅均为个人猜想</p>
+<p>让我们从生电巅峰 1.12 开始往后，为那些在历史长河中消逝的技术科技默哀</p>
 </blockquote>
-<hr>
-<h1 id="isNormalCube"><a href="#isNormalCube" class="headerlink" title="isNormalCube"></a>isNormalCube</h1><p>实体方块，实心方块，整砖，普通方块，具体指什么？</p>
-<p>在我看来，绝大部分时间里，当我们提及“实体方块”一词的时候，指的都是能压线压箱发矿车的那一类实心完整方块。在源码中，这些，都是通过一个叫做isNormalCube()的函数进行判定的</p>
 <a id="more"></a>
 
-<p><img data-src="/2019/08/10/solidblock-summary-isNormalCube/base.png" alt="net/minecraft/block/Block.java:293"></p>
-<blockquote>
-<p>我猜这个是<strong>实体方块</strong></p>
-</blockquote>
-<p>这个函数里的三个判据我先不细究，先来看看源码中所有调用isNormalCube()的位置，来看看这个实体方块判断，会用在什么地方</p>
-<h2 id="箱子压箱判定"><a href="#箱子压箱判定" class="headerlink" title="箱子压箱判定"></a>箱子压箱判定</h2><p><img data-src="/2019/08/10/solidblock-summary-isNormalCube/check.png" alt="net/minecraft/block/BlockChest.java:335"></p>
-<p>箱子上面有实体方块时无法打开</p>
-<h2 id="末影箱压箱判定"><a href="#末影箱压箱判定" class="headerlink" title="末影箱压箱判定"></a>末影箱压箱判定</h2><p><img data-src="/2019/08/10/solidblock-summary-isNormalCube/echest.png" alt="net/minecraft/block/BlockEnderChest.java:97"></p>
-<p>末影箱上面有实体方块时无法打开</p>
-<h2 id="比较器隔方块检测容器的判定"><a href="#比较器隔方块检测容器的判定" class="headerlink" title="比较器隔方块检测容器的判定"></a>比较器隔方块检测容器的判定</h2><p><img data-src="/2019/08/10/solidblock-summary-isNormalCube/comparator.png" alt="net/minecraft/block/BlockRedstoneComparator.java:85"></p>
-<h2 id="红石粉的各种判定"><a href="#红石粉的各种判定" class="headerlink" title="红石粉的各种判定"></a>红石粉的各种判定</h2><h3 id="压线判定"><a href="#压线判定" class="headerlink" title="压线判定"></a>压线判定</h3><p><img data-src="/2019/08/10/solidblock-summary-isNormalCube/dust_cut.png" alt="net/minecraft/block/BlockRedstoneWire.java:150"></p>
-<h3 id="红石粉更新"><a href="#红石粉更新" class="headerlink" title="红石粉更新"></a>红石粉更新</h3><p>看看是沿实体方块的表面上传还是下传</p>
-<h4 id="红石粉信号更新"><a href="#红石粉信号更新" class="headerlink" title="红石粉信号更新"></a>红石粉信号更新</h4><p><img data-src="/2019/08/10/solidblock-summary-isNormalCube/dust_update.png" alt="net/minecraft/block/BlockRedstoneWire.java:222"></p>
-<h4 id="方块增加时"><a href="#方块增加时" class="headerlink" title="方块增加时"></a>方块增加时</h4><p><img data-src="/2019/08/10/solidblock-summary-isNormalCube/duts_blockadd.png" alt="net/minecraft/block/BlockRedstoneWire.java:305"></p>
-<h4 id="方块替换时"><a href="#方块替换时" class="headerlink" title="方块替换时"></a>方块替换时</h4><p><img data-src="/2019/08/10/solidblock-summary-isNormalCube/dust_blockreplace.png" alt="net/minecraft/block/BlockRedstoneWire.java:341"></p>
-<h3 id="判断信号源"><a href="#判断信号源" class="headerlink" title="判断信号源"></a>判断信号源</h3><p><img data-src="/2019/08/10/solidblock-summary-isNormalCube/dust_signalsource.png" alt="net/minecraft/block/BlockRedstoneWire.java:438"></p>
-<h2 id="地狱门方块刷新僵尸猪人"><a href="#地狱门方块刷新僵尸猪人" class="headerlink" title="地狱门方块刷新僵尸猪人"></a>地狱门方块刷新僵尸猪人</h2><p><img data-src="/2019/08/10/solidblock-summary-isNormalCube/portal_pigman.png" alt="net/minecraft/block/BlockPortal.java:70"></p>
-<p>只在实体方块上面刷猪人</p>
-<h2 id="获得红石信号强度时判断强弱充能"><a href="#获得红石信号强度时判断强弱充能" class="headerlink" title="获得红石信号强度时判断强弱充能"></a>获得红石信号强度时判断强弱充能</h2><p><img data-src="/2019/08/10/solidblock-summary-isNormalCube/powered.png" alt="net/minecraft/world/World.java:2548"></p>
-<h2 id="判断更新隔实体方块检测容器的比较器输出"><a href="#判断更新隔实体方块检测容器的比较器输出" class="headerlink" title="判断更新隔实体方块检测容器的比较器输出"></a>判断更新隔实体方块检测容器的比较器输出</h2><p><img data-src="/2019/08/10/solidblock-summary-isNormalCube/blockupdate_comparator.png" alt="net/minecraft/world/World.java:3071"></p>
-<h2 id="刷怪循环"><a href="#刷怪循环" class="headerlink" title="刷怪循环"></a>刷怪循环</h2><h3 id="集群刷怪的开始判定"><a href="#集群刷怪的开始判定" class="headerlink" title="集群刷怪的开始判定"></a>集群刷怪的开始判定</h3><p><img data-src="/2019/08/10/solidblock-summary-isNormalCube/spawn_wander.png" alt="net/minecraft/world/WorldEntitySpawner.java:107"></p>
-<p>实体方块会在集群刷怪的开始打断集群刷怪</p>
-<h3 id="水生生物的刷新判定"><a href="#水生生物的刷新判定" class="headerlink" title="水生生物的刷新判定"></a>水生生物的刷新判定</h3><p><img data-src="/2019/08/10/solidblock-summary-isNormalCube/spawn_watercreature.png" alt="net/minecraft/world/WorldEntitySpawner.java"></p>
-<p>水生生物刷新方块的上方不能是实体方块</p>
-<h2 id="挤出卡入实体方块中的玩家"><a href="#挤出卡入实体方块中的玩家" class="headerlink" title="挤出卡入实体方块中的玩家"></a>挤出卡入实体方块中的玩家</h2><p><img data-src="/2019/08/10/solidblock-summary-isNormalCube/player_squeezedout1.png" alt="net/minecraft/client/entity/EntityPlayerSP.java:474"></p>
-<p><img data-src="/2019/08/10/solidblock-summary-isNormalCube/player_squeezedout2.png" alt="net/minecraft/client/entity/EntityPlayerSP.java:534"></p>
-<p><img data-src="/2019/08/10/solidblock-summary-isNormalCube/player_squeezedout3.png" alt="net/minecraft/entity/player/EntityPlayer.java:1826"></p>
-<h3 id="玩家类中所使用的isNormalCube"><a href="#玩家类中所使用的isNormalCube" class="headerlink" title="玩家类中所使用的isNormalCube()"></a>玩家类中所使用的isNormalCube()</h3><p>其实也只是一层套娃</p>
-<p><img data-src="/2019/08/10/solidblock-summary-isNormalCube/player_isNormalCube.png" alt="net/minecraft/entity/player/EntityPlayer.java:1830"></p>
-<h2 id="矿车在激活的充能铁轨上贴实体方块时的启动"><a href="#矿车在激活的充能铁轨上贴实体方块时的启动" class="headerlink" title="矿车在激活的充能铁轨上贴实体方块时的启动"></a>矿车在激活的充能铁轨上贴实体方块时的启动</h2><p><img data-src="/2019/08/10/solidblock-summary-isNormalCube/minecart.png" alt="net/minecraft/entity/item/EntityMinecart.java:615"></p>
-<h2 id="蝙蝠倒挂睡觉"><a href="#蝙蝠倒挂睡觉" class="headerlink" title="蝙蝠倒挂睡觉"></a>蝙蝠倒挂睡觉</h2><p><img data-src="/2019/08/10/solidblock-summary-isNormalCube/bat.png" alt="net/minecraft/entity/passive/EntityBat.java:132"></p>
-<p><img data-src="/2019/08/10/solidblock-summary-isNormalCube/bat_startsleeping.png" alt="net/minecraft/entity/passive/EntityBat.java:174"></p>
-<p>得倒挂在实体方块下才可能睡觉</p>
-<hr>
-<h1 id="相关链接"><a href="#相关链接" class="headerlink" title="相关链接"></a>相关链接</h1><ul>
-<li><a href="https://docs.qq.com/sheet/BiUuo00cSH4d0U8TuR2ylQcD4PFkzU4eQPYL4IQmKC2Cjyb92AKgYJ2XrE0e12ppbu32HUty2?coord=E3A0A0&tab=BB08J2">禄存的方块属性一览</a> (<a href="https://h.bilibili.com/31502237">https://h.bilibili.com/31502237</a>)</li>
+<h1 id="1-13"><a href="#1-13" class="headerlink" title="1.13"></a>1.13</h1><ul>
+<li>无人维度加载</li>
+<li>百区块阵列永加载器</li>
+<li>世界装饰控制</li>
+<li>世界随机数发生器控制</li>
+<li>基岩开采术</li>
+<li>龙蛋破基岩</li>
+<li>无活塞方块消耗破基岩</li>
+<li>展示框物品复制</li>
+<li>瞬时计划刻/重力方块</li>
+<li>线程竞争冒险区块替换</li>
+<li>重力方块附加值修改</li>
+</ul>
+<h1 id="1-14"><a href="#1-14" class="headerlink" title="1.14"></a>1.14</h1><ul>
+<li>基于遮光方块的 lc 计算</li>
+<li>可控的光照引擎</li>
+<li>方块更新通用区块加载</li>
+<li>基于村庄的刷铁机</li>
+<li>无底地狱门猪人生成</li>
+<li>地狱门珍珠超传</li>
+<li>末地区块加载</li>
+</ul>
+<h1 id="1-15"><a href="#1-15" class="headerlink" title="1.15"></a>1.15</h1><ul>
+<li>区块保存抑制</li>
+<li>地狱门缓存</li>
+<li>溺尸/尸壳转换物品复制</li>
+<li>弱加载怪物储存</li>
+</ul>
+<h1 id="1-16"><a href="#1-16" class="headerlink" title="1.16"></a>1.16</h1><ul>
+<li>作物强制催熟</li>
+<li>仅 POI 出口地狱门</li>
+<li>羊驼末地门物品复制</li>
+<li>多头活塞</li>
+<li>钓鱼机</li>
+</ul>
+<h1 id="1-17"><a href="#1-17" class="headerlink" title="1.17"></a>1.17</h1><ul>
+<li>方块实体删除</li>
+</ul>
+<h1 id><a href="#" class="headerlink" title="?"></a>?</h1><ul>
+<li>铁轨 / 地毯 / TNT 复制</li>
+<li>更新抑制</li>
+<li>光照抑制</li>
+<li>计划刻 EMP</li>
+<li>活塞破基岩</li>
+<li>……</li>
 </ul>
 ]]></content>
+      <categories>
+        <category>Minecraft</category>
+      </categories>
       <tags>
         <tag>Minecraft</tag>
+        <tag>方块更新</tag>
+        <tag>反混淆</tag>
       </tags>
   </entry>
   <entry>
@@ -464,67 +475,56 @@
       </tags>
   </entry>
   <entry>
-    <title>消逝的科技</title>
-    <url>/2020/11/26/vanished-technologies/</url>
+    <title>实体方块的判断——源码中调用isNormalCube()的位置总结</title>
+    <url>/2019/08/10/solidblock-summary-isNormalCube/</url>
     <content><![CDATA[<blockquote>
-<p>让我们从生电巅峰 1.12 开始往后，为那些在历史长河中消逝的技术科技默哀</p>
+<p>游戏版本：Minecraft Java Edition 1.13.2<br>源码来源：mcp<br>不保证下列调用目的的表述正确性，仅均为个人猜想</p>
 </blockquote>
+<hr>
+<h1 id="isNormalCube"><a href="#isNormalCube" class="headerlink" title="isNormalCube"></a>isNormalCube</h1><p>实体方块，实心方块，整砖，普通方块，具体指什么？</p>
+<p>在我看来，绝大部分时间里，当我们提及“实体方块”一词的时候，指的都是能压线压箱发矿车的那一类实心完整方块。在源码中，这些，都是通过一个叫做isNormalCube()的函数进行判定的</p>
 <a id="more"></a>
 
-<h1 id="1-13"><a href="#1-13" class="headerlink" title="1.13"></a>1.13</h1><ul>
-<li>无人维度加载</li>
-<li>百区块阵列永加载器</li>
-<li>世界装饰控制</li>
-<li>世界随机数发生器控制</li>
-<li>基岩开采术</li>
-<li>龙蛋破基岩</li>
-<li>无活塞方块消耗破基岩</li>
-<li>展示框物品复制</li>
-<li>瞬时计划刻/重力方块</li>
-<li>线程竞争冒险区块替换</li>
-<li>重力方块附加值修改</li>
-</ul>
-<h1 id="1-14"><a href="#1-14" class="headerlink" title="1.14"></a>1.14</h1><ul>
-<li>基于遮光方块的 lc 计算</li>
-<li>可控的光照引擎</li>
-<li>方块更新通用区块加载</li>
-<li>基于村庄的刷铁机</li>
-<li>无底地狱门猪人生成</li>
-<li>地狱门珍珠超传</li>
-<li>末地区块加载</li>
-</ul>
-<h1 id="1-15"><a href="#1-15" class="headerlink" title="1.15"></a>1.15</h1><ul>
-<li>区块保存抑制</li>
-<li>地狱门缓存</li>
-<li>溺尸/尸壳转换物品复制</li>
-<li>弱加载怪物储存</li>
-</ul>
-<h1 id="1-16"><a href="#1-16" class="headerlink" title="1.16"></a>1.16</h1><ul>
-<li>作物强制催熟</li>
-<li>仅 POI 出口地狱门</li>
-<li>羊驼末地门物品复制</li>
-<li>多头活塞</li>
-<li>钓鱼机</li>
-</ul>
-<h1 id="1-17"><a href="#1-17" class="headerlink" title="1.17"></a>1.17</h1><ul>
-<li>方块实体删除</li>
-</ul>
-<h1 id><a href="#" class="headerlink" title="?"></a>?</h1><ul>
-<li>铁轨 / 地毯 / TNT 复制</li>
-<li>更新抑制</li>
-<li>光照抑制</li>
-<li>计划刻 EMP</li>
-<li>活塞破基岩</li>
-<li>……</li>
+<p><img data-src="/2019/08/10/solidblock-summary-isNormalCube/base.png" alt="net/minecraft/block/Block.java:293"></p>
+<blockquote>
+<p>我猜这个是<strong>实体方块</strong></p>
+</blockquote>
+<p>这个函数里的三个判据我先不细究，先来看看源码中所有调用isNormalCube()的位置，来看看这个实体方块判断，会用在什么地方</p>
+<h2 id="箱子压箱判定"><a href="#箱子压箱判定" class="headerlink" title="箱子压箱判定"></a>箱子压箱判定</h2><p><img data-src="/2019/08/10/solidblock-summary-isNormalCube/check.png" alt="net/minecraft/block/BlockChest.java:335"></p>
+<p>箱子上面有实体方块时无法打开</p>
+<h2 id="末影箱压箱判定"><a href="#末影箱压箱判定" class="headerlink" title="末影箱压箱判定"></a>末影箱压箱判定</h2><p><img data-src="/2019/08/10/solidblock-summary-isNormalCube/echest.png" alt="net/minecraft/block/BlockEnderChest.java:97"></p>
+<p>末影箱上面有实体方块时无法打开</p>
+<h2 id="比较器隔方块检测容器的判定"><a href="#比较器隔方块检测容器的判定" class="headerlink" title="比较器隔方块检测容器的判定"></a>比较器隔方块检测容器的判定</h2><p><img data-src="/2019/08/10/solidblock-summary-isNormalCube/comparator.png" alt="net/minecraft/block/BlockRedstoneComparator.java:85"></p>
+<h2 id="红石粉的各种判定"><a href="#红石粉的各种判定" class="headerlink" title="红石粉的各种判定"></a>红石粉的各种判定</h2><h3 id="压线判定"><a href="#压线判定" class="headerlink" title="压线判定"></a>压线判定</h3><p><img data-src="/2019/08/10/solidblock-summary-isNormalCube/dust_cut.png" alt="net/minecraft/block/BlockRedstoneWire.java:150"></p>
+<h3 id="红石粉更新"><a href="#红石粉更新" class="headerlink" title="红石粉更新"></a>红石粉更新</h3><p>看看是沿实体方块的表面上传还是下传</p>
+<h4 id="红石粉信号更新"><a href="#红石粉信号更新" class="headerlink" title="红石粉信号更新"></a>红石粉信号更新</h4><p><img data-src="/2019/08/10/solidblock-summary-isNormalCube/dust_update.png" alt="net/minecraft/block/BlockRedstoneWire.java:222"></p>
+<h4 id="方块增加时"><a href="#方块增加时" class="headerlink" title="方块增加时"></a>方块增加时</h4><p><img data-src="/2019/08/10/solidblock-summary-isNormalCube/duts_blockadd.png" alt="net/minecraft/block/BlockRedstoneWire.java:305"></p>
+<h4 id="方块替换时"><a href="#方块替换时" class="headerlink" title="方块替换时"></a>方块替换时</h4><p><img data-src="/2019/08/10/solidblock-summary-isNormalCube/dust_blockreplace.png" alt="net/minecraft/block/BlockRedstoneWire.java:341"></p>
+<h3 id="判断信号源"><a href="#判断信号源" class="headerlink" title="判断信号源"></a>判断信号源</h3><p><img data-src="/2019/08/10/solidblock-summary-isNormalCube/dust_signalsource.png" alt="net/minecraft/block/BlockRedstoneWire.java:438"></p>
+<h2 id="地狱门方块刷新僵尸猪人"><a href="#地狱门方块刷新僵尸猪人" class="headerlink" title="地狱门方块刷新僵尸猪人"></a>地狱门方块刷新僵尸猪人</h2><p><img data-src="/2019/08/10/solidblock-summary-isNormalCube/portal_pigman.png" alt="net/minecraft/block/BlockPortal.java:70"></p>
+<p>只在实体方块上面刷猪人</p>
+<h2 id="获得红石信号强度时判断强弱充能"><a href="#获得红石信号强度时判断强弱充能" class="headerlink" title="获得红石信号强度时判断强弱充能"></a>获得红石信号强度时判断强弱充能</h2><p><img data-src="/2019/08/10/solidblock-summary-isNormalCube/powered.png" alt="net/minecraft/world/World.java:2548"></p>
+<h2 id="判断更新隔实体方块检测容器的比较器输出"><a href="#判断更新隔实体方块检测容器的比较器输出" class="headerlink" title="判断更新隔实体方块检测容器的比较器输出"></a>判断更新隔实体方块检测容器的比较器输出</h2><p><img data-src="/2019/08/10/solidblock-summary-isNormalCube/blockupdate_comparator.png" alt="net/minecraft/world/World.java:3071"></p>
+<h2 id="刷怪循环"><a href="#刷怪循环" class="headerlink" title="刷怪循环"></a>刷怪循环</h2><h3 id="集群刷怪的开始判定"><a href="#集群刷怪的开始判定" class="headerlink" title="集群刷怪的开始判定"></a>集群刷怪的开始判定</h3><p><img data-src="/2019/08/10/solidblock-summary-isNormalCube/spawn_wander.png" alt="net/minecraft/world/WorldEntitySpawner.java:107"></p>
+<p>实体方块会在集群刷怪的开始打断集群刷怪</p>
+<h3 id="水生生物的刷新判定"><a href="#水生生物的刷新判定" class="headerlink" title="水生生物的刷新判定"></a>水生生物的刷新判定</h3><p><img data-src="/2019/08/10/solidblock-summary-isNormalCube/spawn_watercreature.png" alt="net/minecraft/world/WorldEntitySpawner.java"></p>
+<p>水生生物刷新方块的上方不能是实体方块</p>
+<h2 id="挤出卡入实体方块中的玩家"><a href="#挤出卡入实体方块中的玩家" class="headerlink" title="挤出卡入实体方块中的玩家"></a>挤出卡入实体方块中的玩家</h2><p><img data-src="/2019/08/10/solidblock-summary-isNormalCube/player_squeezedout1.png" alt="net/minecraft/client/entity/EntityPlayerSP.java:474"></p>
+<p><img data-src="/2019/08/10/solidblock-summary-isNormalCube/player_squeezedout2.png" alt="net/minecraft/client/entity/EntityPlayerSP.java:534"></p>
+<p><img data-src="/2019/08/10/solidblock-summary-isNormalCube/player_squeezedout3.png" alt="net/minecraft/entity/player/EntityPlayer.java:1826"></p>
+<h3 id="玩家类中所使用的isNormalCube"><a href="#玩家类中所使用的isNormalCube" class="headerlink" title="玩家类中所使用的isNormalCube()"></a>玩家类中所使用的isNormalCube()</h3><p>其实也只是一层套娃</p>
+<p><img data-src="/2019/08/10/solidblock-summary-isNormalCube/player_isNormalCube.png" alt="net/minecraft/entity/player/EntityPlayer.java:1830"></p>
+<h2 id="矿车在激活的充能铁轨上贴实体方块时的启动"><a href="#矿车在激活的充能铁轨上贴实体方块时的启动" class="headerlink" title="矿车在激活的充能铁轨上贴实体方块时的启动"></a>矿车在激活的充能铁轨上贴实体方块时的启动</h2><p><img data-src="/2019/08/10/solidblock-summary-isNormalCube/minecart.png" alt="net/minecraft/entity/item/EntityMinecart.java:615"></p>
+<h2 id="蝙蝠倒挂睡觉"><a href="#蝙蝠倒挂睡觉" class="headerlink" title="蝙蝠倒挂睡觉"></a>蝙蝠倒挂睡觉</h2><p><img data-src="/2019/08/10/solidblock-summary-isNormalCube/bat.png" alt="net/minecraft/entity/passive/EntityBat.java:132"></p>
+<p><img data-src="/2019/08/10/solidblock-summary-isNormalCube/bat_startsleeping.png" alt="net/minecraft/entity/passive/EntityBat.java:174"></p>
+<p>得倒挂在实体方块下才可能睡觉</p>
+<hr>
+<h1 id="相关链接"><a href="#相关链接" class="headerlink" title="相关链接"></a>相关链接</h1><ul>
+<li><a href="https://docs.qq.com/sheet/BiUuo00cSH4d0U8TuR2ylQcD4PFkzU4eQPYL4IQmKC2Cjyb92AKgYJ2XrE0e12ppbu32HUty2?coord=E3A0A0&tab=BB08J2">禄存的方块属性一览</a> (<a href="https://h.bilibili.com/31502237">https://h.bilibili.com/31502237</a>)</li>
 </ul>
 ]]></content>
-      <categories>
-        <category>Minecraft</category>
-      </categories>
       <tags>
         <tag>Minecraft</tag>
-        <tag>方块更新</tag>
-        <tag>反混淆</tag>
       </tags>
   </entry>
   <entry>
