@@ -616,7 +616,7 @@
 </blockquote>
 <p>在分析计划刻阶段的流程时，细心的读者可能已经注意到了，每游戏刻可执行的计划刻事件数量有个 65536 的上限，超过上限的事件将会延迟到下一游戏刻尝试执行，这一点似乎是可以加以利用的</p>
 <p>如果我们认为的在某一游戏刻中添加了巨量的延迟相同的计划刻事件，使其数量超过了 65536，则可在游戏中制造一些正常情况下不可能发生的事情：某些计划刻事件被延后执行了。这可以用于无线红石信号传输、无限遥控飞行器，也可以用恶意破坏红石电路。该机制的作用范围是整个维度</p>
-<p>下面以该机制发现者 Xcom600 的《<a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV16t411s7qi">原版生存无线红石</a>》为例，分析下其时序</p>
+<p>下面以该机制发现者 Xcom6000 的《<a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV16t411s7qi">原版生存无线红石</a>》为例，分析下其时序</p>
 <p><img data-src="/2020/09/16/deeply-dissecting-minecraft_3/emp-tower.png" alt="emp-tower"></p>
 <p><img data-src="/2020/09/16/deeply-dissecting-minecraft_3/emp-detector.png" alt="emp-detector"></p>
 <table>
